@@ -1,96 +1,201 @@
-/* Página principal do login */
+/* ========================================
+   PÁGINA PRINCIPAL DO LOGIN
+======================================== */
+
 .login-page {
   min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   background: #f4f7f9;
+
   padding: 24px;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Card do formulário */
+
+/* ========================================
+   CARD DO FORMULÁRIO
+======================================== */
+
 .login-card {
   width: 100%;
   max-width: 420px;
+
   background: #ffffff;
+
   padding: 40px;
+
   border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+  box-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.08);
+
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* Cabeçalho do login */
+
+/* ========================================
+   CABEÇALHO DO LOGIN
+======================================== */
+
 .login-header {
   text-align: center;
+
   margin-bottom: 30px;
 }
 
 .login-header h1 {
   margin: 0 0 8px;
+
   font-size: 28px;
+
   color: #1f2937;
+
+  transition: color 0.2s ease;
 }
 
 .login-header p {
   margin: 0;
+
   color: #6b7280;
+
   font-size: 14px;
   line-height: 1.5;
+
+  transition: color 0.2s ease;
 }
 
-/* Formulário */
+
+/* ========================================
+   FORMULÁRIO
+======================================== */
+
 .login-form {
   display: flex;
   flex-direction: column;
+
   gap: 20px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
+
+
+/* ========================================
+   LABELS
+======================================== */
 
 .form-group label {
   font-size: 14px;
   font-weight: 600;
+
   color: #374151;
+
+  transition: color 0.2s ease;
 }
+
+
+/* ========================================
+   INPUTS
+======================================== */
 
 .form-group input {
   width: 100%;
+
+  box-sizing: border-box;
+
   padding: 12px 14px;
+
   border: 1px solid #d1d5db;
   border-radius: 8px;
+
+  background: #ffffff;
+  color: #111827;
+
   font-size: 15px;
+
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
+
+
+/* Placeholder */
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+
+/* Input em foco */
 
 .form-group input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(37, 99, 235, 0.12);
 }
 
-/* Mensagem de retorno */
+
+/* ========================================
+   MENSAGEM DE RETORNO
+======================================== */
+
 .login-message {
   margin: 0;
+
   text-align: center;
+
   font-size: 14px;
+
   color: #374151;
+
+  transition: color 0.2s ease;
 }
 
-/* Botão de acesso */
+
+/* ========================================
+   BOTÃO DE ACESSO
+======================================== */
+
 .login-button {
   width: 100%;
+
   border: none;
   border-radius: 8px;
+
   padding: 13px;
+
   background: #2563eb;
+
   color: #ffffff;
+
   font-size: 15px;
   font-weight: 600;
+
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .login-button:hover {
@@ -103,17 +208,125 @@
 
 .login-button:disabled {
   opacity: 0.7;
+
   cursor: not-allowed;
 }
 
-/* Ajustes para tablets */
+
+/* ========================================
+   MODO ESCURO
+======================================== */
+
+
+/* Fundo da página */
+
+body.modo-escuro .login-page {
+  background: #0f172a;
+
+  color: #f8fafc;
+}
+
+
+/* ========================================
+   CARD - MODO ESCURO
+======================================== */
+
+body.modo-escuro .login-card {
+  background: #1e293b;
+
+  box-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* ========================================
+   CABEÇALHO - MODO ESCURO
+======================================== */
+
+body.modo-escuro .login-header h1 {
+  color: #f8fafc;
+}
+
+body.modo-escuro .login-header p {
+  color: #94a3b8;
+}
+
+
+/* ========================================
+   LABELS - MODO ESCURO
+======================================== */
+
+body.modo-escuro .form-group label {
+  color: #e2e8f0;
+}
+
+
+/* ========================================
+   INPUTS - MODO ESCURO
+======================================== */
+
+body.modo-escuro .form-group input {
+  background: #0f172a;
+
+  border-color: #475569;
+
+  color: #f8fafc;
+}
+
+body.modo-escuro .form-group input::placeholder {
+  color: #64748b;
+}
+
+
+/* Foco no input */
+
+body.modo-escuro .form-group input:focus {
+  border-color: #3b82f6;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(59, 130, 246, 0.15);
+}
+
+
+/* ========================================
+   MENSAGEM - MODO ESCURO
+======================================== */
+
+body.modo-escuro .login-message {
+  color: #cbd5e1;
+}
+
+
+/* ========================================
+   BOTÃO - MODO ESCURO
+======================================== */
+
+body.modo-escuro .login-button {
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+body.modo-escuro .login-button:hover {
+  background: #3b82f6;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE - TABLETS
+======================================== */
+
 @media (max-width: 768px) {
+
   .login-page {
     padding: 20px;
   }
 
   .login-card {
     max-width: 380px;
+
     padding: 32px;
   }
 
@@ -122,17 +335,25 @@
   }
 }
 
-/* Ajustes para celulares */
+
+/* ========================================
+   RESPONSIVIDADE - CELULARES
+======================================== */
+
 @media (max-width: 480px) {
-    .login-page {
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
+
+  .login-page {
+    align-items: center;
+    justify-content: center;
+
+    padding: 16px;
+  }
 
   .login-card {
     max-width: 100%;
+
     padding: 28px 20px;
+
     border-radius: 12px;
   }
 
@@ -154,11 +375,13 @@
 
   .form-group input {
     padding: 13px;
+
     font-size: 16px;
   }
 
   .login-button {
     padding: 14px;
+
     font-size: 16px;
   }
 }

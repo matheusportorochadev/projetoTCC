@@ -33,9 +33,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'99a0c0d02327e1a45717c74cb3959933a13575cc607803ed63ebc8430a017069'>;
+  StorageHashBase<'27ba886db71f5246f1af07c8728e577cdf2537303975da80b65c76d3c73cc92a'>;
 export type ExecutionHash =
-  ExecutionHashBase<'9d81c93591673b0d12524d87fe00b796577c7b57a2b5823bfff9599765755a00'>;
+  ExecutionHashBase<'38e7ae74823ff4ad015c53a840d36eccee629f58d7b23a62da2ec5c9f1763063'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -241,17 +241,6 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 
 export type FieldOutputTypes = {
   readonly public: {
-    readonly Agendamento: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly medicoId: CodecTypes['pg/int4@1']['output'];
-      readonly pacienteId: CodecTypes['pg/int4@1']['output'];
-      readonly data: CodecTypes['pg/date-string@1']['output'];
-      readonly horaInicio: CodecTypes['pg/text@1']['output'];
-      readonly horaFim: CodecTypes['pg/text@1']['output'];
-      readonly status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA' | 'CANCELADA' | 'FALTOU';
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly CodigoRedefinicaoSenha: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'];
@@ -300,17 +289,6 @@ export type FieldOutputTypes = {
 };
 export type FieldInputTypes = {
   readonly public: {
-    readonly Agendamento: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly medicoId: CodecTypes['pg/int4@1']['input'];
-      readonly pacienteId: CodecTypes['pg/int4@1']['input'];
-      readonly data: CodecTypes['pg/date-string@1']['input'];
-      readonly horaInicio: CodecTypes['pg/text@1']['input'];
-      readonly horaFim: CodecTypes['pg/text@1']['input'];
-      readonly status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA' | 'CANCELADA' | 'FALTOU';
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
     readonly CodigoRedefinicaoSenha: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'];
@@ -359,17 +337,6 @@ export type FieldInputTypes = {
 };
 export type StorageColumnTypes = {
   readonly public: {
-    readonly agendamento: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly data: CodecTypes['pg/date-string@1']['output'];
-      readonly horaFim: CodecTypes['pg/text@1']['output'];
-      readonly horaInicio: CodecTypes['pg/text@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly medicoId: CodecTypes['pg/int4@1']['output'];
-      readonly pacienteId: CodecTypes['pg/int4@1']['output'];
-      readonly status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA' | 'CANCELADA' | 'FALTOU';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly codigoRedefinicaoSenha: {
       readonly codigo: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -418,17 +385,6 @@ export type StorageColumnTypes = {
 };
 export type StorageColumnInputTypes = {
   readonly public: {
-    readonly agendamento: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly data: CodecTypes['pg/date-string@1']['input'];
-      readonly horaFim: CodecTypes['pg/text@1']['input'];
-      readonly horaInicio: CodecTypes['pg/text@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly medicoId: CodecTypes['pg/int4@1']['input'];
-      readonly pacienteId: CodecTypes['pg/int4@1']['input'];
-      readonly status: 'AGENDADA' | 'CONFIRMADA' | 'REALIZADA' | 'CANCELADA' | 'FALTOU';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
     readonly codigoRedefinicaoSenha: {
       readonly codigo: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -493,124 +449,6 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
-            readonly agendamento: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly medicoId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly pacienteId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly data: {
-                  readonly nativeType: 'date';
-                  readonly codecId: 'pg/date-string@1';
-                  readonly nullable: false;
-                };
-                readonly horaInicio: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly horaFim: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly status: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'AGENDADA'>;
-                  };
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly updatedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'agendamento_medicoId_data_idx_20edd9d1';
-                  readonly prefix: 'agendamento_medicoId_data_idx';
-                  readonly columns: readonly ['medicoId', 'data'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'agendamento_pacienteId_data_idx_4b9c5eee';
-                  readonly prefix: 'agendamento_pacienteId_data_idx';
-                  readonly columns: readonly ['pacienteId', 'data'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'agendamento_medicoId_data_horaInicio_idx_1b9f7301';
-                  readonly prefix: 'agendamento_medicoId_data_horaInicio_idx';
-                  readonly columns: readonly ['medicoId', 'data', 'horaInicio'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'agendamento_medicoId_idx_cef7d96a';
-                  readonly prefix: 'agendamento_medicoId_idx';
-                  readonly columns: readonly ['medicoId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'agendamento_pacienteId_idx_8734dc3f';
-                  readonly prefix: 'agendamento_pacienteId_idx';
-                  readonly columns: readonly ['pacienteId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'agendamento';
-                    readonly columns: readonly ['medicoId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'medico';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'agendamento';
-                    readonly columns: readonly ['pacienteId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'paciente';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly codigoRedefinicaoSenha: {
               columns: {
                 readonly id: {
@@ -731,12 +569,6 @@ type ContractBase = Omit<
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
               indexes: readonly [
-                {
-                  readonly name: 'disponibilidadeAgenda_medicoId_data_idx_20edd9d1';
-                  readonly prefix: 'disponibilidadeAgenda_medicoId_data_idx';
-                  readonly columns: readonly ['medicoId', 'data'];
-                  readonly unique: false;
-                },
                 {
                   readonly name: 'disponibilidadeAgenda_medicoId_idx_cef7d96a';
                   readonly prefix: 'disponibilidadeAgenda_medicoId_idx';
@@ -970,16 +802,6 @@ type ContractBase = Omit<
             };
           };
           readonly valueSet: {
-            readonly StatusAgendamento: {
-              readonly kind: 'valueSet';
-              readonly values: readonly [
-                'AGENDADA',
-                'CONFIRMADA',
-                'REALIZADA',
-                'CANCELADA',
-                'FALTOU',
-              ];
-            };
             readonly TipoUsuario: {
               readonly kind: 'valueSet';
               readonly values: readonly ['ADMIN', 'MEDICO', 'PACIENTE'];
@@ -1002,10 +824,6 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'DisponibilidadeAgenda';
     };
-    readonly agendamento: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'Agendamento';
-    };
     readonly codigoRedefinicaoSenha: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'CodigoRedefinicaoSenha';
@@ -1015,91 +833,6 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
-          readonly Agendamento: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly medicoId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly pacienteId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly data: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-string@1' };
-              };
-              readonly horaInicio: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly horaFim: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly medico: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Medico';
-                };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['medicoId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly paciente: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Paciente';
-                };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['pacienteId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'agendamento';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly medicoId: { readonly column: 'medicoId' };
-                readonly pacienteId: { readonly column: 'pacienteId' };
-                readonly data: { readonly column: 'data' };
-                readonly horaInicio: { readonly column: 'horaInicio' };
-                readonly horaFim: { readonly column: 'horaFim' };
-                readonly status: { readonly column: 'status' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
-              };
-            };
-          };
           readonly CodigoRedefinicaoSenha: {
             readonly fields: {
               readonly id: {
@@ -1233,17 +966,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly agendamentos: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Agendamento';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['medicoId'];
-                };
-              };
               readonly disponibilidades: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -1328,17 +1050,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly agendamentos: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Agendamento';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['pacienteId'];
-                };
-              };
               readonly medico: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -1484,16 +1195,6 @@ type ContractBase = Omit<
               { readonly name: 'PACIENTE'; readonly value: 'PACIENTE' },
             ];
           };
-          readonly StatusAgendamento: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'AGENDADA'; readonly value: 'AGENDADA' },
-              { readonly name: 'CONFIRMADA'; readonly value: 'CONFIRMADA' },
-              { readonly name: 'REALIZADA'; readonly value: 'REALIZADA' },
-              { readonly name: 'CANCELADA'; readonly value: 'CANCELADA' },
-              { readonly name: 'FALTOU'; readonly value: 'FALTOU' },
-            ];
-          };
         };
       };
     };
@@ -1521,15 +1222,6 @@ type ContractBase = Omit<
     readonly executionHash: ExecutionHash;
     readonly mutations: {
       readonly defaults: readonly [
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'agendamento';
-            readonly column: 'updatedAt';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-        },
         {
           readonly ref: {
             readonly namespace: 'public';

@@ -1,0 +1,199 @@
+/* ========================================
+   PÁGINA INICIAL DO PACIENTE
+======================================== */
+
+.inicio-paciente {
+  min-height: 100vh;
+
+  padding: 40px;
+
+  background: #f5f7fb;
+}
+
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.inicio-paciente-cabecalho {
+  max-width: 1100px;
+
+  margin: 0 auto 30px;
+
+  padding: 32px;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+.inicio-paciente-tipo {
+  margin: 0 0 8px;
+
+  color: #2563eb;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.inicio-paciente-cabecalho h1 {
+  margin: 0 0 10px;
+
+  color: #111827;
+
+  font-size: 30px;
+}
+
+
+.inicio-paciente-cabecalho > p:last-child {
+  margin: 0;
+
+  color: #6b7280;
+
+  line-height: 1.6;
+}
+
+
+/* ========================================
+   CARDS
+======================================== */
+
+.inicio-paciente-cards {
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+}
+
+
+.inicio-paciente-card {
+  padding: 28px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+.inicio-paciente-icone {
+  margin-bottom: 16px;
+
+  font-size: 32px;
+}
+
+
+.inicio-paciente-card h2 {
+  margin: 0 0 10px;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+
+.inicio-paciente-card p {
+  min-height: 55px;
+
+  margin: 0 0 20px;
+
+  color: #6b7280;
+
+  line-height: 1.6;
+}
+
+
+.inicio-paciente-card button {
+  padding: 10px 18px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #d1d5db;
+
+  color: #6b7280;
+
+  font-weight: 600;
+
+  cursor: not-allowed;
+}
+
+
+/* ========================================
+   MODO ESCURO
+======================================== */
+
+body.modo-escuro .inicio-paciente {
+  background: #111827;
+}
+
+
+body.modo-escuro
+.inicio-paciente-cabecalho,
+
+body.modo-escuro
+.inicio-paciente-card {
+  background: #1f2937;
+
+  border-color: #374151;
+}
+
+
+body.modo-escuro
+.inicio-paciente-cabecalho h1,
+
+body.modo-escuro
+.inicio-paciente-card h2 {
+  color: #f9fafb;
+}
+
+
+body.modo-escuro
+.inicio-paciente-cabecalho > p:last-child,
+
+body.modo-escuro
+.inicio-paciente-card p {
+  color: #d1d5db;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 700px) {
+
+  .inicio-paciente {
+    padding: 20px;
+  }
+
+
+  .inicio-paciente-cards {
+    grid-template-columns: 1fr;
+  }
+
+
+  .inicio-paciente-cabecalho {
+    padding: 24px;
+  }
+
+}

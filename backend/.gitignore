@@ -1,3 +1,17 @@
+# Dependências
 node_modules/
+
+# Build
 dist/
+
+# Variáveis de ambiente
 .env
+.env.*
+!.env.example
+
+# Arquivos locais de teste/manutenção
+consultar-db.ts
+corrigir-senha-paciente.ts
+excluir-paciente-teste.ts
+testar-senha-paciente.ts
+verificar-login-paciente.ts

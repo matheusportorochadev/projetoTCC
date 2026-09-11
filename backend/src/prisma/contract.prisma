@@ -1,11 +1,29 @@
-// Define os tipos de usuário do sistema
+// ========================================
+// ENUMS
+// ========================================
+
+// Perfis de acesso do sistema
 enum TipoUsuario {
   ADMIN
   MEDICO
   PACIENTE
 }
 
-// Usuários que poderão acessar o sistema
+// Status possíveis de um agendamento
+enum StatusAgendamento {
+  AGENDADA
+  CONFIRMADA
+  REALIZADA
+  CANCELADA
+  FALTOU
+}
+
+
+// ========================================
+// USUÁRIO
+// ========================================
+
+// Usuários que podem acessar o sistema
 model Usuario {
   id             Int               @id @default(autoincrement())
   nome           String
@@ -14,48 +32,215 @@ model Usuario {
   tipo           TipoUsuario
   ativo          Boolean           @default(true)
   primeiroAcesso Boolean           @default(true)
+
   createdAt      TimestamptzString @default(now())
   updatedAt      temporal.updatedAtString()
 
+  // Relacionamentos
   medico            Medico?
   paciente           Paciente?
   codigosRedefinicao CodigoRedefinicaoSenha[]
 }
 
+
+// ========================================
+// MÉDICO
+// ========================================
+
 // Dados específicos do médico
 model Medico {
-  id        Int     @id @default(autoincrement())
-  usuarioId Int     @unique
-  crm       String  @unique
+  id        Int    @id @default(autoincrement())
+  usuarioId Int    @unique
+  crm       String @unique
 
-  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  // Usuário relacionado ao médico
+  usuario Usuario @relation(
+    fields: [usuarioId],
+    references: [id]
+  )
+
+  // Pacientes pertencentes ao médico
   pacientes Paciente[]
+
+  // Disponibilidades cadastradas
+  // pelo médico na agenda
+  disponibilidades DisponibilidadeAgenda[]
+
+  // Consultas/agendamentos relacionados
+  // ao médico
+  agendamentos Agendamento[]
 }
 
-// Dados cadastrais do paciente
+
+// ========================================
+// PACIENTE
+// ========================================
+
+// Dados dos pacientes cadastrados
+// pelo médico
 model Paciente {
-  id             Int      @id @default(autoincrement())
+  id             Int     @id @default(autoincrement())
   medicoId       Int
-  usuarioId      Int?     @unique
+  usuarioId      Int?    @unique
+
   nome           String
   email          String?
   telefone       String?
-  cpf            String?  @unique
-  acessoLiberado Boolean  @default(false)
-  ativo          Boolean  @default(true)
+  cpf            String? @unique
 
-  medico         Medico   @relation(fields: [medicoId], references: [id])
-  usuario        Usuario? @relation(fields: [usuarioId], references: [id])
+  // Indica se o médico liberou
+  // o acesso do paciente ao sistema
+  acessoLiberado Boolean @default(false)
+
+  // Exclusão/bloqueio lógico
+  ativo          Boolean @default(true)
+
+  // Médico responsável
+  medico Medico @relation(
+    fields: [medicoId],
+    references: [id]
+  )
+
+  // Usuário utilizado para login
+  usuario Usuario? @relation(
+    fields: [usuarioId],
+    references: [id]
+  )
+
+  // Consultas do paciente
+  agendamentos Agendamento[]
 }
 
-// Códigos temporários para redefinição de senha
+
+// ========================================
+// DISPONIBILIDADE DA AGENDA
+// ========================================
+
+// Representa os períodos que o médico
+// disponibilizou para atendimento.
+//
+// Exemplo:
+//
+// 15/09/2026
+// 08:00 até 12:00
+// duração de consulta: 30 minutos
+model DisponibilidadeAgenda {
+  id              Int        @id @default(autoincrement())
+
+  medicoId        Int
+  data            DateString
+
+  horaInicio      String
+  horaFim         String
+
+  duracaoConsulta Int        @default(30)
+
+  // Permite exclusão lógica sem
+  // remover o histórico do banco
+  ativo           Boolean    @default(true)
+
+  // Médico proprietário
+  medico Medico @relation(
+    fields: [medicoId],
+    references: [id]
+  )
+
+  // Facilita consultas por médico e data
+  @@index([medicoId, data])
+}
+
+
+// ========================================
+// AGENDAMENTO
+// ========================================
+
+// Representa uma consulta reservada
+// por um paciente.
+//
+// IMPORTANTE:
+//
+// O paciente só poderá criar um
+// agendamento usando horários que
+// tenham sido disponibilizados
+// anteriormente pelo médico.
+model Agendamento {
+  id Int @id @default(autoincrement())
+
+  // Médico da consulta
+  medicoId Int
+
+  // Paciente da consulta
+  pacienteId Int
+
+  // Data da consulta
+  data DateString
+
+  // Horário inicial
+  horaInicio String
+
+  // Horário final
+  horaFim String
+
+  // Estado atual da consulta
+  status StatusAgendamento @default(AGENDADA)
+
+  // Controle de criação e atualização
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  // ========================================
+  // RELACIONAMENTOS
+  // ========================================
+
+  medico Medico @relation(
+    fields: [medicoId],
+    references: [id]
+  )
+
+  paciente Paciente @relation(
+    fields: [pacienteId],
+    references: [id]
+  )
+
+  // ========================================
+  // ÍNDICES
+  // ========================================
+
+  // Usado para buscar rapidamente
+  // a agenda diária de um médico
+  @@index([medicoId, data])
+
+  // Usado para buscar consultas
+  // pertencentes a um paciente
+  @@index([pacienteId, data])
+
+  // Ajuda na validação se determinado
+  // horário já está ocupado
+  @@index([medicoId, data, horaInicio])
+}
+
+
+// ========================================
+// REDEFINIÇÃO DE SENHA
+// ========================================
+
+// Códigos temporários utilizados
+// na recuperação de senha
 model CodigoRedefinicaoSenha {
   id        Int               @id @default(autoincrement())
+
   usuarioId Int
+
   codigo    String
+
   expiraEm  TimestamptzString
+
   usado     Boolean           @default(false)
+
   createdAt TimestamptzString @default(now())
 
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuario Usuario @relation(
+    fields: [usuarioId],
+    references: [id]
+  )
 }

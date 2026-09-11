@@ -1,106 +1,520 @@
-/* Estrutura principal */
+/* ========================================
+   ESTRUTURA PRINCIPAL
+======================================== */
+
 .medico-layout {
   min-height: 100vh;
+
   background: #f4f6f8;
+  color: #111827;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Navbar superior */
+
+/* ========================================
+   NAVBAR
+======================================== */
+
 .medico-navbar {
   min-height: 72px;
+
   background: #ffffff;
+
   border-bottom: 1px solid #e2e8f0;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
+
   padding: 0 32px;
+
   gap: 24px;
+
+  position: relative;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+/* ========================================
+   LOGO / NOME DO SISTEMA
+======================================== */
+
+.medico-navbar-brand {
+  flex-shrink: 0;
 }
 
 .medico-navbar-brand h2 {
   margin: 0;
+
   font-size: 22px;
+
   color: #0f172a;
+
+  transition: color 0.2s ease;
 }
 
-/* Navegação */
+
+/* ========================================
+   CONTEÚDO DA NAVBAR
+======================================== */
+
+.medico-navbar-conteudo {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+
+/* ========================================
+   NAVEGAÇÃO
+======================================== */
+
 .medico-navbar-menu {
   display: flex;
   align-items: center;
+
   gap: 8px;
 }
 
+
+/* Links */
+
 .medico-nav-link {
   padding: 10px 14px;
+
   border-radius: 8px;
+
   text-decoration: none;
+
   color: #475569;
+
   font-weight: 500;
-  transition: 0.2s;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
+
+
+/* Hover */
 
 .medico-nav-link:hover {
   background: #f1f5f9;
+
   color: #0f172a;
 }
+
+
+/* Link selecionado */
 
 .medico-nav-link.ativo {
   background: #e2e8f0;
+
   color: #0f172a;
 }
 
-/* Usuário */
+
+/* ========================================
+   USUÁRIO
+======================================== */
+
 .medico-navbar-user {
   display: flex;
   align-items: center;
-  gap: 16px;
+
+  gap: 12px;
 }
 
-.medico-navbar-user span {
+.medico-nome-usuario {
   color: #475569;
+
   font-size: 14px;
 }
 
-/* Botão sair */
+
+/* ========================================
+   BOTÃO DE TEMA
+======================================== */
+
+.medico-navbar .botao-tema {
+  position: static;
+
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  box-shadow: none;
+
+  font-size: 18px;
+}
+
+.medico-navbar .botao-tema:hover {
+  background: #f1f5f9;
+}
+
+
+/* ========================================
+   BOTÃO SAIR
+======================================== */
+
 .medico-btn-sair {
   border: 1px solid #dc2626;
+
   background: #ffffff;
+
   color: #dc2626;
+
   padding: 8px 14px;
+
   border-radius: 8px;
+
   font-weight: 600;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .medico-btn-sair:hover {
   background: #fef2f2;
 }
 
-/* Conteúdo principal */
+
+/* ========================================
+   BOTÃO HAMBÚRGUER
+======================================== */
+
+/*
+  Escondido no computador.
+  Só aparecerá no celular.
+*/
+
+.medico-menu-toggle {
+  display: none;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  padding: 8px;
+}
+
+
+/* Cada linha do ícone ☰ */
+
+.medico-menu-toggle span {
+  display: block;
+
+  width: 24px;
+  height: 3px;
+
+  margin: 4px auto;
+
+  background: #0f172a;
+
+  border-radius: 10px;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+/* ========================================
+   CONTEÚDO PRINCIPAL
+======================================== */
+
 .medico-main {
   padding: 32px;
 }
 
-/* Responsividade */
+
+/* ========================================
+   MODO ESCURO
+======================================== */
+
+body.modo-escuro .medico-layout {
+  background: #0f172a;
+
+  color: #f8fafc;
+}
+
+
+/* Navbar */
+
+body.modo-escuro .medico-navbar {
+  background: #1e293b;
+
+  border-bottom-color: #334155;
+}
+
+
+/* Logo */
+
+body.modo-escuro
+.medico-navbar-brand h2 {
+  color: #f8fafc;
+}
+
+
+/* Links */
+
+body.modo-escuro
+.medico-nav-link {
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.medico-nav-link:hover {
+  background: #334155;
+
+  color: #ffffff;
+}
+
+body.modo-escuro
+.medico-nav-link.ativo {
+  background: #334155;
+
+  color: #ffffff;
+}
+
+
+/* Usuário */
+
+body.modo-escuro
+.medico-nome-usuario {
+  color: #cbd5e1;
+}
+
+
+/* Botão tema */
+
+body.modo-escuro
+.medico-navbar
+.botao-tema {
+  background: #0f172a;
+
+  border-color: #475569;
+
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.medico-navbar
+.botao-tema:hover {
+  background: #334155;
+}
+
+
+/* Botão sair */
+
+body.modo-escuro
+.medico-btn-sair {
+  background: transparent;
+
+  border-color: #ef4444;
+
+  color: #f87171;
+}
+
+body.modo-escuro
+.medico-btn-sair:hover {
+  background: #450a0a;
+
+  color: #fca5a5;
+}
+
+
+/* Hambúrguer */
+
+body.modo-escuro
+.medico-menu-toggle span {
+  background: #f8fafc;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
 @media (max-width: 768px) {
+
+  /* Navbar principal */
+
   .medico-navbar {
-    flex-wrap: wrap;
+    min-height: 64px;
+
+    padding: 0 16px;
+
+    justify-content: space-between;
+  }
+
+
+  /* Logo */
+
+  .medico-navbar-brand h2 {
+    font-size: 20px;
+  }
+
+
+  /* Mostra o botão de três linhas */
+
+  .medico-menu-toggle {
+    display: block;
+
+    margin-left: auto;
+  }
+
+
+  /* ======================================
+     MENU MOBILE FECHADO
+  ====================================== */
+
+  .medico-navbar-conteudo {
+    display: none;
+
+    position: absolute;
+
+    top: 64px;
+    left: 0;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e2e8f0;
+
     padding: 16px;
+
+    z-index: 1000;
+
+    box-shadow:
+      0 8px 20px
+      rgba(0, 0, 0, 0.08);
+  }
+
+
+  /* ======================================
+     MENU MOBILE ABERTO
+  ====================================== */
+
+  .medico-navbar-conteudo.aberto {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
     gap: 16px;
   }
 
-  .medico-navbar-brand {
-    width: 100%;
-  }
+
+  /* ======================================
+     LINKS NO CELULAR
+  ====================================== */
 
   .medico-navbar-menu {
-    order: 3;
     width: 100%;
-    overflow-x: auto;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 6px;
   }
 
-  .medico-navbar-user {
-    margin-left: auto;
+
+  .medico-nav-link {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 14px;
   }
+
+
+  /* ======================================
+     USUÁRIO NO CELULAR
+  ====================================== */
+
+  .medico-navbar-user {
+    width: 100%;
+
+    flex-wrap: wrap;
+
+    border-top: 1px solid #e2e8f0;
+
+    padding-top: 14px;
+  }
+
+
+  .medico-nome-usuario {
+    flex: 1;
+
+    font-weight: 500;
+  }
+
+
+  /* Botão sair */
+
+  .medico-btn-sair {
+    padding: 9px 15px;
+  }
+
+
+  /* ======================================
+     MODO ESCURO DO MENU MOBILE
+  ====================================== */
+
+  body.modo-escuro
+  .medico-navbar-conteudo {
+    background: #1e293b;
+
+    border-bottom-color: #334155;
+
+    box-shadow:
+      0 8px 20px
+      rgba(0, 0, 0, 0.25);
+  }
+
+
+  body.modo-escuro
+  .medico-navbar-user {
+    border-top-color: #334155;
+  }
+
+
+  /* ======================================
+     CONTEÚDO
+  ====================================== */
 
   .medico-main {
     padding: 20px 16px;

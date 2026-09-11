@@ -4,8 +4,16 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "agendamento": {
+      "model": "Agendamento",
+      "namespace": "public"
+    },
     "codigoRedefinicaoSenha": {
       "model": "CodigoRedefinicaoSenha",
+      "namespace": "public"
+    },
+    "disponibilidadeAgenda": {
+      "model": "DisponibilidadeAgenda",
       "namespace": "public"
     },
     "medico": {
@@ -25,6 +33,31 @@
     "namespaces": {
       "public": {
         "enum": {
+          "StatusAgendamento": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "AGENDADA",
+                "value": "AGENDADA"
+              },
+              {
+                "name": "CONFIRMADA",
+                "value": "CONFIRMADA"
+              },
+              {
+                "name": "REALIZADA",
+                "value": "REALIZADA"
+              },
+              {
+                "name": "CANCELADA",
+                "value": "CANCELADA"
+              },
+              {
+                "name": "FALTOU",
+                "value": "FALTOU"
+              }
+            ]
+          },
           "TipoUsuario": {
             "codecId": "pg/text@1",
             "members": [
@@ -44,6 +77,144 @@
           }
         },
         "models": {
+          "Agendamento": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "data": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/date-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaFim": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaInicio": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "pacienteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusAgendamento",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "medico": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "medicoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Medico",
+                  "namespace": "public"
+                }
+              },
+              "paciente": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "pacienteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Paciente",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "data": {
+                  "column": "data"
+                },
+                "horaFim": {
+                  "column": "horaFim"
+                },
+                "horaInicio": {
+                  "column": "horaInicio"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "pacienteId": {
+                  "column": "pacienteId"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "agendamento"
+            }
+          },
           "CodigoRedefinicaoSenha": {
             "fields": {
               "codigo": {
@@ -131,6 +302,103 @@
               "table": "codigoRedefinicaoSenha"
             }
           },
+          "DisponibilidadeAgenda": {
+            "fields": {
+              "ativo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "data": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/date-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "duracaoConsulta": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaFim": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaInicio": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "medico": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "medicoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Medico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "ativo": {
+                  "column": "ativo"
+                },
+                "data": {
+                  "column": "data"
+                },
+                "duracaoConsulta": {
+                  "column": "duracaoConsulta"
+                },
+                "horaFim": {
+                  "column": "horaFim"
+                },
+                "horaInicio": {
+                  "column": "horaInicio"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "disponibilidadeAgenda"
+            }
+          },
           "Medico": {
             "fields": {
               "crm": {
@@ -156,6 +424,36 @@
               }
             },
             "relations": {
+              "agendamentos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "medicoId"
+                  ]
+                },
+                "to": {
+                  "model": "Agendamento",
+                  "namespace": "public"
+                }
+              },
+              "disponibilidades": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "medicoId"
+                  ]
+                },
+                "to": {
+                  "model": "DisponibilidadeAgenda",
+                  "namespace": "public"
+                }
+              },
               "pacientes": {
                 "cardinality": "1:N",
                 "on": {
@@ -270,6 +568,21 @@
               }
             },
             "relations": {
+              "agendamentos": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "pacienteId"
+                  ]
+                },
+                "to": {
+                  "model": "Agendamento",
+                  "namespace": "public"
+                }
+              },
               "medico": {
                 "cardinality": "N:1",
                 "on": {
@@ -497,6 +810,166 @@
       "public": {
         "entries": {
           "table": {
+            "agendamento": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('AGENDADA', 'CONFIRMADA', 'REALIZADA', 'CANCELADA', 'FALTOU')",
+                  "name": "agendamento_status_check_46d5956a",
+                  "prefix": "agendamento_status_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "data": {
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
+                  "nullable": false
+                },
+                "horaFim": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "horaInicio": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "pacienteId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "AGENDADA"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusAgendamento",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "medicoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "agendamento"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "medico"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "pacienteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "agendamento"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "paciente"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "medicoId",
+                    "data",
+                    "horaInicio"
+                  ],
+                  "name": "agendamento_medicoId_data_horaInicio_idx_1b9f7301",
+                  "prefix": "agendamento_medicoId_data_horaInicio_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId",
+                    "data"
+                  ],
+                  "name": "agendamento_medicoId_data_idx_20edd9d1",
+                  "prefix": "agendamento_medicoId_data_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId"
+                  ],
+                  "name": "agendamento_medicoId_idx_cef7d96a",
+                  "prefix": "agendamento_medicoId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "pacienteId",
+                    "data"
+                  ],
+                  "name": "agendamento_pacienteId_data_idx_4b9c5eee",
+                  "prefix": "agendamento_pacienteId_data_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "pacienteId"
+                  ],
+                  "name": "agendamento_pacienteId_idx_8734dc3f",
+                  "prefix": "agendamento_pacienteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "codigoRedefinicaoSenha": {
               "columns": {
                 "codigo": {
@@ -567,6 +1040,100 @@
                   ],
                   "name": "codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6",
                   "prefix": "codigoRedefinicaoSenha_usuarioId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "disponibilidadeAgenda": {
+              "columns": {
+                "ativo": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "data": {
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
+                  "nullable": false
+                },
+                "duracaoConsulta": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 30
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "horaFim": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "horaInicio": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "medicoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "disponibilidadeAgenda"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "medico"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "medicoId",
+                    "data"
+                  ],
+                  "name": "disponibilidadeAgenda_medicoId_data_idx_20edd9d1",
+                  "prefix": "disponibilidadeAgenda_medicoId_data_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId"
+                  ],
+                  "name": "disponibilidadeAgenda_medicoId_idx_cef7d96a",
+                  "prefix": "disponibilidadeAgenda_medicoId_idx",
                   "unique": false
                 }
               ],
@@ -852,6 +1419,16 @@
             }
           },
           "valueSet": {
+            "StatusAgendamento": {
+              "kind": "valueSet",
+              "values": [
+                "AGENDADA",
+                "CONFIRMADA",
+                "REALIZADA",
+                "CANCELADA",
+                "FALTOU"
+              ]
+            },
             "TipoUsuario": {
               "kind": "valueSet",
               "values": [
@@ -866,12 +1443,27 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "b313c8c1423420fab9217dbcb3b7e9388cc89b225cd2facca12034ef9ac0ddf1"
+    "storageHash": "99a0c0d02327e1a45717c74cb3959933a13575cc607803ed63ebc8430a017069"
   },
   "execution": {
-    "executionHash": "38e7ae74823ff4ad015c53a840d36eccee629f58d7b23a62da2ec5c9f1763063",
+    "executionHash": "9d81c93591673b0d12524d87fe00b796577c7b57a2b5823bfff9599765755a00",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "agendamento"
+          }
+        },
         {
           "onCreate": {
             "id": "timestampNow",

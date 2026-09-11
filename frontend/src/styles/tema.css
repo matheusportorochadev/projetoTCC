@@ -1,0 +1,79 @@
+/* Tema padrão */
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background-color: #f8fafc;
+  color: #111827;
+}
+
+body {
+  min-height: 100vh;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Botão de tema */
+.botao-tema {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: white;
+  color: #111827;
+
+  font-size: 20px;
+  cursor: pointer;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.botao-tema:hover {
+  background: #f3f4f6;
+}
+
+/* ============================= */
+/* MODO ESCURO */
+/* ============================= */
+
+html:has(body.modo-escuro),
+body.modo-escuro,
+body.modo-escuro #root {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body.modo-escuro .botao-tema {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.modo-escuro .botao-tema:hover {
+  background: #334155;
+}
+
+body.modo-escuro input,
+body.modo-escuro textarea,
+body.modo-escuro select {
+  color-scheme: dark;
+}

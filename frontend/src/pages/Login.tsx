@@ -1,135 +1,289 @@
-// Tela de login do sistema
+// ========================================
+// TELA DE LOGIN DO SISTEMA
+// ========================================
+
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { fazerLogin } from "../services/api";
+
 import "../styles/login.css";
 
+
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [mensagem, setMensagem] = useState("");
-  const [carregando, setCarregando] = useState(false);
+  // ========================================
+  // ESTADOS DO FORMULÁRIO
+  // ========================================
 
-  const navigate = useNavigate();
+  // Armazena o e-mail digitado.
+  const [email, setEmail] =
+    useState("");
 
-  // Solicita o código para o primeiro acesso
-  async function solicitarCodigoRedefinicao(
-    emailUsuario: string
-  ) {
-    const resposta = await fetch(
-      "http://localhost:3000/auth/esqueci-senha",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: emailUsuario
-        })
-      }
-    );
+  // Armazena a senha digitada.
+  const [senha, setSenha] =
+    useState("");
 
-    const dados = await resposta.json();
+  // Armazena mensagens de erro ou informação.
+  const [mensagem, setMensagem] =
+    useState("");
 
-    if (!resposta.ok) {
-      throw new Error(
-        dados.mensagem || "Erro ao enviar código."
-      );
-    }
-  }
+  // Controla o estado do botão enquanto
+  // o login está sendo processado.
+  const [carregando, setCarregando] =
+    useState(false);
 
-  // Envia os dados de login para o backend
+
+  // ========================================
+  // NAVEGAÇÃO
+  // ========================================
+
+  // Permite redirecionar o usuário
+  // para outras páginas.
+  const navigate =
+    useNavigate();
+
+
+  // ========================================
+  // REALIZAR LOGIN
+  // ========================================
+
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
   ) {
+    // Impede o recarregamento padrão do formulário.
     event.preventDefault();
 
+
     try {
+      // Ativa o estado de carregamento.
       setCarregando(true);
+
+      // Limpa mensagens anteriores.
       setMensagem("");
 
-      const dados = await fazerLogin(
-        email.trim().toLowerCase(),
-        senha
-      );
 
-      // Verifica o primeiro acesso do médico
+      // ========================================
+      // ENVIAR LOGIN PARA O BACKEND
+      // ========================================
+
+      const dados =
+        await fazerLogin(
+          email
+            .trim()
+            .toLowerCase(),
+
+          senha
+        );
+
+
+      // ========================================
+      // PRIMEIRO ACESSO
+      // ========================================
+
+      /*
+        Essa verificação vale tanto para:
+
+        - MEDICO
+        - PACIENTE
+
+        Se primeiroAcesso for true,
+        o backend já envia o código
+        de redefinição por e-mail.
+
+        Depois disso, enviamos o usuário
+        para a tela de criação da nova senha.
+      */
       if (
-        dados.usuario.tipo === "MEDICO" &&
-        dados.usuario.primeiroAcesso === true
+        dados.usuario.primeiroAcesso ===
+        true
       ) {
-        setMensagem(
-          "Primeiro acesso identificado. Enviando código para seu e-mail..."
-        );
+        // Guarda temporariamente o e-mail.
 
-        await solicitarCodigoRedefinicao(
-          dados.usuario.email
-        );
+        /*
+          Esse e-mail será utilizado pela
+          página RedefinirSenha.tsx.
 
-        // Guarda somente o e-mail durante a redefinição
+          sessionStorage é usado porque
+          precisamos manter esse dado apenas
+          durante essa sessão.
+        */
         sessionStorage.setItem(
           "emailRedefinicao",
           dados.usuario.email
         );
 
-        navigate("/redefinir-senha");
+
+        // Redireciona para a página
+        // de primeiro acesso.
+        navigate(
+          "/redefinir-senha"
+        );
+
+
+        // Interrompe a função para evitar
+        // o login normal antes da redefinição.
         return;
       }
 
-      // Salva os dados da sessão após login normal
+
+      // ========================================
+      // LOGIN NORMAL
+      // ========================================
+
+      /*
+        Se primeiroAcesso for false,
+        o usuário já possui sua própria senha.
+
+        Nesse caso salvamos a sessão normalmente.
+      */
+
+      // Salva o token JWT.
       localStorage.setItem(
         "token",
         dados.token
       );
 
+
+      // Salva os dados básicos do usuário.
       localStorage.setItem(
         "usuario",
-        JSON.stringify(dados.usuario)
+        JSON.stringify(
+          dados.usuario
+        )
       );
 
-      // Redireciona o administrador
-      if (dados.usuario.tipo === "ADMIN") {
-        navigate("/admin");
+
+      // ========================================
+      // REDIRECIONAMENTO POR PERFIL
+      // ========================================
+
+
+      // ========================================
+      // ADMINISTRADOR
+      // ========================================
+
+      if (
+        dados.usuario.tipo ===
+        "ADMIN"
+      ) {
+        navigate(
+          "/admin"
+        );
+
         return;
       }
 
-      // Redireciona o médico
-      if (dados.usuario.tipo === "MEDICO") {
-        navigate("/medico");
+
+      // ========================================
+      // MÉDICO
+      // ========================================
+
+      if (
+        dados.usuario.tipo ===
+        "MEDICO"
+      ) {
+        navigate(
+          "/medico"
+        );
+
         return;
       }
 
+
+      // ========================================
+      // PACIENTE
+      // ========================================
+
+      /*
+        Se o paciente já realizou
+        o primeiro acesso e criou
+        sua nova senha, ele será
+        enviado para sua própria área.
+      */
+      if (
+        dados.usuario.tipo ===
+        "PACIENTE"
+      ) {
+        navigate(
+          "/paciente"
+        );
+
+        return;
+      }
+
+
+      // ========================================
+      // PERFIL NÃO IDENTIFICADO
+      // ========================================
+
+      // Caso algum perfil inesperado
+      // seja recebido do backend.
       setMensagem(
-        "Login realizado com sucesso."
+        "Tipo de usuário não reconhecido."
       );
     } catch (erro) {
+      // ========================================
+      // TRATAMENTO DE ERRO
+      // ========================================
+
       const mensagemErro =
         erro instanceof Error
           ? erro.message
           : "Erro ao realizar login.";
 
-      setMensagem(mensagemErro);
+
+      setMensagem(
+        mensagemErro
+      );
     } finally {
+      // Libera novamente o botão.
       setCarregando(false);
     }
   }
 
+
+  // ========================================
+  // INTERFACE
+  // ========================================
+
   return (
     <div className="login-page">
+
       <div className="login-card">
+
+        {/* ========================================
+            CABEÇALHO
+        ======================================== */}
+
         <div className="login-header">
-          <h1>Sistema Médico</h1>
+
+          <h1>
+            Sistema Médico
+          </h1>
 
           <p>
             Entre com seus dados para acessar o sistema
           </p>
+
         </div>
+
+
+        {/* ========================================
+            FORMULÁRIO
+        ======================================== */}
 
         <form
           onSubmit={handleSubmit}
           className="login-form"
         >
+
+          {/* ========================================
+              E-MAIL
+          ======================================== */}
+
           <div className="form-group">
+
             <label htmlFor="email">
               E-mail
             </label>
@@ -140,13 +294,22 @@ export default function Login() {
               placeholder="Digite seu e-mail"
               value={email}
               onChange={(event) =>
-                setEmail(event.target.value)
+                setEmail(
+                  event.target.value
+                )
               }
               required
             />
+
           </div>
 
+
+          {/* ========================================
+              SENHA
+          ======================================== */}
+
           <div className="form-group">
+
             <label htmlFor="senha">
               Senha
             </label>
@@ -157,17 +320,30 @@ export default function Login() {
               placeholder="Digite sua senha"
               value={senha}
               onChange={(event) =>
-                setSenha(event.target.value)
+                setSenha(
+                  event.target.value
+                )
               }
               required
             />
+
           </div>
+
+
+          {/* ========================================
+              MENSAGEM
+          ======================================== */}
 
           {mensagem && (
             <p className="login-message">
               {mensagem}
             </p>
           )}
+
+
+          {/* ========================================
+              BOTÃO
+          ======================================== */}
 
           <button
             type="submit"
@@ -178,8 +354,11 @@ export default function Login() {
               ? "Entrando..."
               : "Entrar"}
           </button>
+
         </form>
+
       </div>
+
     </div>
   );
 }
