@@ -1,0 +1,61 @@
+// Define os tipos de usuário do sistema
+enum TipoUsuario {
+  ADMIN
+  MEDICO
+  PACIENTE
+}
+
+// Usuários que poderão acessar o sistema
+model Usuario {
+  id             Int               @id @default(autoincrement())
+  nome           String
+  email          String            @unique
+  senha          String
+  tipo           TipoUsuario
+  ativo          Boolean           @default(true)
+  primeiroAcesso Boolean           @default(true)
+  createdAt      TimestamptzString @default(now())
+  updatedAt      temporal.updatedAtString()
+
+  medico            Medico?
+  paciente           Paciente?
+  codigosRedefinicao CodigoRedefinicaoSenha[]
+}
+
+// Dados específicos do médico
+model Medico {
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @unique
+  crm       String  @unique
+
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  pacientes Paciente[]
+}
+
+// Dados cadastrais do paciente
+model Paciente {
+  id             Int      @id @default(autoincrement())
+  medicoId       Int
+  usuarioId      Int?     @unique
+  nome           String
+  email          String?
+  telefone       String?
+  cpf            String?  @unique
+  acessoLiberado Boolean  @default(false)
+  ativo          Boolean  @default(true)
+
+  medico         Medico   @relation(fields: [medicoId], references: [id])
+  usuario        Usuario? @relation(fields: [usuarioId], references: [id])
+}
+
+// Códigos temporários para redefinição de senha
+model CodigoRedefinicaoSenha {
+  id        Int               @id @default(autoincrement())
+  usuarioId Int
+  codigo    String
+  expiraEm  TimestamptzString
+  usado     Boolean           @default(false)
+  createdAt TimestamptzString @default(now())
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+}

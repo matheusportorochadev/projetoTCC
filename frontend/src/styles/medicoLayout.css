@@ -1,0 +1,108 @@
+/* Estrutura principal */
+.medico-layout {
+  min-height: 100vh;
+  background: #f4f6f8;
+}
+
+/* Navbar superior */
+.medico-navbar {
+  min-height: 72px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  gap: 24px;
+}
+
+.medico-navbar-brand h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+/* Navegação */
+.medico-navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.medico-nav-link {
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #475569;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.medico-nav-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.medico-nav-link.ativo {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Usuário */
+.medico-navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.medico-navbar-user span {
+  color: #475569;
+  font-size: 14px;
+}
+
+/* Botão sair */
+.medico-btn-sair {
+  border: 1px solid #dc2626;
+  background: #ffffff;
+  color: #dc2626;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.medico-btn-sair:hover {
+  background: #fef2f2;
+}
+
+/* Conteúdo principal */
+.medico-main {
+  padding: 32px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .medico-navbar {
+    flex-wrap: wrap;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .medico-navbar-brand {
+    width: 100%;
+  }
+
+  .medico-navbar-menu {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .medico-navbar-user {
+    margin-left: auto;
+  }
+
+  .medico-main {
+    padding: 20px 16px;
+  }
+}
