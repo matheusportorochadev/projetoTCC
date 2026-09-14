@@ -1,16 +1,35 @@
 // Dependências do serviço de agendamento
 import { db } from "../prisma/db";
 
+
 // ========================================
 // TIPOS
 // ========================================
 
+// Todos os status possíveis atualmente.
+//
+// AGENDADA permanece temporariamente
+// somente para compatibilidade com
+// registros antigos.
+//
+// Novos agendamentos utilizam PENDENTE.
+export type StatusAgendamento =
+  | "AGENDADA"
+  | "PENDENTE"
+  | "CONFIRMADA"
+  | "REALIZADA"
+  | "RECUSADA"
+  | "CANCELADA"
+  | "FALTOU";
+
+
 // Representa um horário individual que pode
-// ser exibido para o paciente.
+// ser exibido para o paciente ou médico.
 export type SlotDisponivel = {
   horaInicio: string;
   horaFim: string;
 };
+
 
 // Estrutura utilizada internamente para
 // representar um agendamento.
@@ -21,13 +40,20 @@ export type AgendamentoRegistro = {
   data: string;
   horaInicio: string;
   horaFim: string;
-  status:
-    | "AGENDADA"
-    | "CONFIRMADA"
-    | "REALIZADA"
-    | "CANCELADA"
-    | "FALTOU";
+  status: StatusAgendamento;
 };
+
+
+// Estrutura utilizada na agenda do médico.
+//
+// Mantém todos os dados do agendamento
+// e acrescenta nome e telefone do paciente.
+export type AgendamentoMedicoRegistro =
+  AgendamentoRegistro & {
+    pacienteNome: string;
+    pacienteTelefone: string | null;
+  };
+
 
 // Dados necessários para criar
 // um novo agendamento.
@@ -39,12 +65,29 @@ type CriarAgendamentoDados = {
   horaFim: string;
 };
 
+
+// Dados necessários para remarcar
+// um agendamento.
+//
+// O frontend informa apenas:
+//
+// - nova data;
+// - novo horário inicial.
+//
+// O horaFim será encontrado
+// pelo próprio backend.
+export type RemarcarAgendamentoDados = {
+  data: string;
+  horaInicio: string;
+};
+
+
 // ========================================
 // FUNÇÕES AUXILIARES
 // ========================================
 
-// Converte um horário HH:mm para
-// quantidade total de minutos.
+// Converte um horário HH:mm
+// para quantidade total de minutos.
 //
 // Exemplo:
 //
@@ -60,6 +103,7 @@ function horarioParaMinutos(
 
   return hora * 60 + minuto;
 }
+
 
 // Converte minutos novamente
 // para o formato HH:mm.
@@ -86,6 +130,35 @@ function minutosParaHorario(
   )}`;
 }
 
+
+// ========================================
+// STATUS QUE OCUPAM O HORÁRIO
+// ========================================
+
+// Define quais status bloqueiam um slot.
+//
+// PENDENTE:
+// solicitação aguardando decisão do médico.
+//
+// CONFIRMADA:
+// consulta aprovada.
+//
+// AGENDADA:
+// mantido temporariamente por causa
+// de registros antigos.
+//
+// RECUSADA e CANCELADA não ocupam horário.
+function statusOcupaHorario(
+  status: StatusAgendamento
+): boolean {
+  return (
+    status === "PENDENTE" ||
+    status === "AGENDADA" ||
+    status === "CONFIRMADA"
+  );
+}
+
+
 // ========================================
 // BUSCAR PACIENTE PELO USUÁRIO
 // ========================================
@@ -110,22 +183,13 @@ export async function buscarPacientePorUsuarioId(
   return paciente;
 }
 
+
 // ========================================
 // BUSCAR DISPONIBILIDADES DO MÉDICO
 // ========================================
 
 // Busca somente os períodos ativos
-// que o médico cadastrou naquela data.
-//
-// Exemplo:
-//
-// Médico cadastrou:
-//
-// 15/09/2026
-// 08:00 até 12:00
-//
-// somente essa disponibilidade será
-// utilizada para gerar os horários.
+// cadastrados pelo médico naquela data.
 export async function buscarDisponibilidadesDoMedico(
   medicoId: number,
   data: string
@@ -142,6 +206,7 @@ export async function buscarDisponibilidadesDoMedico(
   return disponibilidades;
 }
 
+
 // ========================================
 // BUSCAR AGENDAMENTOS DA DATA
 // ========================================
@@ -149,11 +214,8 @@ export async function buscarDisponibilidadesDoMedico(
 // Busca os agendamentos existentes
 // daquele médico naquela data.
 //
-// Depois filtramos em JavaScript quais
-// realmente ocupam horário.
-//
-// Fazemos assim para manter compatibilidade
-// com o ORM utilizado neste projeto.
+// Depois filtramos quais registros
+// realmente bloqueiam horários.
 export async function buscarAgendamentosAtivosDoMedico(
   medicoId: number,
   data: string
@@ -166,17 +228,14 @@ export async function buscarAgendamentosAtivosDoMedico(
       })
       .all();
 
-  // Apenas AGENDADA e CONFIRMADA
-  // bloqueiam um horário.
-  //
-  // CANCELADA não deve impedir
-  // outro paciente de agendar.
   return agendamentos.filter(
     (agendamento) =>
-      agendamento.status === "AGENDADA" ||
-      agendamento.status === "CONFIRMADA"
+      statusOcupaHorario(
+        agendamento.status
+      )
   );
 }
+
 
 // ========================================
 // GERAR SLOTS
@@ -224,8 +283,7 @@ export function gerarSlotsDasDisponibilidades(
     const duracao =
       disponibilidade.duracaoConsulta;
 
-    // Proteção contra alguma duração
-    // inválida cadastrada no banco.
+    // Proteção contra duração inválida.
     //
     // Isso evita loop infinito.
     if (duracao <= 0) {
@@ -256,18 +314,15 @@ export function gerarSlotsDasDisponibilidades(
   return slots;
 }
 
+
 // ========================================
 // LISTAR HORÁRIOS DISPONÍVEIS
 // ========================================
 
-// Esta é uma das regras principais
-// do sistema.
+// O paciente só consegue selecionar
+// horários que:
 //
-// O paciente NÃO escolhe qualquer horário.
-//
-// Ele só consegue selecionar horários que:
-//
-// 1. o médico disponibilizou;
+// 1. foram disponibilizados pelo médico;
 // 2. pertencem à data selecionada;
 // 3. ainda não estão ocupados.
 export async function listarHorariosDisponiveis(
@@ -289,8 +344,8 @@ export async function listarHorariosDisponiveis(
       disponibilidades
     );
 
-  // Busca os agendamentos que
-  // já ocupam horários.
+  // Busca os agendamentos
+  // que ocupam horários.
   const agendamentos =
     await buscarAgendamentosAtivosDoMedico(
       medicoId,
@@ -307,8 +362,7 @@ export async function listarHorariosDisponiveis(
       )
     );
 
-  // Remove da lista os horários
-  // que já possuem agendamento.
+  // Remove os slots ocupados.
   const horariosDisponiveis =
     slots.filter(
       (slot) =>
@@ -317,22 +371,27 @@ export async function listarHorariosDisponiveis(
         )
     );
 
+  // Mantém a lista ordenada.
+  horariosDisponiveis.sort(
+    (a, b) =>
+      a.horaInicio.localeCompare(
+        b.horaInicio
+      )
+  );
+
   return horariosDisponiveis;
 }
+
 
 // ========================================
 // VALIDAR HORÁRIO
 // ========================================
 
-// Verifica se o horário solicitado
-// pelo paciente realmente está disponível.
+// Verifica novamente no backend
+// se o horário solicitado está livre.
 //
-// Essa validação acontece no backend.
-//
-// Isso é importante porque mesmo que
-// alguém altere manualmente o frontend,
-// não será possível agendar um horário
-// não cadastrado pelo médico.
+// O frontend nunca é considerado
+// a autoridade final da disponibilidade.
 export async function horarioEstaDisponivel(
   medicoId: number,
   data: string,
@@ -353,22 +412,26 @@ export async function horarioEstaDisponivel(
   return horarioEncontrado;
 }
 
+
 // ========================================
 // CRIAR AGENDAMENTO
 // ========================================
 
-// Cria um novo agendamento.
+// Cria uma nova solicitação.
 //
-// O paciente NÃO escolhe:
+// O paciente NÃO escolhe diretamente:
 //
-// - medicoId
-// - pacienteId
-// - horaFim
+// - medicoId;
+// - pacienteId;
+// - horaFim;
+// - status.
 //
-// Esses valores são definidos
-// pelo próprio backend.
+// Esses dados são definidos
+// pelo backend.
 //
-// Isso deixa o sistema mais seguro.
+// Todo novo registro passa a nascer:
+//
+// PENDENTE
 export async function criarAgendamento(
   dados: CriarAgendamentoDados
 ): Promise<AgendamentoRegistro> {
@@ -391,11 +454,12 @@ export async function criarAgendamento(
           dados.horaFim,
 
         status:
-          "AGENDADA"
+          "PENDENTE"
       });
 
   return agendamento;
 }
+
 
 // ========================================
 // LISTAR AGENDAMENTOS DO PACIENTE
@@ -403,9 +467,6 @@ export async function criarAgendamento(
 
 // Retorna todos os agendamentos
 // pertencentes ao paciente.
-//
-// Futuramente esta função poderá ser
-// utilizada na área "Minhas consultas".
 export async function listarAgendamentosDoPaciente(
   pacienteId: number
 ): Promise<AgendamentoRegistro[]> {
@@ -438,20 +499,22 @@ export async function listarAgendamentosDoPaciente(
   return agendamentos;
 }
 
+
 // ========================================
 // LISTAR AGENDAMENTOS DO MÉDICO
 // ========================================
 
-// Retorna todos os agendamentos
+// Retorna os agendamentos
 // relacionados ao médico.
 //
-// Posteriormente será utilizado
-// na aba:
+// Também acrescenta:
 //
-// "Horários marcados"
+// - nome do paciente;
+// - telefone do paciente.
 export async function listarAgendamentosDoMedico(
   medicoId: number
-): Promise<AgendamentoRegistro[]> {
+): Promise<AgendamentoMedicoRegistro[]> {
+  // Busca os agendamentos.
   const agendamentos =
     await db.orm.public.Agendamento
       .where({
@@ -459,9 +522,71 @@ export async function listarAgendamentosDoMedico(
       })
       .all();
 
-  // Ordena os registros por
-  // data e horário.
-  agendamentos.sort(
+  // Busca os pacientes do médico
+  // em uma única consulta.
+  const pacientes =
+    await db.orm.public.Paciente
+      .where({
+        medicoId
+      })
+      .all();
+
+  // Cria um mapa dos pacientes
+  // utilizando paciente.id como chave.
+  const pacientesPorId =
+    new Map(
+      pacientes.map(
+        (paciente) => [
+          paciente.id,
+          paciente
+        ]
+      )
+    );
+
+  const agendamentosComPaciente:
+    AgendamentoMedicoRegistro[] =
+    agendamentos.map(
+      (agendamento) => {
+        const paciente =
+          pacientesPorId.get(
+            agendamento.pacienteId
+          );
+
+        return {
+          id:
+            agendamento.id,
+
+          medicoId:
+            agendamento.medicoId,
+
+          pacienteId:
+            agendamento.pacienteId,
+
+          data:
+            agendamento.data,
+
+          horaInicio:
+            agendamento.horaInicio,
+
+          horaFim:
+            agendamento.horaFim,
+
+          status:
+            agendamento.status,
+
+          pacienteNome:
+            paciente?.nome ??
+            "Paciente não encontrado",
+
+          pacienteTelefone:
+            paciente?.telefone ??
+            null
+        };
+      }
+    );
+
+  // Ordena pela data e horário.
+  agendamentosComPaciente.sort(
     (a, b) => {
       const compararData =
         a.data.localeCompare(
@@ -478,5 +603,316 @@ export async function listarAgendamentosDoMedico(
     }
   );
 
-  return agendamentos;
+  return agendamentosComPaciente;
+}
+
+
+// ========================================
+// BUSCAR AGENDAMENTO DO MÉDICO
+// ========================================
+
+// Busca um agendamento garantindo
+// que ele pertença ao médico autenticado.
+//
+// Isso impede:
+//
+// Médico A
+//        ↓
+// tentar alterar consulta do Médico B.
+export async function buscarAgendamentoDoMedicoPorId(
+  id: number,
+  medicoId: number
+): Promise<AgendamentoRegistro> {
+  const agendamento =
+    await db.orm.public.Agendamento
+      .where({
+        id,
+        medicoId
+      })
+      .first();
+
+  if (!agendamento) {
+    throw new Error(
+      "Agendamento não encontrado."
+    );
+  }
+
+  return agendamento;
+}
+
+
+// ========================================
+// CONFIRMAR AGENDAMENTO
+// ========================================
+
+// Fluxo:
+//
+// PENDENTE
+//    ↓
+// CONFIRMADA
+//
+// AGENDADA também é aceita
+// temporariamente para registros antigos.
+export async function confirmarAgendamento(
+  id: number,
+  medicoId: number
+): Promise<AgendamentoRegistro> {
+  const agendamento =
+    await buscarAgendamentoDoMedicoPorId(
+      id,
+      medicoId
+    );
+
+  if (
+    agendamento.status !== "PENDENTE" &&
+    agendamento.status !== "AGENDADA"
+  ) {
+    throw new Error(
+      "Somente agendamentos pendentes podem ser confirmados."
+    );
+  }
+
+  const agendamentoAtualizado =
+    await db.orm.public.Agendamento
+      .where({
+        id,
+        medicoId
+      })
+      .update({
+        status:
+          "CONFIRMADA"
+      });
+
+  if (!agendamentoAtualizado) {
+    throw new Error(
+      "Não foi possível confirmar o agendamento."
+    );
+  }
+
+  return agendamentoAtualizado;
+}
+
+
+// ========================================
+// RECUSAR AGENDAMENTO
+// ========================================
+
+// Fluxo:
+//
+// PENDENTE
+//    ↓
+// RECUSADA
+//
+// Ao ser recusado,
+// o horário volta a ficar disponível.
+//
+// AGENDADA permanece permitida
+// temporariamente.
+export async function recusarAgendamento(
+  id: number,
+  medicoId: number
+): Promise<AgendamentoRegistro> {
+  const agendamento =
+    await buscarAgendamentoDoMedicoPorId(
+      id,
+      medicoId
+    );
+
+  if (
+    agendamento.status !== "PENDENTE" &&
+    agendamento.status !== "AGENDADA"
+  ) {
+    throw new Error(
+      "Somente agendamentos pendentes podem ser recusados."
+    );
+  }
+
+  const agendamentoAtualizado =
+    await db.orm.public.Agendamento
+      .where({
+        id,
+        medicoId
+      })
+      .update({
+        status:
+          "RECUSADA"
+      });
+
+  if (!agendamentoAtualizado) {
+    throw new Error(
+      "Não foi possível recusar o agendamento."
+    );
+  }
+
+  return agendamentoAtualizado;
+}
+
+
+// ========================================
+// CANCELAR / DESMARCAR
+// ========================================
+
+// Utilizado quando uma consulta
+// confirmada precisa ser desmarcada.
+//
+// Fluxo:
+//
+// CONFIRMADA
+//     ↓
+// CANCELADA
+//
+// CANCELADA deixa de ocupar o slot.
+//
+// AGENDADA é aceita temporariamente
+// por compatibilidade.
+export async function cancelarAgendamento(
+  id: number,
+  medicoId: number
+): Promise<AgendamentoRegistro> {
+  const agendamento =
+    await buscarAgendamentoDoMedicoPorId(
+      id,
+      medicoId
+    );
+
+  if (
+    agendamento.status !== "CONFIRMADA" &&
+    agendamento.status !== "AGENDADA"
+  ) {
+    throw new Error(
+      "Somente consultas confirmadas podem ser canceladas."
+    );
+  }
+
+  const agendamentoAtualizado =
+    await db.orm.public.Agendamento
+      .where({
+        id,
+        medicoId
+      })
+      .update({
+        status:
+          "CANCELADA"
+      });
+
+  if (!agendamentoAtualizado) {
+    throw new Error(
+      "Não foi possível cancelar o agendamento."
+    );
+  }
+
+  return agendamentoAtualizado;
+}
+
+
+// ========================================
+// REMARCAR AGENDAMENTO
+// ========================================
+
+// Permite ao médico alterar:
+//
+// - data;
+// - horário.
+//
+// O médico não pode utilizar
+// um horário arbitrário.
+//
+// O backend consulta novamente
+// os slots disponíveis.
+//
+// Podem ser remarcados:
+//
+// PENDENTE
+// CONFIRMADA
+//
+// AGENDADA permanece aceita
+// temporariamente.
+export async function remarcarAgendamento(
+  id: number,
+  medicoId: number,
+  dados: RemarcarAgendamentoDados
+): Promise<AgendamentoRegistro> {
+  const agendamento =
+    await buscarAgendamentoDoMedicoPorId(
+      id,
+      medicoId
+    );
+
+
+  // ========================================
+  // VALIDAR STATUS
+  // ========================================
+
+  if (
+    agendamento.status !== "PENDENTE" &&
+    agendamento.status !== "CONFIRMADA" &&
+    agendamento.status !== "AGENDADA"
+  ) {
+    throw new Error(
+      "Este agendamento não pode ser remarcado."
+    );
+  }
+
+
+  // ========================================
+  // VALIDAR SE HOUVE ALTERAÇÃO
+  // ========================================
+
+  if (
+    agendamento.data === dados.data &&
+    agendamento.horaInicio ===
+      dados.horaInicio
+  ) {
+    throw new Error(
+      "Escolha um horário diferente do atual."
+    );
+  }
+
+
+  // ========================================
+  // VALIDAR NOVO SLOT
+  // ========================================
+
+  const novoHorario =
+    await horarioEstaDisponivel(
+      medicoId,
+      dados.data,
+      dados.horaInicio
+    );
+
+  if (!novoHorario) {
+    throw new Error(
+      "O horário selecionado não está mais disponível."
+    );
+  }
+
+
+  // ========================================
+  // ATUALIZAR AGENDAMENTO
+  // ========================================
+
+  const agendamentoAtualizado =
+    await db.orm.public.Agendamento
+      .where({
+        id,
+        medicoId
+      })
+      .update({
+        data:
+          dados.data,
+
+        horaInicio:
+          novoHorario.horaInicio,
+
+        horaFim:
+          novoHorario.horaFim
+      });
+
+  if (!agendamentoAtualizado) {
+    throw new Error(
+      "Não foi possível remarcar o agendamento."
+    );
+  }
+
+  return agendamentoAtualizado;
 }

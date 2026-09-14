@@ -10,13 +10,19 @@ import {
 
 import {
   useEffect,
+  useRef,
   useState
 } from "react";
 
 import "../styles/pacienteLayout.css";
 
 
+// ========================================
+// COMPONENTE
+// ========================================
+
 export default function PacienteLayout() {
+
   // ========================================
   // NAVEGAÇÃO
   // ========================================
@@ -26,16 +32,21 @@ export default function PacienteLayout() {
 
 
   // ========================================
+  // REFERÊNCIA DO MENU RESPONSIVO
+  // ========================================
+
+  // Usamos essa referência para detectar
+  // quando o usuário clicar fora do menu.
+  const menuResponsivoRef =
+    useRef<HTMLDivElement | null>(
+      null
+    );
+
+
+  // ========================================
   // BUSCAR USUÁRIO LOGADO
   // ========================================
 
-  /*
-    Durante o login, os dados básicos
-    do usuário são salvos no localStorage.
-
-    Aqui recuperamos esses dados para
-    mostrar o nome do paciente na navbar.
-  */
   const usuarioSalvo =
     localStorage.getItem(
       "usuario"
@@ -54,35 +65,97 @@ export default function PacienteLayout() {
   // TEMA CLARO / ESCURO
   // ========================================
 
-  /*
-    Recuperamos a preferência de tema
-    armazenada anteriormente.
+  const [
+    temaEscuro,
+    setTemaEscuro
+  ] = useState(
 
-    Se não existir nenhuma preferência,
-    começamos no tema claro.
-  */
-  const [temaEscuro, setTemaEscuro] =
-    useState(
-      localStorage.getItem("tema") ===
-        "escuro"
-    );
+    localStorage.getItem(
+      "tema"
+    ) === "escuro"
+
+  );
 
 
   // ========================================
-  // APLICAR TEMA AO CARREGAR
+  // MENU RESPONSIVO
+  // ========================================
+
+  const [
+    menuAberto,
+    setMenuAberto
+  ] = useState(false);
+
+
+  // ========================================
+  // APLICAR TEMA
   // ========================================
 
   useEffect(() => {
-    if (temaEscuro) {
+
+    if (
+      temaEscuro
+    ) {
+
       document.body.classList.add(
         "modo-escuro"
       );
+
     } else {
+
       document.body.classList.remove(
         "modo-escuro"
       );
+
     }
-  }, [temaEscuro]);
+
+  }, [
+    temaEscuro
+  ]);
+
+
+  // ========================================
+  // FECHAR MENU AO CLICAR FORA
+  // ========================================
+
+  useEffect(() => {
+
+    function verificarCliqueFora(
+      evento: MouseEvent
+    ) {
+
+      if (
+        menuResponsivoRef.current &&
+        !menuResponsivoRef.current.contains(
+          evento.target as Node
+        )
+      ) {
+
+        setMenuAberto(
+          false
+        );
+
+      }
+
+    }
+
+
+    document.addEventListener(
+      "mousedown",
+      verificarCliqueFora
+    );
+
+
+    return () => {
+
+      document.removeEventListener(
+        "mousedown",
+        verificarCliqueFora
+      );
+
+    };
+
+  }, []);
 
 
   // ========================================
@@ -90,6 +163,7 @@ export default function PacienteLayout() {
   // ========================================
 
   function alterarTema() {
+
     const novoTema =
       !temaEscuro;
 
@@ -99,17 +173,42 @@ export default function PacienteLayout() {
     );
 
 
-    /*
-      Salva a preferência para que
-      o sistema lembre o tema quando
-      o usuário entrar novamente.
-    */
     localStorage.setItem(
+
       "tema",
+
       novoTema
         ? "escuro"
         : "claro"
+
     );
+
+  }
+
+
+  // ========================================
+  // ABRIR / FECHAR MENU
+  // ========================================
+
+  function alternarMenu() {
+
+    setMenuAberto(
+      !menuAberto
+    );
+
+  }
+
+
+  // ========================================
+  // FECHAR MENU
+  // ========================================
+
+  function fecharMenu() {
+
+    setMenuAberto(
+      false
+    );
+
   }
 
 
@@ -118,13 +217,7 @@ export default function PacienteLayout() {
   // ========================================
 
   function sair() {
-    /*
-      Removemos apenas os dados
-      relacionados à autenticação.
 
-      Não removemos o tema porque queremos
-      manter a preferência do usuário.
-    */
     localStorage.removeItem(
       "token"
     );
@@ -134,9 +227,15 @@ export default function PacienteLayout() {
     );
 
 
+    setMenuAberto(
+      false
+    );
+
+
     navigate(
       "/login"
     );
+
   }
 
 
@@ -145,7 +244,9 @@ export default function PacienteLayout() {
   // ========================================
 
   return (
+
     <div className="paciente-layout">
+
 
       {/* ========================================
           NAVBAR
@@ -153,114 +254,183 @@ export default function PacienteLayout() {
 
       <header className="paciente-navbar">
 
-        {/* LOGO / NOME DO SISTEMA */}
+
+        {/* ========================================
+            LOGO / TÍTULO
+        ======================================== */}
+
         <div className="paciente-navbar-logo">
 
           <span className="paciente-logo-icone">
+
             +
+
           </span>
 
+
           <span>
+
             Sistema Médico
+
           </span>
 
         </div>
 
 
         {/* ========================================
-            MENU PRINCIPAL
+            MENU DESKTOP
         ======================================== */}
 
         <nav className="paciente-navbar-menu">
 
-          {/* INÍCIO */}
           <NavLink
+
             to="/paciente"
+
             end
-            className={({ isActive }) =>
+
+            className={({
               isActive
+            }) =>
+
+              isActive
+
                 ? "paciente-menu-link ativo"
+
                 : "paciente-menu-link"
+
             }
+
           >
+
             Início
+
           </NavLink>
 
 
-          {/* AGENDAR CONSULTA */}
           <NavLink
+
             to="/paciente/agendar"
-            className={({ isActive }) =>
+
+            className={({
               isActive
+            }) =>
+
+              isActive
+
                 ? "paciente-menu-link ativo"
+
                 : "paciente-menu-link"
+
             }
+
           >
+
             Agendar consulta
+
           </NavLink>
 
 
-          {/* MEUS AGENDAMENTOS */}
           <NavLink
+
             to="/paciente/agendamentos"
-            className={({ isActive }) =>
+
+            className={({
               isActive
+            }) =>
+
+              isActive
+
                 ? "paciente-menu-link ativo"
+
                 : "paciente-menu-link"
+
             }
+
           >
+
             Meus agendamentos
+
           </NavLink>
 
         </nav>
 
 
         {/* ========================================
-            LADO DIREITO DA NAVBAR
+            LADO DIREITO - DESKTOP
         ======================================== */}
 
         <div className="paciente-navbar-direita">
 
-          {/* BOTÃO DE TEMA */}
+
+          {/* TEMA */}
+
           <button
+
             type="button"
+
             className="paciente-botao-tema"
+
             onClick={
               alterarTema
             }
+
             title={
+
               temaEscuro
+
                 ? "Ativar tema claro"
+
                 : "Ativar tema escuro"
+
             }
+
           >
-            {temaEscuro
-              ? "☀️"
-              : "🌙"}
+
+            {
+              temaEscuro
+                ? "☀️"
+                : "🌙"
+            }
+
           </button>
 
 
-          {/* NOME DO PACIENTE */}
+          {/* USUÁRIO */}
+
           <div className="paciente-navbar-usuario">
 
             <div className="paciente-avatar">
-              {usuario?.nome
-                ? usuario.nome
-                    .charAt(0)
-                    .toUpperCase()
-                : "P"}
+
+              {
+                usuario?.nome
+
+                  ? usuario.nome
+                      .charAt(0)
+                      .toUpperCase()
+
+                  : "P"
+              }
+
             </div>
 
 
             <div className="paciente-usuario-info">
 
               <span className="paciente-usuario-nome">
-                {usuario?.nome ||
-                  "Paciente"}
+
+                {
+                  usuario?.nome ||
+                  "Paciente"
+                }
+
               </span>
 
+
               <span className="paciente-usuario-tipo">
+
                 Paciente
+
               </span>
 
             </div>
@@ -268,14 +438,300 @@ export default function PacienteLayout() {
           </div>
 
 
-          {/* BOTÃO SAIR */}
+          {/* SAIR */}
+
           <button
+
             type="button"
-            onClick={sair}
+
+            onClick={
+              sair
+            }
+
             className="paciente-botao-sair"
+
           >
+
             Sair
+
           </button>
+
+        </div>
+
+
+        {/* ========================================
+            MENU RESPONSIVO
+        ======================================== */}
+
+        <div
+          className="paciente-menu-responsivo"
+          ref={
+            menuResponsivoRef
+          }
+        >
+
+          {/* BOTÃO DOS TRÊS PONTOS */}
+
+          <button
+
+            type="button"
+
+            className="paciente-menu-responsivo-botao"
+
+            onClick={
+              alternarMenu
+            }
+
+            aria-label="Abrir menu"
+
+            aria-expanded={
+              menuAberto
+            }
+
+          >
+
+            ⋮
+
+          </button>
+
+
+          {/* ========================================
+              DROPDOWN
+          ======================================== */}
+
+          {
+            menuAberto && (
+
+              <div className="paciente-menu-dropdown">
+
+
+                {/* =================================
+                    USUÁRIO
+                ================================= */}
+
+                <div className="paciente-menu-dropdown-usuario">
+
+                  <div className="paciente-avatar">
+
+                    {
+                      usuario?.nome
+
+                        ? usuario.nome
+                            .charAt(0)
+                            .toUpperCase()
+
+                        : "P"
+                    }
+
+                  </div>
+
+
+                  <div className="paciente-usuario-info">
+
+                    <span className="paciente-usuario-nome">
+
+                      {
+                        usuario?.nome ||
+                        "Paciente"
+                      }
+
+                    </span>
+
+
+                    <span className="paciente-usuario-tipo">
+
+                      Paciente
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {/* SEPARADOR */}
+
+                <div className="paciente-menu-separador" />
+
+
+                {/* =================================
+                    LINKS
+                ================================= */}
+
+                <NavLink
+
+                  to="/paciente"
+
+                  end
+
+                  onClick={
+                    fecharMenu
+                  }
+
+                  className={({
+                    isActive
+                  }) =>
+
+                    isActive
+
+                      ? "paciente-dropdown-link ativo"
+
+                      : "paciente-dropdown-link"
+
+                  }
+
+                >
+
+                  <span className="paciente-dropdown-icone">
+
+                    🏠
+
+                  </span>
+
+                  Início
+
+                </NavLink>
+
+
+                <NavLink
+
+                  to="/paciente/agendar"
+
+                  onClick={
+                    fecharMenu
+                  }
+
+                  className={({
+                    isActive
+                  }) =>
+
+                    isActive
+
+                      ? "paciente-dropdown-link ativo"
+
+                      : "paciente-dropdown-link"
+
+                  }
+
+                >
+
+                  <span className="paciente-dropdown-icone">
+
+                    📅
+
+                  </span>
+
+                  Agendar consulta
+
+                </NavLink>
+
+
+                <NavLink
+
+                  to="/paciente/agendamentos"
+
+                  onClick={
+                    fecharMenu
+                  }
+
+                  className={({
+                    isActive
+                  }) =>
+
+                    isActive
+
+                      ? "paciente-dropdown-link ativo"
+
+                      : "paciente-dropdown-link"
+
+                  }
+
+                >
+
+                  <span className="paciente-dropdown-icone">
+
+                    🕐
+
+                  </span>
+
+                  Meus agendamentos
+
+                </NavLink>
+
+
+                {/* SEPARADOR */}
+
+                <div className="paciente-menu-separador" />
+
+
+                {/* =================================
+                    TEMA
+                ================================= */}
+
+                <button
+
+                  type="button"
+
+                  className="paciente-dropdown-botao"
+
+                  onClick={() => {
+
+                    alterarTema();
+
+                  }}
+
+                >
+
+                  <span className="paciente-dropdown-icone">
+
+                    {
+                      temaEscuro
+                        ? "☀️"
+                        : "🌙"
+                    }
+
+                  </span>
+
+
+                  {
+                    temaEscuro
+                      ? "Tema claro"
+                      : "Tema escuro"
+                  }
+
+                </button>
+
+
+                {/* =================================
+                    SAIR
+                ================================= */}
+
+                <button
+
+                  type="button"
+
+                  className="paciente-dropdown-botao sair"
+
+                  onClick={
+                    sair
+                  }
+
+                >
+
+                  <span className="paciente-dropdown-icone">
+
+                    ↪
+
+                  </span>
+
+                  Sair
+
+                </button>
+
+              </div>
+
+            )
+          }
 
         </div>
 
@@ -283,25 +739,17 @@ export default function PacienteLayout() {
 
 
       {/* ========================================
-          CONTEÚDO DAS PÁGINAS
+          CONTEÚDO
       ======================================== */}
 
       <main className="paciente-conteudo">
 
-        {/*
-          O Outlet mostra a página correspondente
-          à rota selecionada.
-
-          Exemplos:
-
-          /paciente
-          /paciente/agendar
-          /paciente/agendamentos
-        */}
         <Outlet />
 
       </main>
 
     </div>
+
   );
+
 }

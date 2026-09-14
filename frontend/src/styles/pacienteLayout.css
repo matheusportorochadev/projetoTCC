@@ -1,201 +1,304 @@
-/* ========================================
-   LAYOUT DO PACIENTE
-======================================== */
+/* =========================================================
+   ESTRUTURA PRINCIPAL
+========================================================= */
 
 .paciente-layout {
   min-height: 100vh;
 
-  background: #f5f7fb;
+  background: #f4f6f8;
+
+  color: #111827;
 
   transition:
-    background 0.2s ease,
+    background-color 0.2s ease,
     color 0.2s ease;
 }
 
 
-/* ========================================
+/* =========================================================
    NAVBAR
-======================================== */
+========================================================= */
 
 .paciente-navbar {
-  width: 100%;
+  position: relative;
+
+  z-index: 1000;
+
   min-height: 72px;
 
   display: flex;
-  align-items: center;
 
-  gap: 30px;
+  align-items: center;
 
   padding: 0 32px;
 
-  background: #ffffff;
-
-  border-bottom: 1px solid #e5e7eb;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.04);
+  gap: 28px;
 
   box-sizing: border-box;
 
-  position: sticky;
+  background: #ffffff;
 
-  top: 0;
+  border-bottom:
+    1px solid #e2e8f0;
 
-  z-index: 100;
+  box-shadow:
+    0 1px 4px
+    rgba(15, 23, 42, 0.03);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 
-/* ========================================
+/* =========================================================
    LOGO
-======================================== */
+========================================================= */
 
 .paciente-navbar-logo {
   display: flex;
+
   align-items: center;
 
   gap: 10px;
 
-  color: #111827;
+  flex-shrink: 0;
 
-  font-size: 19px;
-  font-weight: 700;
+  color: #0f172a;
+
+  font-size: 22px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.02em;
 
   white-space: nowrap;
+
+  transition:
+    color 0.2s ease;
 }
 
 
+/* =========================================================
+   ÍCONE DO LOGO
+========================================================= */
+
 .paciente-logo-icone {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
   width: 34px;
+
   height: 34px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 
   background: #2563eb;
 
-  color: #ffffff;
-
   border-radius: 9px;
 
-  font-size: 23px;
+  color: #ffffff;
+
+  font-size: 22px;
+
   font-weight: 500;
 }
 
 
-/* ========================================
-   MENU
-======================================== */
+/* =========================================================
+   MENU DESKTOP
+========================================================= */
 
 .paciente-navbar-menu {
   display: flex;
+
   align-items: center;
 
-  gap: 4px;
+  gap: 6px;
 
   flex: 1;
+
+  min-width: 0;
 }
 
+
+/* =========================================================
+   LINKS
+========================================================= */
 
 .paciente-menu-link {
   position: relative;
 
-  padding: 11px 14px;
+  display: flex;
 
-  color: #6b7280;
+  align-items: center;
 
-  border-radius: 8px;
+  min-height: 40px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
 
   text-decoration: none;
 
-  font-size: 14px;
-  font-weight: 500;
+  color: #64748b;
 
-  transition: 0.2s ease;
+  font-size: 14px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
 .paciente-menu-link:hover {
-  color: #2563eb;
+  background: #f1f5f9;
 
-  background: #f3f6ff;
+  color: #0f172a;
 }
 
+
+/* =========================================================
+   LINK ATIVO
+========================================================= */
 
 .paciente-menu-link.ativo {
-  color: #2563eb;
-
   background: #eff6ff;
 
-  font-weight: 600;
+  color: #2563eb;
 }
 
 
-/* ========================================
+/* barrinha azul inferior */
+
+.paciente-menu-link.ativo::after {
+  content: "";
+
+  position: absolute;
+
+  left: 14px;
+
+  right: 14px;
+
+  bottom: -16px;
+
+  height: 3px;
+
+  border-radius:
+    3px 3px 0 0;
+
+  background: #2563eb;
+}
+
+
+/* =========================================================
    LADO DIREITO
-======================================== */
+========================================================= */
 
 .paciente-navbar-direita {
   display: flex;
+
   align-items: center;
 
-  gap: 15px;
+  gap: 10px;
+
+  flex-shrink: 0;
 }
 
 
-/* ========================================
+/* =========================================================
    BOTÃO TEMA
-======================================== */
+========================================================= */
 
 .paciente-botao-tema {
-  width: 40px;
-  height: 40px;
-
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
-  border: 1px solid #e5e7eb;
+  width: 40px;
+
+  height: 40px;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border:
+    1px solid #e2e8f0;
 
   border-radius: 10px;
 
   background: #ffffff;
 
-  cursor: pointer;
+  color: #475569;
+
+  box-shadow: none;
 
   font-size: 18px;
 
-  transition: 0.2s ease;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
 .paciente-botao-tema:hover {
-  background: #f3f4f6;
+  background: #f1f5f9;
+
+  border-color: #cbd5e1;
 
   transform: translateY(-1px);
 }
 
 
-/* ========================================
+/* =========================================================
    USUÁRIO
-======================================== */
+========================================================= */
 
 .paciente-navbar-usuario {
   display: flex;
+
   align-items: center;
 
   gap: 10px;
+
+  flex-shrink: 0;
 }
 
 
+/* =========================================================
+   AVATAR
+========================================================= */
+
 .paciente-avatar {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
   width: 38px;
+
   height: 38px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 
   border-radius: 50%;
 
@@ -207,48 +310,76 @@
 }
 
 
+/* =========================================================
+   INFORMAÇÕES DO USUÁRIO
+========================================================= */
+
 .paciente-usuario-info {
   display: flex;
+
   flex-direction: column;
+
+  min-width: 0;
 }
 
 
 .paciente-usuario-nome {
-  color: #111827;
+  max-width: 180px;
 
-  font-size: 14px;
+  overflow: hidden;
+
+  color: #475569;
+
+  font-size: 13px;
+
   font-weight: 600;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
 }
 
 
 .paciente-usuario-tipo {
-  color: #9ca3af;
+  color: #94a3b8;
 
-  font-size: 12px;
+  font-size: 11px;
+
+  font-weight: 500;
 }
 
 
-/* ========================================
+/* =========================================================
    BOTÃO SAIR
-======================================== */
+========================================================= */
 
 .paciente-botao-sair {
-  padding: 9px 14px;
+  min-height: 40px;
 
-  border: 1px solid #fecaca;
+  padding: 0 15px;
 
-  border-radius: 8px;
+  border:
+    1px solid #fecaca;
+
+  border-radius: 9px;
 
   background: #ffffff;
 
   color: #dc2626;
 
+  font-family: inherit;
+
   font-size: 13px;
-  font-weight: 600;
+
+  font-weight: 700;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
@@ -256,12 +387,288 @@
   background: #fef2f2;
 
   border-color: #fca5a5;
+
+  transform: translateY(-1px);
 }
 
 
-/* ========================================
+/* =========================================================
+   MENU RESPONSIVO
+========================================================= */
+
+.paciente-menu-responsivo {
+  position: relative;
+
+  display: none;
+
+  margin-left: auto;
+}
+
+
+/* =========================================================
+   BOTÃO DOS TRÊS PONTOS
+========================================================= */
+
+.paciente-menu-responsivo-botao {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 42px;
+
+  height: 42px;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 29px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.paciente-menu-responsivo-botao:hover {
+  background: #f8fafc;
+
+  border-color: #cbd5e1;
+}
+
+
+/* =========================================================
+   DROPDOWN MOBILE
+========================================================= */
+
+.paciente-menu-dropdown {
+  position: absolute;
+
+  top: calc(100% + 8px);
+
+  right: 0;
+
+  width: 310px;
+
+  max-width:
+    calc(100vw - 32px);
+
+  padding: 10px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 16px 40px
+    rgba(15, 23, 42, 0.16);
+
+  z-index: 1100;
+
+  animation:
+    paciente-menu-entrada
+    0.16s ease;
+}
+
+
+@keyframes paciente-menu-entrada {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-5px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   USUÁRIO NO DROPDOWN
+========================================================= */
+
+.paciente-menu-dropdown-usuario {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding:
+    10px
+    9px
+    13px;
+}
+
+
+/* =========================================================
+   AVATAR NO DROPDOWN
+========================================================= */
+
+.paciente-menu-dropdown-usuario
+.paciente-avatar {
+  width: 38px;
+
+  height: 38px;
+}
+
+
+/* =========================================================
+   SEPARADOR
+========================================================= */
+
+.paciente-menu-separador {
+  height: 1px;
+
+  margin:
+    6px
+    2px;
+
+  background: #e2e8f0;
+}
+
+
+/* =========================================================
+   LINKS / BOTÕES DO DROPDOWN
+========================================================= */
+
+.paciente-dropdown-link,
+.paciente-dropdown-botao {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  width: 100%;
+
+  min-height: 44px;
+
+  padding:
+    10px
+    13px;
+
+  box-sizing: border-box;
+
+  background: transparent;
+
+  border: none;
+
+  border-radius: 9px;
+
+  color: #64748b;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  text-align: left;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+
+.paciente-dropdown-link:hover,
+.paciente-dropdown-botao:hover {
+  background: #f1f5f9;
+
+  color: #0f172a;
+}
+
+
+/* =========================================================
+   LINK ATIVO NO DROPDOWN
+========================================================= */
+
+.paciente-dropdown-link.ativo {
+  background: #eff6ff;
+
+  color: #2563eb;
+}
+
+
+/* =========================================================
+   ÍCONES DO DROPDOWN
+========================================================= */
+
+.paciente-dropdown-icone {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 24px;
+
+  flex-shrink: 0;
+
+  color: inherit;
+
+  font-size: 17px;
+}
+
+
+/* =========================================================
+   BOTÃO SAIR NO DROPDOWN
+========================================================= */
+
+.paciente-dropdown-botao.sair {
+  color: #dc2626;
+}
+
+
+.paciente-dropdown-botao.sair:hover {
+  background: #fef2f2;
+
+  color: #b91c1c;
+}
+
+
+/* =========================================================
    CONTEÚDO
-======================================== */
+========================================================= */
 
 .paciente-conteudo {
   width: 100%;
@@ -270,83 +677,107 @@
 }
 
 
-/* ========================================
-   MODO ESCURO
-======================================== */
+/* =========================================================
+   MODO ESCURO - LAYOUT
+========================================================= */
 
 body.modo-escuro
 .paciente-layout {
-  background: #111827;
+  background: #0f172a;
+
+  color: #f8fafc;
 }
 
 
-/* NAVBAR */
+/* =========================================================
+   MODO ESCURO - NAVBAR
+========================================================= */
 
 body.modo-escuro
 .paciente-navbar {
-  background: #1f2937;
+  background: #111827;
 
-  border-bottom-color: #374151;
+  border-bottom-color: #273449;
 
   box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.2);
+    0 1px 4px
+    rgba(0, 0, 0, 0.18);
 }
 
 
-/* LOGO */
+/* =========================================================
+   MODO ESCURO - LOGO
+========================================================= */
 
 body.modo-escuro
 .paciente-navbar-logo {
-  color: #f9fafb;
+  color: #f8fafc;
 }
 
 
-/* LINKS */
+/* =========================================================
+   MODO ESCURO - LINKS
+========================================================= */
 
 body.modo-escuro
 .paciente-menu-link {
-  color: #d1d5db;
+  color: #94a3b8;
 }
 
 
 body.modo-escuro
 .paciente-menu-link:hover {
-  color: #ffffff;
+  background: #1e293b;
 
-  background: #374151;
+  color: #f8fafc;
 }
 
 
 body.modo-escuro
 .paciente-menu-link.ativo {
-  color: #93c5fd;
+  background:
+    rgba(37, 99, 235, 0.14);
 
-  background: #1e3a5f;
+  color: #60a5fa;
 }
 
 
-/* BOTÃO TEMA */
+body.modo-escuro
+.paciente-menu-link.ativo::after {
+  background: #3b82f6;
+}
+
+
+/* =========================================================
+   MODO ESCURO - TEMA
+========================================================= */
 
 body.modo-escuro
 .paciente-botao-tema {
-  background: #111827;
+  background: #1e293b;
 
-  border-color: #374151;
+  border-color: #334155;
+
+  color: #f8fafc;
 }
 
 
 body.modo-escuro
 .paciente-botao-tema:hover {
-  background: #374151;
+  background: #334155;
+
+  border-color: #475569;
 }
 
 
-/* USUÁRIO */
+/* =========================================================
+   MODO ESCURO - USUÁRIO
+========================================================= */
 
 body.modo-escuro
 .paciente-avatar {
-  background: #1e3a5f;
+  background:
+    rgba(37, 99, 235, 0.18);
 
   color: #93c5fd;
 }
@@ -354,23 +785,27 @@ body.modo-escuro
 
 body.modo-escuro
 .paciente-usuario-nome {
-  color: #f9fafb;
+  color: #cbd5e1;
 }
 
 
 body.modo-escuro
 .paciente-usuario-tipo {
-  color: #9ca3af;
+  color: #64748b;
 }
 
 
-/* SAIR */
+/* =========================================================
+   MODO ESCURO - SAIR
+========================================================= */
 
 body.modo-escuro
 .paciente-botao-sair {
-  background: transparent;
+  background:
+    rgba(220, 38, 38, 0.08);
 
-  border-color: #7f1d1d;
+  border-color:
+    rgba(248, 113, 113, 0.35);
 
   color: #f87171;
 }
@@ -378,76 +813,237 @@ body.modo-escuro
 
 body.modo-escuro
 .paciente-botao-sair:hover {
-  background: #450a0a;
+  background:
+    rgba(220, 38, 38, 0.16);
+
+  border-color: #ef4444;
+
+  color: #fca5a5;
 }
 
 
-/* ========================================
+/* =========================================================
+   MODO ESCURO - BOTÃO RESPONSIVO
+========================================================= */
+
+body.modo-escuro
+.paciente-menu-responsivo-botao {
+  background: #1e293b;
+
+  border-color: #334155;
+
+  color: #e2e8f0;
+}
+
+
+body.modo-escuro
+.paciente-menu-responsivo-botao:hover {
+  background: #334155;
+
+  border-color: #475569;
+}
+
+
+/* =========================================================
+   MODO ESCURO - DROPDOWN
+========================================================= */
+
+body.modo-escuro
+.paciente-menu-dropdown {
+  background: #111827;
+
+  border-color: #273449;
+
+  box-shadow:
+    0 18px 40px
+    rgba(0, 0, 0, 0.42);
+}
+
+
+body.modo-escuro
+.paciente-menu-separador {
+  background: #273449;
+}
+
+
+body.modo-escuro
+.paciente-dropdown-link,
+body.modo-escuro
+.paciente-dropdown-botao {
+  color: #94a3b8;
+}
+
+
+body.modo-escuro
+.paciente-dropdown-link:hover,
+body.modo-escuro
+.paciente-dropdown-botao:hover {
+  background: #1e293b;
+
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.paciente-dropdown-link.ativo {
+  background:
+    rgba(37, 99, 235, 0.14);
+
+  color: #60a5fa;
+}
+
+
+body.modo-escuro
+.paciente-dropdown-botao.sair {
+  color: #f87171;
+}
+
+
+body.modo-escuro
+.paciente-dropdown-botao.sair:hover {
+  background:
+    rgba(220, 38, 38, 0.16);
+
+  color: #fca5a5;
+}
+
+
+/* =========================================================
    RESPONSIVIDADE
-======================================== */
+========================================================= */
 
 @media (max-width: 950px) {
 
+  /* =======================================================
+     NAVBAR
+  ======================================================= */
+
   .paciente-navbar {
-    flex-wrap: wrap;
+    min-height: 64px;
 
-    padding: 14px 20px;
+    padding:
+      0
+      16px;
 
-    gap: 14px;
+    justify-content:
+      space-between;
+
+    gap: 16px;
   }
 
+
+  /* =======================================================
+     LOGO
+  ======================================================= */
+
+  .paciente-navbar-logo {
+    font-size: 20px;
+  }
+
+
+  /* =======================================================
+     ESCONDE MENU DESKTOP
+  ======================================================= */
 
   .paciente-navbar-menu {
-    order: 3;
-
-    width: 100%;
-
-    overflow-x: auto;
+    display: none;
   }
 
+
+  /* =======================================================
+     ESCONDE LADO DIREITO DESKTOP
+  ======================================================= */
 
   .paciente-navbar-direita {
-    margin-left: auto;
+    display: none;
+  }
+
+
+  /* =======================================================
+     MOSTRA MENU RESPONSIVO
+  ======================================================= */
+
+  .paciente-menu-responsivo {
+    display: block;
+  }
+
+
+  /* =======================================================
+     DROPDOWN
+  ======================================================= */
+
+  .paciente-menu-dropdown {
+    top:
+      calc(100% + 8px);
+
+    right: 0;
   }
 
 }
 
 
-@media (max-width: 650px) {
+/* =========================================================
+   CELULAR PEQUENO
+========================================================= */
+
+@media (max-width: 520px) {
 
   .paciente-navbar {
-    padding: 12px 15px;
+    padding:
+      0
+      12px;
   }
 
 
-  .paciente-usuario-info {
-    display: none;
+  .paciente-navbar-logo {
+    gap: 8px;
+
+    font-size: 19px;
   }
 
 
-  .paciente-menu-link {
-    white-space: nowrap;
+  .paciente-logo-icone {
+    width: 32px;
 
-    padding: 9px 11px;
+    height: 32px;
+
+    font-size: 21px;
   }
 
 
-  .paciente-botao-sair {
-    padding: 8px 10px;
+  /* menu quase toda largura */
+
+  .paciente-menu-dropdown {
+    width:
+      calc(100vw - 24px);
+
+    max-width: none;
   }
 
 }
 
 
-@media (max-width: 450px) {
+/* =========================================================
+   CELULAR MUITO PEQUENO
+========================================================= */
 
-  .paciente-navbar-logo span:last-child {
-    display: none;
+@media (max-width: 360px) {
+
+  .paciente-navbar {
+    padding:
+      0
+      10px;
   }
 
 
-  .paciente-navbar {
-    gap: 10px;
+  .paciente-navbar-logo {
+    font-size: 17px;
+  }
+
+
+  .paciente-menu-dropdown {
+    width:
+      calc(100vw - 20px);
   }
 
 }

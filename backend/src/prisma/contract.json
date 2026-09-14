@@ -41,12 +41,20 @@
                 "value": "AGENDADA"
               },
               {
+                "name": "PENDENTE",
+                "value": "PENDENTE"
+              },
+              {
                 "name": "CONFIRMADA",
                 "value": "CONFIRMADA"
               },
               {
                 "name": "REALIZADA",
                 "value": "REALIZADA"
+              },
+              {
+                "name": "RECUSADA",
+                "value": "RECUSADA"
               },
               {
                 "name": "CANCELADA",
@@ -813,8 +821,8 @@
             "agendamento": {
               "checks": [
                 {
-                  "expression": "\"status\" IN ('AGENDADA', 'CONFIRMADA', 'REALIZADA', 'CANCELADA', 'FALTOU')",
-                  "name": "agendamento_status_check_46d5956a",
+                  "expression": "\"status\" IN ('AGENDADA', 'PENDENTE', 'CONFIRMADA', 'REALIZADA', 'RECUSADA', 'CANCELADA', 'FALTOU')",
+                  "name": "agendamento_status_check_ea658e59",
                   "prefix": "agendamento_status_check"
                 }
               ],
@@ -866,7 +874,7 @@
                   "codecId": "pg/text@1",
                   "default": {
                     "kind": "literal",
-                    "value": "AGENDADA"
+                    "value": "PENDENTE"
                   },
                   "nativeType": "text",
                   "nullable": false,
@@ -1423,8 +1431,10 @@
               "kind": "valueSet",
               "values": [
                 "AGENDADA",
+                "PENDENTE",
                 "CONFIRMADA",
                 "REALIZADA",
+                "RECUSADA",
                 "CANCELADA",
                 "FALTOU"
               ]
@@ -1443,7 +1453,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "99a0c0d02327e1a45717c74cb3959933a13575cc607803ed63ebc8430a017069"
+    "storageHash": "a3fc2948462eb98695593c3e1f8d29a8446aa8cb7f4731ec8bc864fc7e43f357"
   },
   "execution": {
     "executionHash": "9d81c93591673b0d12524d87fe00b796577c7b57a2b5823bfff9599765755a00",

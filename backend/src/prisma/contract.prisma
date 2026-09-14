@@ -12,8 +12,10 @@ enum TipoUsuario {
 // Status possíveis de um agendamento
 enum StatusAgendamento {
   AGENDADA
+  PENDENTE
   CONFIRMADA
   REALIZADA
+  RECUSADA
   CANCELADA
   FALTOU
 }
@@ -182,7 +184,7 @@ model Agendamento {
   horaFim String
 
   // Estado atual da consulta
-  status StatusAgendamento @default(AGENDADA)
+  status StatusAgendamento @default(PENDENTE)
 
   // Controle de criação e atualização
   createdAt TimestamptzString @default(now())

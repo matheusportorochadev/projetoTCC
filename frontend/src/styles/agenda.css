@@ -1,83 +1,88 @@
-/* ========================================
+/* =========================================================
    PÁGINA
-======================================== */
+========================================================= */
 
 .agenda-page {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 36px;
+  padding: 32px;
+  box-sizing: border-box;
 }
 
-/* ========================================
-   CABEÇALHO
-======================================== */
+
+/* =========================================================
+   CABEÇALHO PRINCIPAL
+========================================================= */
 
 .agenda-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
-}
-
-.agenda-header h1 {
-  margin: 4px 0 8px;
-  color: #18202b;
-  font-size: 34px;
-  line-height: 1.15;
-}
-
-.agenda-header p {
-  max-width: 650px;
-  margin: 0;
-  color: #6b7280;
-  font-size: 15px;
-  line-height: 1.6;
+  margin-bottom: 28px;
 }
 
 .agenda-eyebrow {
-  color: #2563eb;
+  display: block;
+  margin-bottom: 6px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.4px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: #2563eb;
+}
+
+.agenda-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 750;
+  color: #0f172a;
 }
 
 .agenda-resumo {
-  min-width: 170px;
-  padding: 18px 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
   background: #ffffff;
-  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .agenda-resumo span {
-  display: block;
-  margin-bottom: 5px;
-  color: #6b7280;
-  font-size: 12px;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .agenda-resumo strong {
-  color: #18202b;
-  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 16px;
 }
 
-/* ========================================
+
+/* =========================================================
    ABAS
-======================================== */
+========================================================= */
 
 .agenda-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 26px;
+  gap: 10px;
+  margin-bottom: 28px;
   padding: 6px;
-  border: 1px solid #e5e7eb;
-  border-radius: 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
   background: #ffffff;
-  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
 .agenda-tab {
@@ -85,45 +90,43 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 62px;
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  border-radius: 12px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 10px;
   background: transparent;
-  color: #64748b;
-  text-align: left;
   cursor: pointer;
+  text-align: left;
+
   transition:
     background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .agenda-tab:hover {
   background: #f8fafc;
-  color: #334155;
 }
 
 .agenda-tab-active {
-  border-color: #dbeafe;
   background: #eff6ff;
-  color: #2563eb;
 }
 
 .agenda-tab-icon {
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
-  display: grid;
-  place-items: center;
+  flex-shrink: 0;
   border-radius: 10px;
   background: #f1f5f9;
+  color: #475569;
   font-size: 18px;
 }
 
 .agenda-tab-active .agenda-tab-icon {
-  background: #dbeafe;
-  color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
 }
 
 .agenda-tab > span:last-child {
@@ -133,124 +136,122 @@
 }
 
 .agenda-tab strong {
-  font-size: 13px;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .agenda-tab small {
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 12px;
 }
 
-/* ========================================
-   LAYOUT MENSAL
-======================================== */
+.agenda-tab-active strong {
+  color: #1d4ed8;
+}
+
+
+/* =========================================================
+   LAYOUT PRINCIPAL
+========================================================= */
 
 .agenda-mensal-layout {
   display: grid;
-  grid-template-columns: minmax(550px, 1fr) 380px;
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(300px, 0.75fr);
   gap: 24px;
   align-items: start;
 }
 
-/* ========================================
-   CARDS
-======================================== */
 
-.agenda-calendario-card,
-.agenda-config-card,
-.agenda-marcados-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 22px;
-  background: #ffffff;
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
-}
+/* =========================================================
+   CALENDÁRIO
+========================================================= */
 
 .agenda-calendario-card {
   padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
 }
-
-.agenda-config-card {
-  padding: 24px;
-}
-
-.agenda-marcados-card {
-  min-height: 500px;
-  padding: 26px;
-}
-
-/* ========================================
-   CABEÇALHO DO CALENDÁRIO
-======================================== */
 
 .agenda-calendario-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .agenda-calendario-header > div {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 3px;
 }
 
 .agenda-calendario-header strong {
-  color: #172033;
-  font-size: 21px;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 750;
 }
 
 .agenda-calendario-header span {
-  margin-top: 2px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .agenda-calendario-header button {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 11px;
   background: #ffffff;
   color: #334155;
-  font-size: 27px;
+  font-size: 24px;
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    transform 0.15s ease;
+    transform 0.2s ease;
 }
 
 .agenda-calendario-header button:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
   transform: translateY(-1px);
-  border-color: #bfdbfe;
-  background: #eff6ff;
 }
 
-/* ========================================
+
+/* =========================================================
    DIAS DA SEMANA
-======================================== */
+========================================================= */
 
 .agenda-calendario-semana {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
   margin-bottom: 8px;
 }
 
 .agenda-calendario-semana span {
-  padding: 8px;
+  padding: 8px 0;
+  text-align: center;
   color: #94a3b8;
   font-size: 11px;
   font-weight: 700;
-  text-align: center;
+  letter-spacing: 0.05em;
 }
 
-/* ========================================
-   DIAS DO CALENDÁRIO
-======================================== */
+
+/* =========================================================
+   GRID DO CALENDÁRIO
+========================================================= */
 
 .agenda-calendario-grid {
   display: grid;
@@ -260,7 +261,7 @@
 
 .agenda-dia,
 .agenda-dia-vazio {
-  min-height: 82px;
+  min-height: 105px;
 }
 
 .agenda-dia {
@@ -268,238 +269,200 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  padding: 11px;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   background: #ffffff;
-  color: #334155;
   cursor: pointer;
+  overflow: hidden;
+
   transition:
-    transform 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .agenda-dia:hover {
   transform: translateY(-2px);
   border-color: #93c5fd;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
 }
 
 .agenda-dia-numero {
-  font-size: 14px;
-  font-weight: 700;
+  position: relative;
+  z-index: 2;
+  color: #334155;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1;
 }
 
 .agenda-dia small {
-  padding-right: 24px;
-  color: #059669;
-  font-size: 9px;
-  font-weight: 700;
+  position: relative;
+  z-index: 2;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 750;
 }
 
-.agenda-dia-selecionado {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
-}
+
+/* =========================================================
+   DIA COM DISPONIBILIDADE
+========================================================= */
 
 .agenda-dia-disponivel {
-  border-color: #a7f3d0;
+  border-color: #4ade80;
+
+  background:
+    linear-gradient(
+      180deg,
+      #dcfce7 0%,
+      #f0fdf4 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 197, 94, 0.08);
 }
 
-.agenda-dia-disponivel::after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
+.agenda-dia-disponivel .agenda-dia-numero {
+  color: #166534;
 }
 
-/* ========================================
-   BOTÃO + DO DIA
-======================================== */
+.agenda-dia-disponivel:hover {
+  border-color: #22c55e;
 
-.agenda-dia-selecionar {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 23px;
-  height: 23px;
-  display: grid;
-  place-items: center;
-  border-radius: 7px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 16px !important;
-  font-weight: 700;
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease;
+  background:
+    linear-gradient(
+      180deg,
+      #bbf7d0 0%,
+      #ecfdf5 100%
+    );
+
+  box-shadow:
+    0 8px 22px rgba(34, 197, 94, 0.15);
 }
 
-.agenda-dia-selecionar:hover {
-  transform: scale(1.08);
-  background: #2563eb;
-  color: #ffffff;
-}
 
-.agenda-dia-selecionar-ativo {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-/* ========================================
+/* =========================================================
    LEGENDA
-======================================== */
+========================================================= */
 
 .agenda-legenda {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 18px;
-  color: #64748b;
-  font-size: 11px;
+  gap: 20px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .agenda-legenda span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
+  color: #64748b;
+  font-size: 12px;
 }
 
 .agenda-legenda i {
   width: 10px;
   height: 10px;
-  border-radius: 3px;
-}
-
-.legenda-selecionado {
-  background: #2563eb;
+  border-radius: 50%;
 }
 
 .legenda-disponivel {
-  background: #10b981;
+  background: #22c55e;
 }
 
-/* ========================================
-   CONFIGURAÇÃO
-======================================== */
+
+/* =========================================================
+   CARD CONFIGURAR HORÁRIO
+========================================================= */
+
+.agenda-config-card {
+  position: relative;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
 
 .agenda-config-titulo {
   display: flex;
-  align-items: center;
-  gap: 13px;
+  gap: 12px;
   margin-bottom: 24px;
+}
+
+.agenda-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .agenda-config-titulo h2 {
   margin: 0 0 4px;
-  color: #172033;
-  font-size: 19px;
+  color: #0f172a;
+  font-size: 18px;
 }
 
 .agenda-config-titulo p {
   margin: 0;
   color: #64748b;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
-.agenda-icon {
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 13px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 25px;
-}
 
-.agenda-selecao-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 13px 14px;
-  border-radius: 12px;
-  background: #f8fafc;
-}
-
-.agenda-selecao-info span {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.agenda-selecao-info strong {
-  color: #2563eb;
-  font-size: 18px;
-}
-
-/* ========================================
-   DATAS SELECIONADAS
-======================================== */
-
-.agenda-datas-selecionadas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-height: 105px;
-  margin-bottom: 18px;
-  overflow-y: auto;
-}
-
-.agenda-datas-selecionadas span {
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-/* ========================================
+/* =========================================================
    FORMULÁRIO
-======================================== */
+========================================================= */
 
 .agenda-form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .agenda-field {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .agenda-field label {
-  color: #374151;
-  font-size: 13px;
-  font-weight: 600;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .agenda-field input,
 .agenda-field select {
   width: 100%;
-  height: 46px;
-  padding: 0 13px;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
   outline: none;
   background: #ffffff;
-  color: #111827;
-  font-size: 14px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13px;
+
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -511,55 +474,58 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* ========================================
-   BOTÕES
-======================================== */
+
+/* =========================================================
+   BOTÕES GERAIS
+========================================================= */
 
 .agenda-btn {
-  height: 44px;
-  padding: 0 17px;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
+
   transition:
-    transform 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.agenda-btn:hover {
-  transform: translateY(-1px);
-}
-
-.agenda-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .agenda-btn-primary {
+  padding: 11px 18px;
+  border-radius: 9px;
   background: #2563eb;
   color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.agenda-btn-primary:hover {
+.agenda-btn-primary:hover:not(:disabled) {
   background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px rgba(37, 99, 235, 0.2);
 }
 
 .agenda-btn-full {
   width: 100%;
 }
 
-/* ========================================
+.agenda-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
    ALERTAS
-======================================== */
+========================================================= */
 
 .agenda-alert {
-  margin-bottom: 16px;
-  padding: 12px 14px;
-  border-radius: 11px;
-  font-size: 13px;
-  line-height: 1.45;
+  margin: 12px 0;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .agenda-alert-error {
@@ -574,633 +540,437 @@
   color: #15803d;
 }
 
-/* ========================================
+
+/* =========================================================
    HORÁRIOS MARCADOS
-======================================== */
+========================================================= */
+
+.agenda-marcados-card {
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.045);
+}
 
 .agenda-marcados-header {
-  padding-bottom: 22px;
-  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.agenda-marcados-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
 .agenda-marcados-header h2 {
-  margin: 0 0 5px;
-  color: #18202b;
-  font-size: 20px;
+  margin: 0;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 750;
 }
 
 .agenda-marcados-header p {
+  max-width: 620px;
   margin: 0;
-  color: #6b7280;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-/* ========================================
+.agenda-marcados-header .agenda-btn {
+  flex-shrink: 0;
+  min-width: 125px;
+  padding: 12px 21px;
+  border-radius: 10px;
+}
+
+.agenda-marcados-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
+/* =========================================================
+   AGENDAMENTO INDIVIDUAL
+========================================================= */
+
+.agenda-marcado-item {
+  position: relative;
+  display: grid;
+
+  grid-template-columns:
+    minmax(145px, 0.85fr)
+    minmax(190px, 1.2fr)
+    minmax(150px, 1fr)
+    minmax(145px, 0.9fr)
+    minmax(145px, 0.9fr);
+
+  gap: 0;
+  overflow: hidden;
+  padding: 18px 14px 14px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(239, 246, 255, 0.55),
+      #ffffff 18%
+    );
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.agenda-marcado-item::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 4px;
+  border-radius: 0 5px 5px 0;
+  background: #2563eb;
+}
+
+.agenda-marcado-item:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+}
+
+.agenda-marcado-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 7px 18px;
+}
+
+.agenda-marcado-info + .agenda-marcado-info {
+  border-left: 1px solid #e2e8f0;
+}
+
+.agenda-marcado-info small {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.agenda-marcado-info strong {
+  overflow: hidden;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.agenda-marcado-info:first-child strong {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   STATUS DOS AGENDAMENTOS
+========================================================= */
+
+.agenda-status {
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+}
+
+
+/* PENDENTE */
+
+.agenda-status-pendente {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #b45309 !important;
+}
+
+
+/* CONFIRMADA */
+
+.agenda-status-confirmada {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d !important;
+}
+
+
+/* RECUSADA */
+
+.agenda-status-recusada {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c !important;
+}
+
+
+/* CANCELADA */
+
+.agenda-status-cancelada {
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #64748b !important;
+}
+
+
+/* REALIZADA */
+
+.agenda-status-realizada {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8 !important;
+}
+
+
+/* FALTOU */
+
+.agenda-status-faltou {
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  color: #c2410c !important;
+}
+
+
+/* LEGADO AGENDADA */
+
+.agenda-status-agendada {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca !important;
+}
+
+
+/* =========================================================
+   AÇÕES DOS AGENDAMENTOS
+========================================================= */
+
+.agenda-marcado-acoes {
+  grid-column: 1 / -1;
+
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 14px;
+  padding: 14px 10px 2px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.agenda-acao {
+  min-height: 36px;
+  padding: 8px 14px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.agenda-acao:hover {
+  transform: translateY(-1px);
+}
+
+
+/* CONFIRMAR */
+
+.agenda-acao-confirmar {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.agenda-acao-confirmar:hover {
+  border-color: #4ade80;
+  background: #dcfce7;
+  box-shadow: 0 5px 12px rgba(34, 197, 94, 0.12);
+}
+
+
+/* RECUSAR */
+
+.agenda-acao-recusar {
+  border-color: #fecaca;
+  background: #fff7f7;
+  color: #dc2626;
+}
+
+.agenda-acao-recusar:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+
+/* REMARCAR */
+
+.agenda-acao-remarcar {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.agenda-acao-remarcar:hover {
+  border-color: #93c5fd;
+  background: #dbeafe;
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.12);
+}
+
+
+/* CANCELAR */
+
+.agenda-acao-cancelar {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.agenda-acao-cancelar:hover {
+  border-color: #fdba74;
+  background: #ffedd5;
+}
+
+
+/* =========================================================
    ESTADO VAZIO
-======================================== */
+========================================================= */
 
 .agenda-empty {
-  min-height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  min-height: 220px;
+  padding: 30px;
   text-align: center;
 }
 
 .agenda-empty-icon,
 .agenda-empty-calendar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 58px;
   height: 58px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 15px;
-  border-radius: 18px;
-  background: #f3f4f6;
-  color: #64748b;
-  font-size: 27px;
+  margin-bottom: 14px;
+  border-radius: 17px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 26px;
 }
 
 .agenda-empty h3 {
   margin: 0 0 7px;
-  color: #374151;
+  color: #1e293b;
   font-size: 16px;
 }
 
 .agenda-empty p {
-  max-width: 380px;
+  max-width: 430px;
   margin: 0;
+  color: #94a3b8;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-/* ========================================
+
+/* =========================================================
    LOADING
-======================================== */
+========================================================= */
 
 .agenda-loading {
-  width: 28px;
-  height: 28px;
-  margin-bottom: 12px;
-  border: 3px solid #e5e7eb;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 14px;
+  border: 3px solid #dbeafe;
   border-top-color: #2563eb;
   border-radius: 50%;
-  animation: agenda-spin 0.8s linear infinite;
+  animation: agenda-loading-spin 0.8s linear infinite;
 }
 
-@keyframes agenda-spin {
+@keyframes agenda-loading-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* ========================================
-   OVERLAY DOS MODAIS
-======================================== */
+
+/* =========================================================
+   MODAL
+========================================================= */
 
 .agenda-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: rgba(15, 23, 42, 0.58);
-  backdrop-filter: blur(5px);
-  animation: agenda-modal-fade 0.18s ease;
-}
 
-/* ========================================
-   MODAL
-======================================== */
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+}
 
 .agenda-modal {
   position: relative;
-  width: 100%;
-  max-width: 440px;
-  padding: 32px;
-  border: 1px solid #e5e7eb;
-  border-radius: 24px;
-  background: #ffffff;
-  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.22);
-  text-align: center;
-  animation: agenda-modal-open 0.22s ease;
-}
-
-.agenda-modal-close {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: #64748b;
-  font-size: 25px;
-  cursor: pointer;
-}
-
-.agenda-modal-close:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.agenda-modal-icon {
-  width: 64px;
-  height: 64px;
-  display: grid;
-  place-items: center;
-  margin: 0 auto 18px;
-  border-radius: 20px;
-  background: #fef2f2;
-  color: #dc2626;
-  font-size: 29px;
-  font-weight: 700;
-}
-
-.agenda-modal h2 {
-  margin: 0 0 9px;
-  color: #172033;
-  font-size: 23px;
-}
-
-.agenda-modal > p {
-  margin: 0;
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.agenda-modal-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin: 22px 0 16px;
-  padding: 17px;
-  border: 1px solid #e2e8f0;
-  border-radius: 15px;
-  background: #f8fafc;
-}
-
-.agenda-modal-info span {
-  color: #2563eb;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.agenda-modal-info strong {
-  color: #172033;
-  font-size: 20px;
-}
-
-.agenda-modal-info small {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.agenda-modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 11px;
-  margin-top: 23px;
-}
-
-.agenda-modal-btn {
-  height: 46px;
-  padding: 0 18px;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.agenda-modal-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.agenda-modal-btn-cancel {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.agenda-modal-btn-cancel:hover {
-  background: #e2e8f0;
-}
-
-.agenda-modal-btn-delete {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-.agenda-modal-btn-delete:hover {
-  background: #b91c1c;
-}
-
-/* ========================================
-   MODAL DO DIA
-======================================== */
-
-.agenda-modal-dia {
-  max-width: 560px;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  border-radius: 26px;
-  background: #ffffff;
-  text-align: left;
-}
-
-/* Cabeçalho */
-
-.agenda-modal-dia-header {
-  position: relative;
-  padding: 30px 70px 26px 30px;
-  border-bottom: 1px solid #e5e7eb;
-  background:
-    linear-gradient(
-      135deg,
-      #f8fbff 0%,
-      #eef5ff 100%
-    );
-}
-
-.agenda-modal-dia-header::before {
-  content: "";
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 4px;
-  height: 52px;
-  border-radius: 0 8px 8px 0;
-  background: #2563eb;
-}
-
-.agenda-modal-dia-header > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 7px;
-  padding: 5px 9px;
-  border-radius: 8px;
-  background: #dbeafe;
-  color: #2563eb;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.agenda-modal-dia-header h2 {
-  margin: 0 0 7px;
-  color: #172033;
-  font-size: 27px;
-  font-weight: 750;
-  letter-spacing: -0.5px;
-}
-
-.agenda-modal-dia-header p {
-  max-width: 400px;
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* Botão fechar */
-
-.agenda-modal-dia .agenda-modal-close {
-  top: 22px;
-  right: 22px;
-  z-index: 2;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  color: #64748b;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(8px);
-}
-
-.agenda-modal-dia .agenda-modal-close:hover {
-  transform: rotate(4deg);
-  border-color: #cbd5e1;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-/* Área dos horários */
-
-.agenda-modal-horarios {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  max-height: 390px;
-  padding: 22px 24px 8px;
+  width: min(460px, 100%);
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
-}
 
-.agenda-modal-horarios::-webkit-scrollbar {
-  width: 6px;
-}
+  padding: 30px;
 
-.agenda-modal-horarios::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.agenda-modal-horarios::-webkit-scrollbar-thumb {
   border-radius: 20px;
-  background: #cbd5e1;
-}
-
-/* Card de horário */
-
-.agenda-modal-horario {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 17px 18px 17px 20px;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+
+  animation: agenda-modal-entrada 0.18s ease;
 }
 
-.agenda-modal-horario::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-  background: #22c55e;
-}
-
-.agenda-modal-horario:hover {
-  transform: translateY(-2px);
-  border-color: #bfdbfe;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-}
-
-.agenda-modal-horario-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-/* Status */
-
-.agenda-modal-horario-info span {
-  width: fit-content;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #ecfdf5;
-  color: #059669;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-/* Horário */
-
-.agenda-modal-horario-info strong {
-  color: #172033;
-  font-size: 19px;
-  font-weight: 750;
-  letter-spacing: -0.2px;
-}
-
-/* Duração */
-
-.agenda-modal-horario-info small {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-/* Botão remover */
-
-.agenda-modal-horario > button {
-  flex-shrink: 0;
-  padding: 9px 13px;
-  border: 1px solid #fee2e2;
-  border-radius: 10px;
-  background: #fff7f7;
-  color: #dc2626;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
-}
-
-.agenda-modal-horario > button:hover {
-  transform: translateY(-1px);
-  border-color: #dc2626;
-  background: #dc2626;
-  color: #ffffff;
-}
-
-/* Estado vazio */
-
-.agenda-modal-dia-vazio {
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 35px 30px;
-  text-align: center;
-}
-
-.agenda-modal-dia-vazio .agenda-empty-calendar {
-  width: 64px;
-  height: 64px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 16px;
-  border-radius: 20px;
-  background:
-    linear-gradient(
-      135deg,
-      #eff6ff,
-      #dbeafe
-    );
-  color: #2563eb;
-  font-size: 28px;
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.1);
-}
-
-.agenda-modal-dia-vazio h3 {
-  margin: 0 0 7px;
-  color: #1e293b;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.agenda-modal-dia-vazio p {
-  max-width: 310px;
-  margin: 0;
-  color: #94a3b8;
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-/* Rodapé */
-
-.agenda-modal-dia-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  padding: 18px 24px 24px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.agenda-modal-dia-actions .agenda-modal-btn {
-  min-width: 110px;
-}
-
-/* ========================================
-   MODAL DO DIA - TEMA ESCURO
-======================================== */
-
-body.modo-escuro .agenda-modal-dia {
-  border-color: #263244;
-  background: #111827;
-}
-
-body.modo-escuro .agenda-modal-dia-header {
-  border-color: #263244;
-  background:
-    linear-gradient(
-      135deg,
-      #111827 0%,
-      #172033 100%
-    );
-}
-
-body.modo-escuro .agenda-modal-dia-header > span {
-  background: rgba(37, 99, 235, 0.18);
-  color: #60a5fa;
-}
-
-body.modo-escuro .agenda-modal-dia-header h2 {
-  color: #f8fafc;
-}
-
-body.modo-escuro .agenda-modal-dia-header p {
-  color: #94a3b8;
-}
-
-body.modo-escuro .agenda-modal-dia .agenda-modal-close {
-  border-color: #334155;
-  background: rgba(24, 34, 51, 0.9);
-  color: #94a3b8;
-}
-
-body.modo-escuro .agenda-modal-dia .agenda-modal-close:hover {
-  background: #263244;
-  color: #f8fafc;
-}
-
-body.modo-escuro .agenda-modal-horario {
-  border-color: #2b3748;
-  background: #182233;
-  box-shadow: none;
-}
-
-body.modo-escuro .agenda-modal-horario:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-}
-
-body.modo-escuro .agenda-modal-horario-info span {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-}
-
-body.modo-escuro .agenda-modal-horario-info strong {
-  color: #f8fafc;
-}
-
-body.modo-escuro .agenda-modal-horario-info small {
-  color: #94a3b8;
-}
-
-body.modo-escuro .agenda-modal-horario > button {
-  border-color: rgba(248, 113, 113, 0.18);
-  background: rgba(220, 38, 38, 0.12);
-  color: #f87171;
-}
-
-body.modo-escuro .agenda-modal-horario > button:hover {
-  border-color: #dc2626;
-  background: #dc2626;
-  color: #ffffff;
-}
-
-body.modo-escuro
-  .agenda-modal-dia-vazio
-  .agenda-empty-calendar {
-  background:
-    linear-gradient(
-      135deg,
-      #1e293b,
-      #263244
-    );
-  color: #60a5fa;
-  box-shadow: none;
-}
-
-body.modo-escuro .agenda-modal-dia-vazio h3 {
-  color: #e2e8f0;
-}
-
-body.modo-escuro .agenda-modal-dia-vazio p {
-  color: #64748b;
-}
-
-body.modo-escuro .agenda-modal-dia-actions {
-  border-color: #263244;
-}
-
-/* ========================================
-   ANIMAÇÕES
-======================================== */
-
-@keyframes agenda-modal-fade {
+@keyframes agenda-modal-entrada {
   from {
     opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes agenda-modal-open {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.97);
+    transform: translateY(8px) scale(0.98);
   }
 
   to {
@@ -1209,132 +979,1005 @@ body.modo-escuro .agenda-modal-dia-actions {
   }
 }
 
-/* ========================================
-   TEMA ESCURO
-======================================== */
+.agenda-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
 
-body.modo-escuro .agenda-header h1,
-body.modo-escuro .agenda-resumo strong,
-body.modo-escuro .agenda-calendario-header strong,
-body.modo-escuro .agenda-config-titulo h2,
-body.modo-escuro .agenda-marcados-header h2,
-body.modo-escuro .agenda-modal h2,
-body.modo-escuro .agenda-modal-dia-header h2,
-body.modo-escuro .agenda-modal-info strong,
-body.modo-escuro .agenda-modal-horario-info strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.agenda-modal-close:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MODAL DO DIA
+========================================================= */
+
+.agenda-modal-dia {
+  width: min(590px, 100%);
+}
+
+.agenda-modal-dia-header {
+  margin-bottom: 25px;
+  padding-right: 40px;
+}
+
+.agenda-modal-dia-header > span {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #2563eb;
+
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.agenda-modal-dia-header h2 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 24px;
+}
+
+.agenda-modal-dia-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   HORÁRIOS DO MODAL
+========================================================= */
+
+.agenda-modal-horarios {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.agenda-modal-horario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 15px 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #f8fafc;
+}
+
+.agenda-modal-horario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agenda-modal-horario-info span {
+  color: #16a34a;
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.agenda-modal-horario-info strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.agenda-modal-horario-info small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.agenda-modal-horario button {
+  padding: 8px 11px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #dc2626;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.agenda-modal-horario button:hover {
+  background: #fef2f2;
+}
+
+
+/* =========================================================
+   MODAL SEM HORÁRIOS
+========================================================= */
+
+.agenda-modal-dia-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 28px;
+
+  text-align: center;
+}
+
+.agenda-modal-dia-vazio h3 {
+  margin: 0 0 6px;
+  color: #1e293b;
+}
+
+.agenda-modal-dia-vazio p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   MODAL NOVO HORÁRIO
+========================================================= */
+
+.agenda-modal-novo-horario {
+  width: min(540px, 100%);
+}
+
+.agenda-modal-novo-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-modal-novo-horario .agenda-field {
+  margin-bottom: 18px;
+}
+
+.agenda-modal-novo-horario .agenda-field label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.agenda-modal-novo-horario .agenda-field input,
+.agenda-modal-novo-horario .agenda-field select {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   MODAL EXCLUSÃO / CONFIRMAÇÃO
+========================================================= */
+
+.agenda-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 54px;
+  height: 54px;
+
+  margin: 0 auto 18px;
+
+  border-radius: 16px;
+
+  background: #fef2f2;
+  color: #dc2626;
+
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.agenda-modal > h2 {
+  margin: 0 0 8px;
+  text-align: center;
+  color: #0f172a;
+  font-size: 21px;
+}
+
+.agenda-modal > p {
+  margin: 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.agenda-modal-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  margin: 22px 0;
+  padding: 16px;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+}
+
+.agenda-modal-info span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.agenda-modal-info strong {
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.agenda-modal-info small {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   MODAL DE REMARCAÇÃO
+========================================================= */
+
+.agenda-modal-remarcacao {
+  width: min(620px, 100%);
+}
+
+.agenda-remarcacao-atual {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  margin-bottom: 20px;
+  padding: 14px 16px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+
+  background: #f8fbff;
+}
+
+.agenda-remarcacao-atual small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.agenda-remarcacao-atual strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.agenda-remarcacao-atual span {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   HORÁRIOS DA REMARCAÇÃO
+========================================================= */
+
+.agenda-remarcacao-horarios {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.agenda-remarcacao-horarios > label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.agenda-remarcacao-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.agenda-remarcacao-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 54px;
+  padding: 9px 8px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #334155;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.agenda-remarcacao-slot small {
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.agenda-remarcacao-slot:hover {
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.agenda-remarcacao-slot-active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+
+  box-shadow:
+    0 6px 16px rgba(37, 99, 235, 0.18);
+}
+
+.agenda-remarcacao-slot-active small {
+  color: #dbeafe;
+}
+
+.agenda-remarcacao-vazio {
+  margin: 0;
+
+  padding: 18px;
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+
+  background: #f8fafc;
+  color: #94a3b8;
+
+  font-size: 12px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   AÇÕES DOS MODAIS
+========================================================= */
+
+.agenda-modal-actions,
+.agenda-modal-dia-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.agenda-modal-dia-actions {
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.agenda-modal-btn {
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.agenda-modal-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.agenda-modal-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.agenda-modal-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.agenda-modal-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+.agenda-modal-btn-delete {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.agenda-modal-btn-delete:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+  .agenda-mensal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-marcado-item {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    padding: 17px;
+  }
+
+  .agenda-marcado-info {
+    padding: 12px;
+  }
+
+  .agenda-marcado-info + .agenda-marcado-info {
+    border-left: none;
+  }
+
+  .agenda-marcado-info:nth-child(odd) {
+    border-right: 1px solid #e2e8f0;
+  }
+
+  .agenda-marcado-info:nth-child(n + 3) {
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .agenda-marcado-acoes {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - 800px
+========================================================= */
+
+@media (max-width: 800px) {
+  .agenda-page {
+    padding: 22px 16px;
+  }
+
+  .agenda-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .agenda-resumo {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+
+  .agenda-tabs {
+    flex-direction: column;
+  }
+
+  .agenda-calendario-card {
+    padding: 20px;
+  }
+
+  .agenda-calendario-grid,
+  .agenda-calendario-semana {
+    gap: 7px;
+  }
+
+  .agenda-dia,
+  .agenda-dia-vazio {
+    min-height: 92px;
+  }
+
+  .agenda-dia {
+    padding: 11px;
+  }
+
+  .agenda-dia-numero {
+    font-size: 14px;
+  }
+
+  .agenda-dia small {
+    font-size: 9px;
+    padding: 3px 5px;
+  }
+
+  .agenda-marcados-card {
+    padding: 22px;
+  }
+
+  .agenda-marcados-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .agenda-marcados-header .agenda-btn {
+    width: 100%;
+  }
+
+  .agenda-remarcacao-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   CELULAR - ATÉ 620px
+========================================================= */
+
+@media (max-width: 620px) {
+  /* Configuração lateral some no celular */
+  .agenda-config-card {
+    display: none;
+  }
+
+  .agenda-page {
+    padding: 20px 8px;
+  }
+
+  .agenda-calendario-card {
+    padding: 16px 10px;
+  }
+
+  .agenda-calendario-header {
+    margin-bottom: 18px;
+  }
+
+  .agenda-calendario-header button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .agenda-calendario-header strong {
+    font-size: 19px;
+  }
+
+  .agenda-calendario-semana,
+  .agenda-calendario-grid {
+    gap: 5px;
+  }
+
+  .agenda-calendario-semana span {
+    padding: 7px 0;
+    font-size: 9px;
+  }
+
+  .agenda-dia,
+  .agenda-dia-vazio {
+    min-height: 88px;
+  }
+
+  .agenda-dia {
+    padding: 10px 8px;
+    border-radius: 10px;
+  }
+
+  .agenda-dia-numero {
+    font-size: 14px;
+  }
+
+  .agenda-dia small {
+    display: none;
+  }
+
+  .agenda-form-row {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* =====================================================
+     HORÁRIOS MARCADOS NO CELULAR
+  ===================================================== */
+
+  .agenda-marcados-card {
+    padding: 18px 12px;
+  }
+
+  .agenda-marcado-item {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 15px 15px 15px 18px;
+  }
+
+  .agenda-marcado-info {
+    padding: 13px 9px;
+  }
+
+  .agenda-marcado-info:nth-child(odd) {
+    border-right: none;
+  }
+
+  .agenda-marcado-info:nth-child(n + 2) {
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .agenda-marcado-acoes {
+    grid-column: 1;
+
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 8px;
+
+    padding:
+      14px 4px
+      2px;
+  }
+
+  .agenda-acao {
+    width: 100%;
+    min-height: 42px;
+  }
+
+
+  /* =====================================================
+     MODAIS NO CELULAR
+  ===================================================== */
+
+  .agenda-modal-overlay {
+    padding: 12px;
+  }
+
+  .agenda-modal {
+    padding: 24px 18px;
+    border-radius: 17px;
+  }
+
+  .agenda-modal-dia-header h2 {
+    font-size: 22px;
+  }
+
+  .agenda-modal-horario {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .agenda-modal-horario button {
+    width: 100%;
+  }
+
+  .agenda-modal-actions,
+  .agenda-modal-dia-actions {
+    flex-direction: column;
+  }
+
+  .agenda-modal-dia-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .agenda-modal-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .agenda-modal-novo-horario .agenda-form-row {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* =====================================================
+     REMARCAÇÃO NO CELULAR
+  ===================================================== */
+
+  .agenda-remarcacao-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .agenda-remarcacao-slot {
+    min-height: 58px;
+  }
+}
+
+
+/* =========================================================
+   CELULARES MENORES - ATÉ 430px
+========================================================= */
+
+@media (max-width: 430px) {
+  .agenda-page {
+    padding: 18px 6px;
+  }
+
+  .agenda-calendario-card {
+    padding: 14px 7px;
+  }
+
+  .agenda-calendario-semana,
+  .agenda-calendario-grid {
+    gap: 4px;
+  }
+
+  .agenda-dia,
+  .agenda-dia-vazio {
+    min-height: 82px;
+  }
+
+  .agenda-dia {
+    padding: 9px 6px;
+    border-radius: 9px;
+  }
+
+  .agenda-dia-numero {
+    font-size: 13px;
+  }
+
+  .agenda-modal-novo-horario {
+    padding: 24px 18px;
+  }
+
+  .agenda-marcado-acoes {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-remarcacao-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-header h1 {
   color: #f8fafc;
 }
 
-body.modo-escuro .agenda-header p,
-body.modo-escuro .agenda-resumo span,
-body.modo-escuro .agenda-config-titulo p,
-body.modo-escuro .agenda-marcados-header p,
-body.modo-escuro .agenda-modal > p,
-body.modo-escuro .agenda-modal-dia-header p,
-body.modo-escuro .agenda-modal-info small,
-body.modo-escuro .agenda-modal-horario-info small {
-  color: #94a3b8;
-}
-
-body.modo-escuro .agenda-resumo,
-body.modo-escuro .agenda-tabs,
-body.modo-escuro .agenda-calendario-card,
-body.modo-escuro .agenda-config-card,
-body.modo-escuro .agenda-marcados-card,
-body.modo-escuro .agenda-modal {
-  border-color: #263244;
+body.modo-escuro .agenda-resumo {
   background: #111827;
-  box-shadow: none;
+  border-color: #273449;
 }
 
-/* Abas */
-
-body.modo-escuro .agenda-tab {
+body.modo-escuro .agenda-resumo span {
   color: #94a3b8;
+}
+
+body.modo-escuro .agenda-resumo strong {
+  background: #172554;
+  color: #60a5fa;
+}
+
+
+/* =========================================================
+   ABAS - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-tabs {
+  background: #111827;
+  border-color: #273449;
 }
 
 body.modo-escuro .agenda-tab:hover {
-  background: #182233;
-  color: #e2e8f0;
+  background: #172033;
 }
 
 body.modo-escuro .agenda-tab-active {
-  border-color: #1d4ed8;
-  background: rgba(37, 99, 235, 0.14);
-  color: #60a5fa;
+  background: #172554;
 }
 
-body.modo-escuro .agenda-tab-icon {
-  background: #263244;
-}
-
-body.modo-escuro .agenda-tab-active .agenda-tab-icon {
-  background: rgba(37, 99, 235, 0.2);
-  color: #60a5fa;
-}
-
-/* Calendário */
-
-body.modo-escuro .agenda-calendario-header button {
-  border-color: #334155;
-  background: #182233;
+body.modo-escuro .agenda-tab strong {
   color: #e2e8f0;
 }
 
-body.modo-escuro .agenda-calendario-header button:hover {
-  border-color: #3b82f6;
+body.modo-escuro .agenda-tab small {
+  color: #94a3b8;
+}
+
+body.modo-escuro .agenda-tab-active strong {
+  color: #93c5fd;
+}
+
+body.modo-escuro .agenda-tab-icon {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.agenda-tab-active
+.agenda-tab-icon {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   CALENDÁRIO - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-calendario-card {
+  background: #111827;
+  border-color: #273449;
+}
+
+body.modo-escuro
+.agenda-calendario-header strong {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-calendario-header span {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-calendario-header button {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.agenda-calendario-header button:hover {
   background: #1e293b;
 }
 
-body.modo-escuro .agenda-calendario-semana span {
+body.modo-escuro
+.agenda-calendario-semana span {
   color: #64748b;
 }
 
 body.modo-escuro .agenda-dia {
+  background: #111827;
   border-color: #334155;
-  background: #182233;
-  color: #e2e8f0;
 }
 
 body.modo-escuro .agenda-dia:hover {
   border-color: #3b82f6;
 }
 
-body.modo-escuro .agenda-dia-selecionado {
-  border-color: #3b82f6;
-  background: rgba(37, 99, 235, 0.15);
-  color: #60a5fa;
+body.modo-escuro .agenda-dia-numero {
+  color: #e2e8f0;
 }
+
+
+/* =========================================================
+   DIA DISPONÍVEL - ESCURO
+========================================================= */
 
 body.modo-escuro .agenda-dia-disponivel {
-  border-color: #059669;
+  border-color: #16a34a;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(22, 101, 52, 0.38),
+      #111827
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 197, 94, 0.12);
 }
 
-body.modo-escuro .agenda-dia-selecionar {
-  background: rgba(37, 99, 235, 0.18);
-  color: #60a5fa;
+body.modo-escuro
+.agenda-dia-disponivel
+.agenda-dia-numero {
+  color: #86efac;
 }
 
-body.modo-escuro .agenda-dia-selecionar:hover,
-body.modo-escuro .agenda-dia-selecionar-ativo {
-  background: #2563eb;
-  color: #ffffff;
+body.modo-escuro
+.agenda-dia-disponivel:hover {
+  border-color: #22c55e;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(22, 101, 52, 0.5),
+      #111827
+    );
 }
 
-/* Formulário */
-
-body.modo-escuro .agenda-selecao-info {
-  background: #182233;
+body.modo-escuro .agenda-dia small {
+  background: rgba(22, 163, 74, 0.15);
+  color: #86efac;
 }
 
-body.modo-escuro .agenda-selecao-info span {
+body.modo-escuro .agenda-legenda {
+  border-color: #273449;
+}
+
+body.modo-escuro .agenda-legenda span {
   color: #94a3b8;
 }
 
-body.modo-escuro .agenda-datas-selecionadas span {
-  background: rgba(37, 99, 235, 0.16);
+
+/* =========================================================
+   CONFIGURAÇÃO - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-config-card {
+  background: #111827;
+  border-color: #273449;
+}
+
+body.modo-escuro
+.agenda-config-titulo h2 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-config-titulo p {
+  color: #94a3b8;
+}
+
+body.modo-escuro .agenda-icon {
+  background: #172554;
   color: #60a5fa;
 }
+
+
+/* =========================================================
+   FORMULÁRIO - ESCURO
+========================================================= */
 
 body.modo-escuro .agenda-field label {
   color: #cbd5e1;
@@ -1342,156 +1985,480 @@ body.modo-escuro .agenda-field label {
 
 body.modo-escuro .agenda-field input,
 body.modo-escuro .agenda-field select {
+  background: #0f172a;
   border-color: #334155;
-  background: #182233;
   color: #f8fafc;
 }
 
-/* Alertas */
+body.modo-escuro .agenda-field input:focus,
+body.modo-escuro .agenda-field select:focus {
+  border-color: #3b82f6;
 
-body.modo-escuro .agenda-alert-error {
-  border-color: #7f1d1d;
-  background: rgba(127, 29, 29, 0.2);
-  color: #fca5a5;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
-body.modo-escuro .agenda-alert-success {
+
+/* =========================================================
+   HORÁRIOS MARCADOS - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-marcados-card {
+  background: #111827;
+  border-color: #273449;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+body.modo-escuro .agenda-marcados-header {
+  border-color: #273449;
+}
+
+body.modo-escuro
+.agenda-marcados-header h2 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-marcados-header p {
+  color: #94a3b8;
+}
+
+body.modo-escuro .agenda-marcado-item {
+  border-color: #273449;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(30, 64, 175, 0.16),
+      #111827 18%
+    );
+}
+
+body.modo-escuro
+.agenda-marcado-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+}
+
+body.modo-escuro
+.agenda-marcado-info +
+.agenda-marcado-info {
+  border-color: #273449;
+}
+
+body.modo-escuro
+.agenda-marcado-info small {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-marcado-info strong {
+  color: #e2e8f0;
+}
+
+body.modo-escuro
+.agenda-marcado-info:first-child
+strong {
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.agenda-marcado-acoes {
+  border-top-color: #273449;
+}
+
+
+/* =========================================================
+   STATUS - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-status-pendente {
+  background: rgba(180, 83, 9, 0.18);
+  border-color: #92400e;
+  color: #fcd34d !important;
+}
+
+body.modo-escuro
+.agenda-status-confirmada {
+  background: rgba(21, 128, 61, 0.18);
   border-color: #166534;
-  background: rgba(22, 101, 52, 0.2);
+  color: #86efac !important;
+}
+
+body.modo-escuro
+.agenda-status-recusada {
+  background: rgba(185, 28, 28, 0.18);
+  border-color: #7f1d1d;
+  color: #fca5a5 !important;
+}
+
+body.modo-escuro
+.agenda-status-cancelada {
+  background: rgba(71, 85, 105, 0.25);
+  border-color: #475569;
+  color: #cbd5e1 !important;
+}
+
+body.modo-escuro
+.agenda-status-realizada {
+  background: rgba(37, 99, 235, 0.18);
+  border-color: #1d4ed8;
+  color: #93c5fd !important;
+}
+
+body.modo-escuro
+.agenda-status-faltou {
+  background: rgba(194, 65, 12, 0.18);
+  border-color: #9a3412;
+  color: #fdba74 !important;
+}
+
+body.modo-escuro
+.agenda-status-agendada {
+  background: rgba(67, 56, 202, 0.2);
+  border-color: #4338ca;
+  color: #c7d2fe !important;
+}
+
+
+/* =========================================================
+   AÇÕES - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-acao-confirmar {
+  border-color: #166534;
+  background: rgba(21, 128, 61, 0.18);
   color: #86efac;
 }
 
-/* Modal */
+body.modo-escuro
+.agenda-acao-confirmar:hover {
+  background: rgba(21, 128, 61, 0.3);
+}
+
+body.modo-escuro
+.agenda-acao-recusar {
+  border-color: #7f1d1d;
+  background: rgba(185, 28, 28, 0.16);
+  color: #fca5a5;
+}
+
+body.modo-escuro
+.agenda-acao-recusar:hover {
+  background: rgba(185, 28, 28, 0.27);
+}
+
+body.modo-escuro
+.agenda-acao-remarcar {
+  border-color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.16);
+  color: #93c5fd;
+}
+
+body.modo-escuro
+.agenda-acao-remarcar:hover {
+  background: rgba(37, 99, 235, 0.28);
+}
+
+body.modo-escuro
+.agenda-acao-cancelar {
+  border-color: #9a3412;
+  background: rgba(194, 65, 12, 0.16);
+  color: #fdba74;
+}
+
+body.modo-escuro
+.agenda-acao-cancelar:hover {
+  background: rgba(194, 65, 12, 0.28);
+}
+
+
+/* =========================================================
+   ESTADO VAZIO - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-empty h3 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro .agenda-empty p {
+  color: #94a3b8;
+}
+
+body.modo-escuro .agenda-empty-icon,
+body.modo-escuro .agenda-empty-calendar {
+  background: #172554;
+  color: #60a5fa;
+}
+
+
+/* =========================================================
+   MODAIS - ESCURO
+========================================================= */
+
+body.modo-escuro .agenda-modal {
+  background: #111827;
+  color: #e2e8f0;
+}
 
 body.modo-escuro .agenda-modal-close {
-  color: #94a3b8;
+  background: #1e293b;
+  color: #cbd5e1;
 }
 
 body.modo-escuro .agenda-modal-close:hover {
-  background: #1e293b;
-  color: #f8fafc;
-}
-
-body.modo-escuro .agenda-modal-icon {
-  background: rgba(220, 38, 38, 0.15);
-  color: #f87171;
-}
-
-body.modo-escuro .agenda-modal-info,
-body.modo-escuro .agenda-modal-horario {
-  border-color: #334155;
-  background: #182233;
-}
-
-body.modo-escuro .agenda-modal-horario > button {
-  background: rgba(220, 38, 38, 0.14);
-  color: #f87171;
-}
-
-body.modo-escuro .agenda-modal-horario > button:hover {
-  background: #dc2626;
+  background: #334155;
   color: #ffffff;
 }
 
-body.modo-escuro .agenda-modal-btn-cancel {
-  background: #263244;
-  color: #e2e8f0;
+body.modo-escuro
+.agenda-modal-dia-header h2 {
+  color: #f1f5f9;
 }
 
-body.modo-escuro .agenda-modal-btn-cancel:hover {
-  background: #334155;
-}
-
-body.modo-escuro .agenda-modal-dia-vazio h3 {
-  color: #e2e8f0;
-}
-
-body.modo-escuro .agenda-empty-calendar,
-body.modo-escuro .agenda-empty-icon {
-  background: #263244;
+body.modo-escuro
+.agenda-modal-dia-header p {
   color: #94a3b8;
 }
 
-/* ========================================
-   RESPONSIVIDADE
-======================================== */
+body.modo-escuro
+.agenda-modal-horario {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.agenda-modal-horario-info strong {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-modal-horario-info small {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-modal-horario button {
+  background: #111827;
+  border-color: #7f1d1d;
+  color: #f87171;
+}
+
+body.modo-escuro
+.agenda-modal-horario button:hover {
+  background: #450a0a;
+}
+
+body.modo-escuro
+.agenda-modal-dia-vazio h3 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-modal-dia-vazio p {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   MODAL NOVO HORÁRIO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-modal-novo-horario {
+  background: #111827;
+  color: #e2e8f0;
+}
+
+body.modo-escuro
+.agenda-modal-novo-horario
+.agenda-field label {
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.agenda-modal-novo-horario
+.agenda-field input,
+
+body.modo-escuro
+.agenda-modal-novo-horario
+.agenda-field select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+
+/* =========================================================
+   MODAL CONFIRMAÇÃO / EXCLUSÃO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-modal > h2 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-modal > p {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-modal-info {
+  background: #0f172a;
+}
+
+body.modo-escuro
+.agenda-modal-info span,
+
+body.modo-escuro
+.agenda-modal-info small {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-modal-info strong {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.agenda-modal-btn-cancel {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.agenda-modal-btn-cancel:hover {
+  background: #334155;
+}
+
+body.modo-escuro
+.agenda-modal-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+body.modo-escuro
+.agenda-modal-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+body.modo-escuro
+.agenda-modal-dia-actions {
+  border-top-color: #273449;
+}
+
+
+/* =========================================================
+   REMARCAÇÃO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-remarcacao-atual {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.agenda-remarcacao-atual small {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.agenda-remarcacao-atual strong {
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.agenda-remarcacao-atual span {
+  color: #60a5fa;
+}
+
+body.modo-escuro
+.agenda-remarcacao-horarios > label {
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.agenda-remarcacao-slot {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.modo-escuro
+.agenda-remarcacao-slot small {
+  color: #64748b;
+}
+
+body.modo-escuro
+.agenda-remarcacao-slot:hover {
+  background: #172554;
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+body.modo-escuro
+.agenda-remarcacao-slot-active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+body.modo-escuro
+.agenda-remarcacao-slot-active small {
+  color: #dbeafe;
+}
+
+body.modo-escuro
+.agenda-remarcacao-vazio {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   ALERTAS - ESCURO
+========================================================= */
+
+body.modo-escuro
+.agenda-alert-error {
+  background: rgba(127, 29, 29, 0.22);
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+body.modo-escuro
+.agenda-alert-success {
+  background: rgba(20, 83, 45, 0.22);
+  border-color: #166534;
+  color: #86efac;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE DAS DIVISÕES - ESCURO
+========================================================= */
 
 @media (max-width: 1100px) {
-  .agenda-mensal-layout {
-    grid-template-columns: 1fr;
+  body.modo-escuro
+  .agenda-marcado-info:nth-child(odd) {
+    border-right-color: #273449;
+  }
+
+  body.modo-escuro
+  .agenda-marcado-info:nth-child(n + 3) {
+    border-top-color: #273449;
   }
 }
 
-@media (max-width: 900px) {
-  .agenda-page {
-    padding: 22px;
-  }
 
-  .agenda-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .agenda-resumo {
-    width: 100%;
-  }
-}
-
-@media (max-width: 700px) {
-  .agenda-calendario-card {
-    overflow-x: auto;
-  }
-
-  .agenda-calendario-semana,
-  .agenda-calendario-grid {
-    min-width: 600px;
-  }
-}
-
-@media (max-width: 600px) {
-  .agenda-page {
-    padding: 16px;
-  }
-
-  .agenda-header h1 {
-    font-size: 28px;
-  }
-
-  .agenda-tabs {
-    flex-direction: column;
-  }
-
-  .agenda-calendario-card,
-  .agenda-config-card,
-  .agenda-marcados-card {
-    padding: 19px;
-    border-radius: 18px;
-  }
-
-  .agenda-form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .agenda-modal {
-    padding: 28px 20px 22px;
-    border-radius: 20px;
-  }
-
-  .agenda-modal-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .agenda-modal-horario {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .agenda-modal-horario > button {
-    width: 100%;
-  }
-
-  .agenda-modal-dia-actions .agenda-modal-btn {
-    width: 100%;
+@media (max-width: 620px) {
+  body.modo-escuro
+  .agenda-marcado-info:nth-child(n + 2) {
+    border-top-color: #273449;
   }
 }
