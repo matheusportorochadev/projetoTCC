@@ -7847,3 +7847,699 @@ desmarcar
 O backend continua sendo responsável pela autorização, propriedade do registro, validação dos horários e transições de estado.
 
 A base necessária para avançar posteriormente para `REALIZADA`, `FALTOU`, atendimento e prontuário eletrônico está consolidada.
+
+---
+
+# 186. Atualização incremental — remarcação solicitada pelo paciente
+
+Após a consolidação do fluxo em que o médico pode confirmar, recusar, remarcar e desmarcar consultas, foi iniciada uma nova evolução: permitir que o próprio paciente solicite a remarcação de uma consulta já confirmada.
+
+A regra definida foi diferente da remarcação realizada diretamente pelo médico.
+
+Quando o médico remarca uma consulta, ele possui permissão para alterar diretamente o agendamento depois de escolher um novo slot válido.
+
+Quando o paciente solicita uma remarcação, a consulta original não deve ser alterada imediatamente.
+
+O novo fluxo é:
+
+```text
+Consulta CONFIRMADA
+        ↓
+Paciente solicita remarcação
+        ↓
+Escolhe nova data e horário disponível
+        ↓
+Solicitação de remarcação PENDENTE
+        ↓
+Consulta original continua válida
+        ↓
+Médico recebe a solicitação
+        ↓
+ACEITAR → nova data/hora vira oficial
+RECUSAR → consulta original permanece
+```
+
+---
+
+# 187. Separação entre status do agendamento e status da remarcação
+
+Uma decisão importante foi não utilizar o próprio `StatusAgendamento` para representar a solicitação de remarcação.
+
+Enquanto o médico ainda não decidiu, o estado correto é:
+
+```text
+Agendamento.status = CONFIRMADA
+RemarcacaoAgendamento.status = PENDENTE
+```
+
+Isso representa corretamente a regra de negócio: a consulta original continua confirmada enquanto somente a mudança de data e horário está aguardando aprovação.
+
+---
+
+# 188. StatusRemarcacao e RemarcacaoAgendamento
+
+Foi criada uma estrutura específica para o ciclo da remarcação:
+
+```prisma
+enum StatusRemarcacao {
+  PENDENTE
+  ACEITA
+  RECUSADA
+}
+```
+
+O modelo `RemarcacaoAgendamento` armazena, entre outros dados:
+
+```text
+id
+agendamentoId
+novaData
+novaHoraInicio
+novaHoraFim
+status
+visualizadoPaciente
+createdAt
+updatedAt
+```
+
+O objetivo é registrar o novo horário pretendido sem sobrescrever imediatamente a consulta oficial.
+
+O campo `visualizadoPaciente`, inicialmente `false`, também prepara o sistema para controlar posteriormente se o paciente já visualizou a decisão do médico.
+
+---
+
+# 189. Solicitação de remarcação pelo paciente
+
+Foi criado o endpoint:
+
+```text
+POST /agendamentos/:id/remarcacoes
+```
+
+Body:
+
+```json
+{
+  "data": "2026-09-20",
+  "horaInicio": "10:00"
+}
+```
+
+O frontend não define livremente `horaFim`, `medicoId`, `pacienteId` ou o status final. Esses valores são obtidos ou validados pelo backend.
+
+Antes de criar a solicitação, o backend verifica:
+
+```text
+1. autenticação e perfil PACIENTE;
+2. existência do paciente;
+3. propriedade do agendamento;
+4. status que permite remarcação;
+5. nova data/horário diferentes do atual;
+6. inexistência de outra remarcação PENDENTE;
+7. existência do novo slot na agenda do médico;
+8. disponibilidade real do novo horário.
+```
+
+---
+
+# 190. Proteção contra múltiplas remarcações pendentes
+
+O mesmo agendamento não pode possuir várias solicitações pendentes simultaneamente.
+
+```text
+Agendamento
+        ↓
+Existe remarcação PENDENTE?
+        ↓
+Sim → bloqueia nova solicitação
+Não → permite continuar
+```
+
+Essa regra existe no backend e também foi refletida no frontend.
+
+---
+
+# 191. Reserva do novo slot solicitado
+
+Enquanto a remarcação estiver `PENDENTE`, o novo horário solicitado precisa ser considerado ocupado temporariamente.
+
+Sem essa regra poderia ocorrer:
+
+```text
+Paciente solicita 10:00
+        ↓
+remarcação PENDENTE
+        ↓
+10:00 continua livre
+        ↓
+outro paciente agenda 10:00
+```
+
+Por isso, a geração de horários disponíveis deve considerar tanto agendamentos ativos quanto remarcações pendentes.
+
+A consulta original também continua válida enquanto o médico não decidir.
+
+---
+
+# 192. Aceite e recusa da remarcação pelo médico
+
+Foram implementadas ações específicas do médico:
+
+```text
+PATCH /agendamentos/remarcacoes/:id/aceitar
+PATCH /agendamentos/remarcacoes/:id/recusar
+```
+
+Ao aceitar:
+
+```text
+1. médico é identificado pelo JWT;
+2. propriedade do agendamento é validada;
+3. remarcação precisa estar PENDENTE;
+4. novo slot é revalidado;
+5. Agendamento recebe novaData/novaHoraInicio/novaHoraFim;
+6. consulta permanece CONFIRMADA;
+7. remarcação passa para ACEITA.
+```
+
+Ao recusar:
+
+```text
+Remarcação → RECUSADA
+Agendamento original → permanece inalterado
+Novo slot solicitado → volta a ficar disponível
+```
+
+---
+
+# 193. Endpoints de remarcação consolidados
+
+## Paciente
+
+```text
+GET   /agendamentos/horarios-disponiveis
+POST  /agendamentos
+GET   /agendamentos/meus
+PATCH /agendamentos/:id/cancelar-paciente
+POST  /agendamentos/:id/remarcacoes
+GET   /agendamentos/remarcacoes/minhas
+PATCH /agendamentos/remarcacoes/:id/visualizar
+```
+
+## Médico
+
+```text
+GET   /agendamentos/medico
+POST  /agendamentos/medico
+PATCH /agendamentos/:id/confirmar
+PATCH /agendamentos/:id/recusar
+PATCH /agendamentos/:id/cancelar
+PATCH /agendamentos/:id/remarcar
+DELETE /agendamentos/:id
+GET   /agendamentos/remarcacoes/pendentes
+PATCH /agendamentos/remarcacoes/:id/aceitar
+PATCH /agendamentos/remarcacoes/:id/recusar
+```
+
+As rotas continuam protegidas por autenticação e autorização de perfil.
+
+---
+
+# 194. Listagem das remarcações do paciente
+
+Foi utilizado:
+
+```text
+GET /agendamentos/remarcacoes/minhas
+```
+
+A resposta permite ao frontend relacionar cada solicitação ao respectivo agendamento e pode incluir:
+
+```text
+id
+agendamentoId
+novaData
+novaHoraInicio
+novaHoraFim
+status
+visualizadoPaciente
+createdAt
+updatedAt
+dataAtual
+horaInicioAtual
+horaFimAtual
+statusAgendamento
+```
+
+Isso permite comparar a consulta atual com a nova data solicitada sem depender de várias requisições adicionais.
+
+---
+
+# 195. Evolução de MeusAgendamentos.tsx
+
+A página `frontend/src/pages/paciente/MeusAgendamentos.tsx` passou a carregar tanto os agendamentos quanto as remarcações.
+
+A atualização conjunta segue a ideia:
+
+```ts
+async function atualizarDados() {
+  await Promise.all([
+    buscarAgendamentos(),
+    buscarRemarcacoes()
+  ]);
+}
+```
+
+Para cada consulta, o frontend procura uma remarcação pendente correspondente:
+
+```ts
+function buscarRemarcacaoPendente(
+  agendamentoId: number
+) {
+  return remarcacoes.find(
+    (remarcacao) =>
+      Number(remarcacao.agendamentoId) ===
+        Number(agendamentoId) &&
+      remarcacao.status === "PENDENTE"
+  );
+}
+```
+
+---
+
+# 196. Correção do status visual durante a remarcação
+
+Foi identificado que, depois de solicitar uma remarcação, o card ainda mostrava `Confirmada`.
+
+Isso acontecia porque o status oficial do agendamento realmente continuava `CONFIRMADA`, que é a regra correta do banco.
+
+A correção foi feita somente na apresentação.
+
+Quando existe `remarcacaoPendente`, o badge principal passa a mostrar:
+
+```text
+Aguardando confirmação da remarcação
+```
+
+Quando não existe remarcação pendente, ele continua exibindo normalmente o `StatusAgendamento`.
+
+Essa solução evita alterar incorretamente o domínio apenas para produzir um estado visual.
+
+---
+
+# 197. Descrição especial do card pendente
+
+Durante a remarcação pendente, a descrição do card também muda para algo equivalente a:
+
+```text
+Sua solicitação de remarcação foi enviada e aguarda a confirmação do médico.
+```
+
+Além disso, foi criado um bloco interno mostrando:
+
+```text
+Remarcação aguardando confirmação
+Aguardando resposta do médico
+
+Nova data solicitada
+DD/MM/AAAA
+
+Novo horário
+HH:mm — HH:mm
+
+Sua consulta atual continua válida
+até o médico confirmar a remarcação.
+```
+
+---
+
+# 198. Bloqueio visual de nova remarcação
+
+Enquanto existe uma remarcação `PENDENTE`, o botão deixa de mostrar:
+
+```text
+Remarcar
+```
+
+e passa a mostrar:
+
+```text
+Remarcação pendente
+```
+
+O botão também fica desabilitado.
+
+A função que abre o fluxo de remarcação possui uma segunda verificação, de forma que a proteção não dependa somente do estado visual do botão.
+
+---
+
+# 199. Fluxo visual de remarcação do paciente
+
+```text
+Paciente clica Remarcar
+        ↓
+Calendário de remarcação abre
+        ↓
+Paciente escolhe nova data
+        ↓
+Sistema busca horários disponíveis
+        ↓
+Paciente seleciona slot
+        ↓
+Modal de confirmação
+        ↓
+POST /agendamentos/:id/remarcacoes
+        ↓
+Remarcação PENDENTE
+        ↓
+MeusAgendamentos recarrega
+        ↓
+Card mostra "Aguardando confirmação da remarcação"
+```
+
+Se o backend responder `409 Conflict`, os horários do dia são recarregados e o paciente pode escolher outro slot.
+
+---
+
+# 200. Comportamento após decisão do médico
+
+## Médico aceita
+
+```text
+Remarcação → ACEITA
+Agendamento → recebe nova data/hora
+Agendamento → CONFIRMADA
+```
+
+Como não existe mais uma remarcação `PENDENTE`, o card volta automaticamente para:
+
+```text
+Confirmada
+```
+
+agora exibindo a nova data e horário oficiais.
+
+## Médico recusa
+
+```text
+Remarcação → RECUSADA
+Agendamento → permanece original e CONFIRMADA
+```
+
+O card também volta para `Confirmada`, preservando a data e horário originais.
+
+---
+
+# 201. Correção da classe visual Confirmada
+
+Durante os ajustes foi identificado um erro de digitação em uma classe relacionada ao estado confirmado.
+
+O nome correto é:
+
+```text
+meus-agendamentos-status-confirmada
+```
+
+A correção preservou os estilos que já estavam funcionando para `Confirmada` e `Cancelada`.
+
+---
+
+# 202. CSS do card de remarcação pendente
+
+O arquivo:
+
+```text
+frontend/src/styles/meusAgendamentos.css
+```
+
+foi ampliado para estilizar o estado de remarcação.
+
+Foram utilizadas classes específicas como:
+
+```text
+meus-agendamentos-remarcacao-pendente
+meus-agendamentos-remarcacao-pendente-topo
+meus-agendamentos-remarcacao-pendente-icone
+meus-agendamentos-remarcacao-pendente-dados
+meus-agendamentos-remarcacao-pendente-aviso
+meus-agendamentos-btn-remarcacao-pendente
+```
+
+O bloco possui cabeçalho, nova data, novo horário e aviso de que a consulta atual continua válida.
+
+A estilização foi ajustada para ficar integrada ao restante dos cards e também deve respeitar tema escuro e responsividade.
+
+---
+
+# 203. Cancelamento pelo paciente com remarcação pendente
+
+O paciente possui a rota:
+
+```text
+PATCH /agendamentos/:id/cancelar-paciente
+```
+
+Se a consulta cancelada possuir uma remarcação pendente, essa solicitação também precisa deixar de reservar o novo slot.
+
+Na estrutura atual, `StatusRemarcacao` ainda possui apenas:
+
+```text
+PENDENTE
+ACEITA
+RECUSADA
+```
+
+Portanto, uma solicitação pendente encerrada pelo cancelamento da consulta pode ser tratada como `RECUSADA` na lógica atual. Futuramente pode ser avaliada a inclusão de `CANCELADA` no enum de remarcação para diferenciar semanticamente esse cenário.
+
+---
+
+# 204. Regra consolidada do card do paciente
+
+```text
+Existe RemarcacaoAgendamento PENDENTE?
+        ↓
+┌─────────────────────────┬─────────────────────────┐
+Sim                       Não
+↓                         ↓
+Aguardando confirmação    exibe status oficial
+ da remarcação
+↓                         ↓
+mostra nova data/horário  fluxo normal do card
+↓
+bloqueia nova remarcação
+```
+
+O estado visual é derivado da combinação de duas entidades:
+
+```text
+Agendamento
++
+RemarcacaoAgendamento
+```
+
+O banco não é alterado apenas para controlar aparência.
+
+---
+
+# 205. Testes obrigatórios da remarcação pelo paciente
+
+## Criar solicitação
+
+```text
+consulta CONFIRMADA
+→ paciente solicita novo slot
+→ cria RemarcacaoAgendamento PENDENTE
+→ consulta original continua CONFIRMADA
+→ card mostra aguardando confirmação da remarcação
+```
+
+## Bloquear segunda solicitação
+
+```text
+existe remarcação PENDENTE
+→ botão mostra Remarcação pendente
+→ botão fica desabilitado
+→ backend também rejeita nova solicitação
+```
+
+## Aceitar
+
+```text
+médico aceita
+→ nova data/hora vira oficial
+→ remarcação ACEITA
+→ paciente volta a ver Confirmada
+→ card mostra novo horário
+```
+
+## Recusar
+
+```text
+médico recusa
+→ remarcação RECUSADA
+→ consulta original permanece
+→ paciente volta a ver Confirmada
+→ novo slot é liberado
+```
+
+## Concorrência
+
+```text
+paciente visualiza slot
+→ slot é ocupado antes da confirmação
+→ backend responde conflito
+→ frontend recarrega horários
+→ paciente escolhe outro slot
+```
+
+---
+
+# 206. Arquivos envolvidos nesta atualização
+
+## Backend
+
+```text
+backend/src/prisma/contract.prisma
+backend/src/prisma/contract.json
+backend/src/prisma/contract.d.ts
+backend/src/services/agendamento.service.ts
+backend/src/controllers/agendamento.controller.ts
+backend/src/routes/agendamento.routes.ts
+```
+
+## Frontend
+
+```text
+frontend/src/pages/paciente/MeusAgendamentos.tsx
+frontend/src/styles/meusAgendamentos.css
+```
+
+Também foi reutilizada a lógica existente de horários disponíveis para selecionar a nova data e o novo slot.
+
+---
+
+# 207. Estado consolidado após a remarcação do paciente
+
+Neste ponto existem dois fluxos distintos.
+
+## Remarcação pelo médico
+
+```text
+Médico escolhe novo slot
+        ↓
+backend revalida
+        ↓
+agendamento é alterado diretamente
+```
+
+## Remarcação pelo paciente
+
+```text
+Paciente escolhe novo slot
+        ↓
+backend revalida
+        ↓
+cria solicitação PENDENTE
+        ↓
+consulta original permanece
+        ↓
+médico aceita ou recusa
+```
+
+Essa distinção respeita os níveis de permissão de cada perfil.
+
+---
+
+# 208. Próximas etapas recomendadas
+
+Depois de validar completamente o fluxo de remarcação, a sequência recomendada permanece:
+
+```text
+1. testar aceite e recusa da remarcação;
+2. testar reserva e liberação dos slots;
+3. testar cancelamento com remarcação pendente;
+4. reforçar proteção contra concorrência;
+5. revisar registros AGENDADA legados;
+6. implementar REALIZADA;
+7. implementar FALTOU;
+8. iniciar atendimento;
+9. implementar prontuário eletrônico;
+10. implementar histórico clínico.
+```
+
+---
+
+# 209. Ponto exato de continuidade em 15/09/2026
+
+Não é necessário refazer:
+
+```text
+PENDENTE do agendamento inicial
+CONFIRMADA
+RECUSADA
+CANCELADA
+remarcação direta pelo médico
+solicitação de remarcação pelo paciente
+StatusRemarcacao
+RemarcacaoAgendamento
+listagem das remarcações
+aceite pelo médico
+recusa pelo médico
+bloqueio de segunda solicitação
+reserva do novo slot
+MeusAgendamentos com remarcação
+badge Aguardando confirmação da remarcação
+card de nova data e novo horário
+CSS do card pendente
+tema escuro
+responsividade
+```
+
+O desenvolvimento deve continuar a partir desse estado, preservando tudo que já foi validado.
+
+---
+
+# 210. Conclusão da atualização de remarcação do paciente
+
+O sistema passou a representar um fluxo mais completo de alteração de consultas.
+
+A regra consolidada é:
+
+```text
+Consulta confirmada
+        ↓
+Paciente solicita mudança
+        ↓
+Remarcação pendente
+        ↓
+Consulta original continua válida
+        ↓
+Médico decide
+        ↓
+ACEITA → novo horário vira oficial
+RECUSADA → horário original continua oficial
+```
+
+A interface do paciente foi adaptada para comunicar corretamente esse estado intermediário.
+
+Enquanto a solicitação estiver pendente, o card mostra:
+
+```text
+Aguardando confirmação da remarcação
+```
+
+sem modificar incorretamente o status oficial `CONFIRMADA` do agendamento.
+
+Com isso, a arquitetura mantém separação clara entre:
+
+```text
+estado da consulta
+```
+
+e:
+
+```text
+estado da solicitação de alteração
+```
+
+mantendo o backend responsável por autorização, propriedade dos registros, disponibilidade dos slots e decisão final sobre a alteração da consulta.
