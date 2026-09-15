@@ -3,884 +3,1779 @@
 ========================================================= */
 
 .meus-agendamentos-page {
-    width: 100%;
-    max-width: 1250px;
-    margin: 0 auto;
-    padding: 32px;
-    box-sizing: border-box;
-  }
-  
-  
-  /* =========================================================
-     CABEÇALHO
-  ========================================================= */
-  
-  .meus-agendamentos-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-  
-    margin-bottom: 28px;
-  }
-  
-  .meus-agendamentos-eyebrow {
-    display: block;
-  
-    margin-bottom: 6px;
-  
-    color: #2563eb;
-  
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  
-  .meus-agendamentos-header h1 {
-    margin: 0 0 7px;
-  
-    color: #0f172a;
-  
-    font-size: 30px;
-    font-weight: 750;
-  }
-  
-  .meus-agendamentos-header p {
-    max-width: 620px;
-  
-    margin: 0;
-  
-    color: #64748b;
-  
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  
-  
-  /* =========================================================
-     RESUMO
-  ========================================================= */
-  
-  .meus-agendamentos-resumo {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  
-    flex-shrink: 0;
-  
-    padding: 12px 18px;
-  
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-  
-    background: #ffffff;
-  
-    box-shadow:
-      0 2px 8px
-      rgba(15, 23, 42, 0.04);
-  }
-  
-  .meus-agendamentos-resumo span {
-    color: #64748b;
-    font-size: 13px;
-  }
-  
-  .meus-agendamentos-resumo strong {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    min-width: 34px;
-    height: 34px;
-  
-    padding: 0 10px;
-  
-    border-radius: 9px;
-  
-    background: #eff6ff;
-    color: #2563eb;
-  
-    font-size: 16px;
-  }
-  
-  
-  /* =========================================================
-     LISTA
-  ========================================================= */
-  
-  .meus-agendamentos-lista {
-    display: grid;
-  
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-  
-    gap: 18px;
-  }
-  
-  
-  /* =========================================================
-     CARD
-  ========================================================= */
-  
-  .meus-agendamentos-card {
-    position: relative;
-  
-    display: flex;
-    flex-direction: column;
-  
-    min-width: 0;
-  
-    padding: 22px;
-  
-    overflow: hidden;
-  
-    border: 1px solid #e2e8f0;
-    border-radius: 17px;
-  
-    background:
-      linear-gradient(
-        145deg,
-        #ffffff 0%,
-        #fbfdff 100%
-      );
-  
-    box-shadow:
-      0 4px 18px
-      rgba(15, 23, 42, 0.04);
-  
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  
-  .meus-agendamentos-card::before {
-    content: "";
-  
-    position: absolute;
-  
-    top: 18px;
-    bottom: 18px;
-    left: 0;
-  
-    width: 4px;
-  
-    border-radius:
-      0 6px 6px 0;
-  
-    background: #2563eb;
-  }
-  
-  .meus-agendamentos-card:hover {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.meus-agendamentos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.meus-agendamentos-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meus-agendamentos-header h1 {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 750;
+}
+
+.meus-agendamentos-header p {
+  max-width: 620px;
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   RESUMO
+========================================================= */
+
+.meus-agendamentos-resumo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow:
+    0 2px 8px
+    rgba(15, 23, 42, 0.04);
+}
+
+.meus-agendamentos-resumo span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.meus-agendamentos-resumo strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   LISTA
+========================================================= */
+
+.meus-agendamentos-lista {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 18px;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.meus-agendamentos-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #fbfdff 100%
+    );
+  box-shadow:
+    0 4px 18px
+    rgba(15, 23, 42, 0.04);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.meus-agendamentos-card::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 0;
+  width: 4px;
+  border-radius:
+    0 6px 6px 0;
+  background: #2563eb;
+}
+
+.meus-agendamentos-card:hover {
+  transform:
+    translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow:
+    0 10px 28px
+    rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   TOPO DO CARD
+========================================================= */
+
+.meus-agendamentos-card-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom:
+    1px solid #e2e8f0;
+}
+
+.meus-agendamentos-data {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.meus-agendamentos-data span {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.meus-agendamentos-data strong {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.meus-agendamentos-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 190px;
+  padding: 7px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.meus-agendamentos-status-pendente {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.meus-agendamentos-status-confirmada {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.meus-agendamentos-status-recusada {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.meus-agendamentos-status-cancelada {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.meus-agendamentos-status-realizada {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.meus-agendamentos-status-faltou {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.meus-agendamentos-status-agendada {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+
+/* =========================================================
+   HORÁRIO
+========================================================= */
+
+.meus-agendamentos-horario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+}
+
+.meus-agendamentos-horario-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 19px;
+}
+
+.meus-agendamentos-horario > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meus-agendamentos-horario small {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.meus-agendamentos-horario strong {
+  color: #334155;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   DESCRIÇÃO DO STATUS
+========================================================= */
+
+.meus-agendamentos-descricao {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.meus-agendamentos-descricao p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   INDICADOR
+========================================================= */
+
+.meus-agendamentos-indicador {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-top: 5px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-pendente {
+  background: #f59e0b;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-confirmada {
+  background: #22c55e;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-recusada {
+  background: #ef4444;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-cancelada {
+  background: #94a3b8;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-realizada {
+  background: #3b82f6;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-faltou {
+  background: #f97316;
+}
+
+.meus-agendamentos-indicador.meus-agendamentos-status-agendada {
+  background: #6366f1;
+}
+
+
+/* =========================================================
+   CARREGAMENTO / ERRO / VAZIO
+========================================================= */
+
+.meus-agendamentos-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 40px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow:
+    0 4px 18px
+    rgba(15, 23, 42, 0.04);
+}
+
+.meus-agendamentos-estado-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 16px;
+  border-radius: 17px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.meus-agendamentos-estado-erro {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.meus-agendamentos-estado h2 {
+  margin: 0 0 7px;
+  color: #1e293b;
+  font-size: 17px;
+}
+
+.meus-agendamentos-estado p {
+  max-width: 450px;
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.meus-agendamentos-loading {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 18px;
+  border: 3px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation:
+    meus-agendamentos-loading
+    0.8s linear infinite;
+}
+
+@keyframes meus-agendamentos-loading {
+  to {
     transform:
-      translateY(-2px);
-  
-    border-color: #bfdbfe;
-  
-    box-shadow:
-      0 10px 28px
-      rgba(15, 23, 42, 0.08);
+      rotate(360deg);
   }
-  
-  
-  /* =========================================================
-     TOPO DO CARD
-  ========================================================= */
-  
-  .meus-agendamentos-card-topo {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  
-    gap: 18px;
-  
-    padding-bottom: 18px;
-  
-    border-bottom:
-      1px solid #e2e8f0;
+}
+
+
+/* =========================================================
+   BOTÃO
+========================================================= */
+
+.meus-agendamentos-btn {
+  margin-top: 20px;
+  padding: 10px 17px;
+  border: none;
+  border-radius: 9px;
+  background: #2563eb;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.meus-agendamentos-btn:hover {
+  background: #1d4ed8;
+  transform:
+    translateY(-1px);
+  box-shadow:
+    0 7px 16px
+    rgba(37, 99, 235, 0.2);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .meus-agendamentos-lista {
+    grid-template-columns: 1fr;
   }
-  
-  .meus-agendamentos-data {
-    display: flex;
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 620px) {
+
+  .meus-agendamentos-page {
+    padding:
+      22px 12px;
+  }
+
+  .meus-agendamentos-header {
+    align-items: stretch;
     flex-direction: column;
-  
-    gap: 5px;
+    gap: 18px;
   }
-  
-  .meus-agendamentos-data span {
-    color: #94a3b8;
-  
-    font-size: 10px;
-    font-weight: 750;
-  
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+
+  .meus-agendamentos-header h1 {
+    font-size: 27px;
   }
-  
-  .meus-agendamentos-data strong {
-    color: #0f172a;
-  
-    font-size: 20px;
-    font-weight: 750;
+
+  .meus-agendamentos-resumo {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content:
+      space-between;
   }
-  
-  
-  /* =========================================================
-     STATUS
-  ========================================================= */
-  
-  .meus-agendamentos-status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  
-    max-width: 190px;
-  
-    padding: 7px 11px;
-  
-    border: 1px solid transparent;
-    border-radius: 999px;
-  
-    font-size: 11px;
-    font-weight: 750;
-  
-    line-height: 1.25;
-    text-align: center;
+
+  .meus-agendamentos-card {
+    padding:
+      19px 17px 19px 20px;
   }
-  
-  
-  /* PENDENTE */
-  
-  .meus-agendamentos-status-pendente {
-    border-color: #fde68a;
-    background: #fffbeb;
-    color: #b45309;
-  }
-  
-  
-  /* CONFIRMADA */
-  
-  .meus-agendamentos-status-confirmada {
-    border-color: #bbf7d0;
-    background: #f0fdf4;
-    color: #15803d;
-  }
-  
-  
-  /* RECUSADA */
-  
-  .meus-agendamentos-status-recusada {
-    border-color: #fecaca;
-    background: #fef2f2;
-    color: #b91c1c;
-  }
-  
-  
-  /* CANCELADA */
-  
-  .meus-agendamentos-status-cancelada {
-    border-color: #cbd5e1;
-    background: #f1f5f9;
-    color: #64748b;
-  }
-  
-  
-  /* REALIZADA */
-  
-  .meus-agendamentos-status-realizada {
-    border-color: #bfdbfe;
-    background: #eff6ff;
-    color: #1d4ed8;
-  }
-  
-  
-  /* FALTOU */
-  
-  .meus-agendamentos-status-faltou {
-    border-color: #fed7aa;
-    background: #fff7ed;
-    color: #c2410c;
-  }
-  
-  
-  /* AGENDADA - LEGADO */
-  
-  .meus-agendamentos-status-agendada {
-    border-color: #c7d2fe;
-    background: #eef2ff;
-    color: #4338ca;
-  }
-  
-  
-  /* =========================================================
-     HORÁRIO
-  ========================================================= */
-  
-  .meus-agendamentos-horario {
-    display: flex;
-    align-items: center;
-  
+
+  .meus-agendamentos-card-topo {
+    flex-direction: column;
     gap: 12px;
-  
-    padding: 20px 0;
   }
-  
-  .meus-agendamentos-horario-icone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    width: 42px;
-    height: 42px;
-  
-    flex-shrink: 0;
-  
-    border-radius: 11px;
-  
-    background: #eff6ff;
-    color: #2563eb;
-  
+
+  .meus-agendamentos-status {
+    width: fit-content;
+  }
+
+  .meus-agendamentos-data strong {
     font-size: 19px;
   }
-  
-  .meus-agendamentos-horario > div:last-child {
-    display: flex;
-    flex-direction: column;
-  
-    gap: 4px;
+
+  .meus-agendamentos-horario {
+    padding: 18px 0;
   }
-  
-  .meus-agendamentos-horario small {
-    color: #94a3b8;
-  
-    font-size: 10px;
-    font-weight: 750;
-  
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+
+}
+
+
+/* =========================================================
+   CELULARES PEQUENOS
+========================================================= */
+
+@media (max-width: 430px) {
+
+  .meus-agendamentos-page {
+    padding:
+      18px 8px;
   }
-  
-  .meus-agendamentos-horario strong {
-    color: #334155;
-  
-    font-size: 17px;
-    font-weight: 750;
-  }
-  
-  
-  /* =========================================================
-     DESCRIÇÃO DO STATUS
-  ========================================================= */
-  
-  .meus-agendamentos-descricao {
-    display: flex;
-    align-items: flex-start;
-  
-    gap: 10px;
-  
-    padding: 13px 14px;
-  
-    border-radius: 11px;
-  
-    background: #f8fafc;
-  }
-  
-  .meus-agendamentos-descricao p {
-    margin: 0;
-  
-    color: #64748b;
-  
-    font-size: 12px;
-    line-height: 1.55;
-  }
-  
-  
-  /* =========================================================
-     INDICADOR
-  ========================================================= */
-  
-  .meus-agendamentos-indicador {
-    width: 8px;
-    height: 8px;
-  
-    flex-shrink: 0;
-  
-    margin-top: 5px;
-  
-    padding: 0;
-  
-    border: none;
-    border-radius: 50%;
-  }
-  
-  
-  /* sobrescreve os fundos dos status */
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-pendente {
-    background: #f59e0b;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-confirmada {
-    background: #22c55e;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-recusada {
-    background: #ef4444;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-cancelada {
-    background: #94a3b8;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-realizada {
-    background: #3b82f6;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-faltou {
-    background: #f97316;
-  }
-  
-  .meus-agendamentos-indicador.meus-agendamentos-status-agendada {
-    background: #6366f1;
-  }
-  
-  
-  /* =========================================================
-     CARREGAMENTO / ERRO / VAZIO
-  ========================================================= */
-  
-  .meus-agendamentos-estado {
-    display: flex;
-    flex-direction: column;
-  
-    align-items: center;
-    justify-content: center;
-  
-    min-height: 280px;
-  
-    padding: 40px 24px;
-  
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-  
-    background: #ffffff;
-  
-    text-align: center;
-  
-    box-shadow:
-      0 4px 18px
-      rgba(15, 23, 42, 0.04);
-  }
-  
-  .meus-agendamentos-estado-icone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    width: 58px;
-    height: 58px;
-  
-    margin-bottom: 16px;
-  
-    border-radius: 17px;
-  
-    background: #eff6ff;
-    color: #2563eb;
-  
-    font-size: 25px;
-    font-weight: 800;
-  }
-  
-  .meus-agendamentos-estado-erro {
-    background: #fef2f2;
-    color: #dc2626;
-  }
-  
-  .meus-agendamentos-estado h2 {
-    margin: 0 0 7px;
-  
-    color: #1e293b;
-  
-    font-size: 17px;
-  }
-  
-  .meus-agendamentos-estado p {
-    max-width: 450px;
-  
-    margin: 0;
-  
-    color: #94a3b8;
-  
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  
-  
-  /* =========================================================
-     LOADING
-  ========================================================= */
-  
-  .meus-agendamentos-loading {
-    width: 32px;
-    height: 32px;
-  
-    margin-bottom: 18px;
-  
-    border: 3px solid #dbeafe;
-    border-top-color: #2563eb;
-  
-    border-radius: 50%;
-  
-    animation:
-      meus-agendamentos-loading
-      0.8s linear infinite;
-  }
-  
-  @keyframes meus-agendamentos-loading {
-    to {
-      transform:
-        rotate(360deg);
-    }
-  }
-  
-  
-  /* =========================================================
-     BOTÃO
-  ========================================================= */
-  
-  .meus-agendamentos-btn {
-    margin-top: 20px;
-  
-    padding: 10px 17px;
-  
-    border: none;
-    border-radius: 9px;
-  
-    background: #2563eb;
-    color: #ffffff;
-  
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-  
-    cursor: pointer;
-  
-    transition:
-      background 0.2s ease,
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  
-  .meus-agendamentos-btn:hover {
-    background: #1d4ed8;
-  
-    transform:
-      translateY(-1px);
-  
-    box-shadow:
-      0 7px 16px
-      rgba(37, 99, 235, 0.2);
-  }
-  
-  
-  /* =========================================================
-     TABLET
-  ========================================================= */
-  
-  @media (max-width: 900px) {
-  
-    .meus-agendamentos-lista {
-      grid-template-columns: 1fr;
-    }
-  
-  }
-  
-  
-  /* =========================================================
-     CELULAR
-  ========================================================= */
-  
-  @media (max-width: 620px) {
-  
-    .meus-agendamentos-page {
-      padding:
-        22px 12px;
-    }
-  
-    .meus-agendamentos-header {
-      align-items: stretch;
-      flex-direction: column;
-  
-      gap: 18px;
-    }
-  
-    .meus-agendamentos-header h1 {
-      font-size: 27px;
-    }
-  
-    .meus-agendamentos-resumo {
-      width: 100%;
-  
-      box-sizing: border-box;
-  
-      justify-content:
-        space-between;
-    }
-  
-    .meus-agendamentos-card {
-      padding:
-        19px 17px 19px 20px;
-    }
-  
-    .meus-agendamentos-card-topo {
-      flex-direction: column;
-  
-      gap: 12px;
-    }
-  
-    .meus-agendamentos-status {
-      width: fit-content;
-    }
-  
-    .meus-agendamentos-data strong {
-      font-size: 19px;
-    }
-  
-    .meus-agendamentos-horario {
-      padding: 18px 0;
-    }
-  
-  }
-  
-  
-  /* =========================================================
-     CELULARES PEQUENOS
-  ========================================================= */
-  
-  @media (max-width: 430px) {
-  
-    .meus-agendamentos-page {
-      padding:
-        18px 8px;
-    }
-  
-    .meus-agendamentos-header h1 {
-      font-size: 25px;
-    }
-  
-    .meus-agendamentos-card {
-      border-radius: 15px;
-    }
-  
-  }
-  
-  
-  /* =========================================================
-     TEMA ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
+
   .meus-agendamentos-header h1 {
-    color: #f8fafc;
+    font-size: 25px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-header p {
-    color: #94a3b8;
-  }
-  
-  
-  /* RESUMO */
-  
-  body.modo-escuro
-  .meus-agendamentos-resumo {
-    background: #111827;
-    border-color: #273449;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-resumo span {
-    color: #94a3b8;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-resumo strong {
-    background: #172554;
-    color: #60a5fa;
-  }
-  
-  
-  /* =========================================================
-     CARDS - ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
+
   .meus-agendamentos-card {
-    border-color: #273449;
-  
-    background:
-      linear-gradient(
-        145deg,
-        #111827 0%,
-        #0f172a 100%
-      );
-  
-    box-shadow:
-      0 4px 20px
-      rgba(0, 0, 0, 0.16);
+    border-radius: 15px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-card:hover {
-    border-color: #3b82f6;
-  
-    box-shadow:
-      0 10px 26px
-      rgba(0, 0, 0, 0.22);
+
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-header h1 {
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.meus-agendamentos-header p {
+  color: #94a3b8;
+}
+
+
+/* RESUMO */
+
+body.modo-escuro
+.meus-agendamentos-resumo {
+  background: #111827;
+  border-color: #273449;
+}
+
+body.modo-escuro
+.meus-agendamentos-resumo span {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-resumo strong {
+  background: #172554;
+  color: #60a5fa;
+}
+
+
+/* =========================================================
+   CARDS - ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-card {
+  border-color: #273449;
+  background:
+    linear-gradient(
+      145deg,
+      #111827 0%,
+      #0f172a 100%
+    );
+  box-shadow:
+    0 4px 20px
+    rgba(0, 0, 0, 0.16);
+}
+
+body.modo-escuro
+.meus-agendamentos-card:hover {
+  border-color: #3b82f6;
+  box-shadow:
+    0 10px 26px
+    rgba(0, 0, 0, 0.22);
+}
+
+body.modo-escuro
+.meus-agendamentos-card-topo {
+  border-color: #273449;
+}
+
+body.modo-escuro
+.meus-agendamentos-data span {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-data strong {
+  color: #f8fafc;
+}
+
+
+/* =========================================================
+   HORÁRIO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-horario-icone {
+  background: #172554;
+  color: #60a5fa;
+}
+
+body.modo-escuro
+.meus-agendamentos-horario small {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-horario strong {
+  color: #e2e8f0;
+}
+
+
+/* =========================================================
+   DESCRIÇÃO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-descricao {
+  background: #0f172a;
+}
+
+body.modo-escuro
+.meus-agendamentos-descricao p {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   STATUS - ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-status-pendente {
+  border-color: #92400e;
+  background: rgba(180, 83, 9, 0.18);
+  color: #fcd34d;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-confirmada {
+  border-color: #166534;
+  background: rgba(21, 128, 61, 0.18);
+  color: #86efac;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-recusada {
+  border-color: #7f1d1d;
+  background: rgba(185, 28, 28, 0.18);
+  color: #fca5a5;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-cancelada {
+  border-color: #475569;
+  background: rgba(71, 85, 105, 0.25);
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-realizada {
+  border-color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-faltou {
+  border-color: #9a3412;
+  background: rgba(194, 65, 12, 0.18);
+  color: #fdba74;
+}
+
+body.modo-escuro
+.meus-agendamentos-status-agendada {
+  border-color: #4338ca;
+  background: rgba(67, 56, 202, 0.2);
+  color: #c7d2fe;
+}
+
+
+/* =========================================================
+   ESTADO VAZIO / ERRO - ESCURO
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-estado {
+  background: #111827;
+  border-color: #273449;
+  box-shadow:
+    0 4px 20px
+    rgba(0, 0, 0, 0.16);
+}
+
+body.modo-escuro
+.meus-agendamentos-estado h2 {
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.meus-agendamentos-estado p {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-estado-icone {
+  background: #172554;
+  color: #60a5fa;
+}
+
+body.modo-escuro
+.meus-agendamentos-estado-erro {
+  background: rgba(127, 29, 29, 0.22);
+  color: #fca5a5;
+}
+
+
+/* ========================================
+   AÇÕES DO AGENDAMENTO
+======================================== */
+
+.meus-agendamentos-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+
+/* ========================================
+   BOTÃO REMARCAR
+======================================== */
+
+.meus-agendamentos-btn-remarcar {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #16a34a;
+  border-radius: 10px;
+  background: transparent;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.meus-agendamentos-btn-remarcar:hover:not(:disabled) {
+  background: #f0fdf4;
+  transform: translateY(-1px);
+}
+
+
+/* ========================================
+   BOTÃO CANCELAR
+======================================== */
+
+.meus-agendamentos-btn-cancelar {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #dc2626;
+  border-radius: 10px;
+  background: transparent;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.meus-agendamentos-btn-cancelar:hover:not(:disabled) {
+  background: #fef2f2;
+  transform: translateY(-1px);
+}
+
+
+/* ========================================
+   BOTÕES DESABILITADOS
+======================================== */
+
+.meus-agendamentos-acoes button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ========================================
+   AÇÕES - TEMA ESCURO
+======================================== */
+
+body.modo-escuro
+.meus-agendamentos-acoes {
+  border-top-color:
+    rgba(148, 163, 184, 0.15);
+}
+
+body.modo-escuro
+.meus-agendamentos-btn-remarcar {
+  color: #4ade80;
+  border-color: #22c55e;
+}
+
+body.modo-escuro
+.meus-agendamentos-btn-remarcar:hover:not(:disabled) {
+  background:
+    rgba(34, 197, 94, 0.1);
+}
+
+body.modo-escuro
+.meus-agendamentos-btn-cancelar {
+  color: #f87171;
+  border-color: #ef4444;
+}
+
+body.modo-escuro
+.meus-agendamentos-btn-cancelar:hover:not(:disabled) {
+  background:
+    rgba(239, 68, 68, 0.1);
+}
+
+
+/* ========================================
+   AÇÕES - MOBILE
+======================================== */
+
+@media (max-width: 600px) {
+
+  .meus-agendamentos-acoes {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-card-topo {
-    border-color: #273449;
+
+  .meus-agendamentos-btn-remarcar,
+  .meus-agendamentos-btn-cancelar {
+    width: 100%;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-data span {
-    color: #94a3b8;
+
+}
+
+
+/* =========================================================
+   MODAL DO CALENDÁRIO DE REMARCAÇÃO
+========================================================= */
+
+.meus-agendamentos-modal-calendario {
+  width: min(900px, calc(100vw - 40px));
+  max-width: 900px;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CONSULTA ATUAL
+========================================================= */
+
+.meus-agendamentos-remarcacao-atual {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  gap: 4px 18px;
+
+  margin-bottom: 18px;
+  padding: 14px 16px;
+
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.meus-agendamentos-remarcacao-atual span {
+  grid-column: 1 / -1;
+  margin-bottom: 3px;
+
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.meus-agendamentos-remarcacao-atual strong {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.meus-agendamentos-remarcacao-atual p {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   CALENDÁRIO DA REMARCAÇÃO
+
+   O calendário-base continua vindo de agendarConsulta.css.
+   Aqui apenas controlamos o calendário quando ele aparece
+   dentro de Meus Agendamentos.
+========================================================= */
+
+.meus-agendamentos-calendario-remarcacao {
+  width: 100%;
+  margin-top: 4px;
+  box-shadow: none;
+}
+
+.meus-agendamentos-modal-calendario
+.agendamento-calendario {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.meus-agendamentos-modal-calendario
+.agendamento-calendario-grade {
+  width: 100%;
+}
+
+
+/* =========================================================
+   LOADING DO CALENDÁRIO
+========================================================= */
+
+.meus-agendamentos-modal-calendario
+.agendamento-calendario-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+
+/* =========================================================
+   BOTÃO VOLTAR PARA O CALENDÁRIO
+========================================================= */
+
+.meus-agendamentos-modal-voltar-container {
+  display: flex;
+  justify-content: flex-start;
+
+  margin-top: 22px;
+  padding-top: 18px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+
+/* =========================================================
+   COMPARAÇÃO
+========================================================= */
+
+.meus-agendamentos-comparacao {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    34px
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.meus-agendamentos-comparacao-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 16px 12px;
+
+  border-radius: 12px;
+}
+
+.meus-agendamentos-comparacao-item.atual {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.meus-agendamentos-comparacao-item.nova {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.meus-agendamentos-comparacao-item span {
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+.meus-agendamentos-comparacao-item strong {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.meus-agendamentos-comparacao-item p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.meus-agendamentos-comparacao-item.nova strong {
+  color: #15803d;
+}
+
+.meus-agendamentos-comparacao-seta {
+  color: #16a34a;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+}
+
+
+/* =========================================================
+   AVISO DA REMARCAÇÃO
+========================================================= */
+
+.meus-agendamentos-remarcacao-aviso {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+
+  background: #fffbeb;
+
+  border: 1px solid #fde68a;
+  border-radius: 11px;
+
+  text-align: left;
+}
+
+.meus-agendamentos-remarcacao-aviso strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #92400e;
+  font-size: 12px;
+}
+
+.meus-agendamentos-remarcacao-aviso p {
+  margin: 0;
+
+  color: #a16207;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   BOTÕES DA CONFIRMAÇÃO
+========================================================= */
+
+.meus-agendamentos-confirmacao-acoes {
+  display: grid;
+  grid-template-columns:
+    1fr 1.4fr;
+
+  gap: 10px;
+}
+
+.meus-agendamentos-confirmacao-voltar,
+.meus-agendamentos-confirmacao-enviar {
+  min-height: 46px;
+
+  padding: 0 16px;
+
+  border-radius: 11px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.meus-agendamentos-confirmacao-voltar {
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+
+  color: #475569;
+}
+
+.meus-agendamentos-confirmacao-voltar:hover:not(:disabled) {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.meus-agendamentos-confirmacao-enviar {
+  background: #16a34a;
+
+  border: 1px solid #16a34a;
+
+  color: #ffffff;
+}
+
+.meus-agendamentos-confirmacao-enviar:hover:not(:disabled) {
+  background: #15803d;
+  border-color: #15803d;
+
+  transform: translateY(-1px);
+}
+
+.meus-agendamentos-confirmacao-voltar:disabled,
+.meus-agendamentos-confirmacao-enviar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================================
+   REMARCAÇÃO - DARK MODE
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-atual {
+  background: #172033;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-atual strong {
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-atual p,
+body.modo-escuro
+.meus-agendamentos-remarcacao-atual span {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-modal-voltar-container {
+  border-top-color: #334155;
+}
+
+body.modo-escuro
+.meus-agendamentos-comparacao-item.atual {
+  background: #172033;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.meus-agendamentos-comparacao-item.nova {
+  background:
+    rgba(22, 163, 74, 0.12);
+
+  border-color:
+    rgba(34, 197, 94, 0.35);
+}
+
+body.modo-escuro
+.meus-agendamentos-comparacao-item strong {
+  color: #f8fafc;
+}
+
+body.modo-escuro
+.meus-agendamentos-comparacao-item.nova strong {
+  color: #4ade80;
+}
+
+body.modo-escuro
+.meus-agendamentos-comparacao-item span,
+body.modo-escuro
+.meus-agendamentos-comparacao-item p {
+  color: #94a3b8;
+}
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-aviso {
+  background:
+    rgba(245, 158, 11, 0.08);
+
+  border-color:
+    rgba(245, 158, 11, 0.25);
+}
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-aviso strong {
+  color: #fbbf24;
+}
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-aviso p {
+  color: #fcd34d;
+}
+
+body.modo-escuro
+.meus-agendamentos-confirmacao-voltar {
+  background: #172033;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+
+/* =========================================================
+   REMARCAÇÃO - TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .meus-agendamentos-modal-calendario {
+    width: calc(100vw - 32px);
+    max-width: 760px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-data strong {
-    color: #f8fafc;
+
+}
+
+
+/* =========================================================
+   REMARCAÇÃO - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .meus-agendamentos-modal-calendario {
+    width: calc(100vw - 20px);
+    padding: 16px;
   }
-  
-  
-  /* =========================================================
-     HORÁRIO - ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
-  .meus-agendamentos-horario-icone {
-    background: #172554;
-    color: #60a5fa;
+
+  .meus-agendamentos-remarcacao-atual {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 12px 14px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-horario small {
-    color: #94a3b8;
+
+  .meus-agendamentos-calendario-remarcacao {
+    margin-top: 8px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-horario strong {
-    color: #e2e8f0;
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-calendario-topo {
+    grid-template-columns:
+      40px
+      1fr
+      40px;
+
+    padding: 15px 10px;
   }
-  
-  
-  /* =========================================================
-     DESCRIÇÃO - ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
-  .meus-agendamentos-descricao {
-    background: #0f172a;
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-mes-titulo h2 {
+    font-size: 17px;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-descricao p {
-    color: #94a3b8;
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-mes-titulo p {
+    display: none;
   }
-  
-  
-  /* =========================================================
-     STATUS - ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-mes-botao {
+    width: 38px;
+    height: 38px;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-semana-dia {
+    padding: 9px 2px;
+    font-size: 9px;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia {
+    min-height: 72px;
+    padding: 7px 5px;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia-numero {
+    width: 27px;
+    height: 27px;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia-quantidade {
+    padding: 3px 4px;
+    font-size: 8px;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia-ponto {
+    display: none;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia-sem-horario {
+    display: none;
+  }
+
+  .meus-agendamentos-calendario-remarcacao
+  .agendamento-dia-hoje {
+    display: none;
+  }
+
+  .meus-agendamentos-comparacao {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .meus-agendamentos-comparacao-seta {
+    transform: rotate(90deg);
+    font-size: 20px;
+  }
+
+  .meus-agendamentos-confirmacao-acoes {
+    grid-template-columns: 1fr;
+  }
+
+  .meus-agendamentos-modal-voltar-container
+  .meus-agendamentos-confirmacao-voltar {
+    width: 100%;
+  }
+
+}
+/* =========================================================
+   REMARCAÇÃO PENDENTE NO CARD
+========================================================= */
+
+.meus-agendamentos-remarcacao-pendente {
+  position: relative;
+  margin-top: 16px;
+  padding: 17px;
+  overflow: hidden;
+
+  border: 1px solid #fde68a;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fffbeb 0%,
+      #fffdf5 100%
+    );
+
+  box-shadow:
+    0 4px 14px
+    rgba(245, 158, 11, 0.07);
+}
+
+
+/* Barra lateral de destaque */
+
+.meus-agendamentos-remarcacao-pendente::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+
+  width: 4px;
+
+  background: #f59e0b;
+}
+
+
+/* =========================================================
+   CABEÇALHO DA REMARCAÇÃO
+========================================================= */
+
+.meus-agendamentos-remarcacao-pendente-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+
+  border: 1px solid #fde68a;
+  border-radius: 11px;
+
+  background: #fef3c7;
+  color: #b45309;
+
+  font-size: 19px;
+  font-weight: 800;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-topo > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 0;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-topo strong {
+  color: #92400e;
+
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-topo span {
+  color: #b45309;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   NOVA DATA E NOVO HORÁRIO
+========================================================= */
+
+.meus-agendamentos-remarcacao-pendente-dados {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-dados > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 12px 13px;
+
+  border: 1px solid
+    rgba(245, 158, 11, 0.18);
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.72);
+}
+
+
+.meus-agendamentos-remarcacao-pendente-dados small {
+  color: #a16207;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+
+.meus-agendamentos-remarcacao-pendente-dados strong {
+  color: #78350f;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+
+/* =========================================================
+   AVISO INFERIOR
+========================================================= */
+
+.meus-agendamentos-remarcacao-pendente-aviso {
+  margin:
+    13px 0 0;
+
+  padding-top: 12px;
+
+  border-top:
+    1px solid
+    rgba(245, 158, 11, 0.2);
+
+  color: #92400e;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   BOTÃO QUANDO EXISTE REMARCAÇÃO PENDENTE
+========================================================= */
+
+.meus-agendamentos-btn-remarcacao-pendente {
+  border-color: #f59e0b;
+
+  background: #fffbeb;
+
+  color: #b45309;
+
+  cursor: not-allowed;
+}
+
+
+.meus-agendamentos-btn-remarcacao-pendente:disabled {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   STATUS SUPERIOR DA REMARCAÇÃO
+========================================================= */
+
+/*
+   O TSX está utilizando a classe de pendente
+   no status superior quando existe remarcação.
+
+   Aqui damos um pouco mais de espaço porque
+   "Aguardando confirmação da remarcação"
+   é maior que "Confirmada".
+*/
+
+.meus-agendamentos-card-topo
+.meus-agendamentos-status-pendente {
+  max-width: 220px;
+
+  padding:
+    7px 12px;
+
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   REMARCAÇÃO PENDENTE - DARK MODE
+========================================================= */
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente {
+  border-color:
+    rgba(245, 158, 11, 0.3);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(146, 64, 14, 0.16) 0%,
+      rgba(120, 53, 15, 0.08) 100%
+    );
+
+  box-shadow:
+    0 4px 16px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente::before {
+  background: #f59e0b;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-icone {
+  border-color:
+    rgba(245, 158, 11, 0.3);
+
+  background:
+    rgba(245, 158, 11, 0.12);
+
+  color: #fbbf24;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-topo strong {
+  color: #fde68a;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-topo span {
+  color: #fbbf24;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-dados > div {
+  border-color:
+    rgba(245, 158, 11, 0.16);
+
+  background:
+    rgba(15, 23, 42, 0.42);
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-dados small {
+  color: #fbbf24;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-dados strong {
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-remarcacao-pendente-aviso {
+  border-top-color:
+    rgba(245, 158, 11, 0.2);
+
+  color: #fcd34d;
+}
+
+
+body.modo-escuro
+.meus-agendamentos-btn-remarcacao-pendente {
+  border-color:
+    rgba(245, 158, 11, 0.55);
+
+  background:
+    rgba(245, 158, 11, 0.08);
+
+  color: #fbbf24;
+}
+
+
+/* =========================================================
+   REMARCAÇÃO PENDENTE - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .meus-agendamentos-remarcacao-pendente {
+    margin-top: 14px;
+
+    padding:
+      15px 14px 15px 17px;
+
+    border-radius: 12px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-topo {
+    align-items: flex-start;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-icone {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-topo strong {
+    font-size: 12px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-topo span {
+    font-size: 10px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-dados {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+
+    margin-top: 13px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-dados > div {
+    padding: 11px 12px;
+  }
+
+
+  .meus-agendamentos-remarcacao-pendente-aviso {
+    margin-top: 11px;
+
+    padding-top: 11px;
+
+    font-size: 10px;
+  }
+
+
+  .meus-agendamentos-card-topo
   .meus-agendamentos-status-pendente {
-    border-color: #92400e;
-    background: rgba(180, 83, 9, 0.18);
-    color: #fcd34d;
+    width: auto;
+    max-width: 100%;
+
+    align-self: flex-start;
   }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-confirmada {
-    border-color: #166534;
-    background: rgba(21, 128, 61, 0.18);
-    color: #86efac;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-recusada {
-    border-color: #7f1d1d;
-    background: rgba(185, 28, 28, 0.18);
-    color: #fca5a5;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-cancelada {
-    border-color: #475569;
-    background: rgba(71, 85, 105, 0.25);
-    color: #cbd5e1;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-realizada {
-    border-color: #1d4ed8;
-    background: rgba(37, 99, 235, 0.18);
-    color: #93c5fd;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-faltou {
-    border-color: #9a3412;
-    background: rgba(194, 65, 12, 0.18);
-    color: #fdba74;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-status-agendada {
-    border-color: #4338ca;
-    background: rgba(67, 56, 202, 0.2);
-    color: #c7d2fe;
-  }
-  
-  
-  /* =========================================================
-     ESTADO VAZIO / ERRO - ESCURO
-  ========================================================= */
-  
-  body.modo-escuro
-  .meus-agendamentos-estado {
-    background: #111827;
-    border-color: #273449;
-  
-    box-shadow:
-      0 4px 20px
-      rgba(0, 0, 0, 0.16);
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-estado h2 {
-    color: #f1f5f9;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-estado p {
-    color: #94a3b8;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-estado-icone {
-    background: #172554;
-    color: #60a5fa;
-  }
-  
-  body.modo-escuro
-  .meus-agendamentos-estado-erro {
-    background: rgba(127, 29, 29, 0.22);
-    color: #fca5a5;
-  }
+
+}

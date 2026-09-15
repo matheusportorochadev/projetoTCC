@@ -47,6 +47,44 @@ type Agendamento = {
 };
 
 
+type Paciente = {
+  id: number;
+  nome: string;
+  email: string | null;
+  telefone: string | null;
+  cpf: string | null;
+  ativo: boolean;
+  acessoLiberado: boolean;
+};
+
+
+type StatusRemarcacao =
+  | "PENDENTE"
+  | "ACEITA"
+  | "RECUSADA";
+
+
+type RemarcacaoPendente = {
+  id: number;
+  agendamentoId: number;
+  novaData: string;
+  novaHoraInicio: string;
+  novaHoraFim: string;
+  status: StatusRemarcacao;
+  visualizadoPaciente: boolean;
+  createdAt: string;
+  updatedAt: string;
+  medicoId: number;
+  pacienteId: number;
+  pacienteNome: string;
+  pacienteTelefone: string | null;
+  dataAtual: string;
+  horaInicioAtual: string;
+  horaFimAtual: string;
+  statusAgendamento: StatusAgendamento;
+};
+
+
 type AbaAgenda =
   | "disponibilidade"
   | "marcados";
@@ -67,6 +105,17 @@ type AcaoAgendamento =
 type ConfirmacaoAcao = {
   acao: AcaoAgendamento;
   agendamento: Agendamento;
+};
+
+
+type AcaoRemarcacao =
+  | "aceitar"
+  | "recusar";
+
+
+type ConfirmacaoRemarcacao = {
+  acao: AcaoRemarcacao;
+  remarcacao: RemarcacaoPendente;
 };
 
 
@@ -106,7 +155,8 @@ const diasSemana = [
 
 
 function Agenda() {
-  const hoje = new Date();
+  const hoje =
+    new Date();
 
   const token =
     localStorage.getItem("token");
@@ -168,6 +218,35 @@ function Agenda() {
 
 
   // ========================================
+  // PACIENTES
+  // ========================================
+
+  const [
+    pacientes,
+    setPacientes
+  ] = useState<Paciente[]>(
+    []
+  );
+
+
+  // ========================================
+  // REMARCAÇÕES PENDENTES
+  // ========================================
+
+  const [
+    remarcacoesPendentes,
+    setRemarcacoesPendentes
+  ] = useState<RemarcacaoPendente[]>(
+    []
+  );
+
+  const [
+    carregandoRemarcacoes,
+    setCarregandoRemarcacoes
+  ] = useState(false);
+
+
+  // ========================================
   // CONFIGURAÇÃO LATERAL
   // ========================================
 
@@ -193,18 +272,18 @@ function Agenda() {
 
 
   // ========================================
-  // ESTADOS GERAIS
-  // ========================================
+// ESTADOS GERAIS
+// ========================================
 
-  const [
-    carregando,
-    setCarregando
-  ] = useState(true);
+const [
+  ,
+  setCarregando
+] = useState(true);
 
-  const [
-    carregandoAgendamentos,
-    setCarregandoAgendamentos
-  ] = useState(false);
+const [
+  carregandoAgendamentos,
+  setCarregandoAgendamentos
+] = useState(false);
 
   const [
     salvando,
@@ -246,9 +325,9 @@ function Agenda() {
   const [
     horariosModal,
     setHorariosModal
-  ] = useState<
-    Disponibilidade[]
-  >([]);
+  ] = useState<Disponibilidade[]>(
+    []
+  );
 
 
   // ========================================
@@ -300,9 +379,9 @@ function Agenda() {
   const [
     disponibilidadeParaExcluir,
     setDisponibilidadeParaExcluir
-  ] = useState<
-    Disponibilidade | null
-  >(null);
+  ] = useState<Disponibilidade | null>(
+    null
+  );
 
   const [
     excluindo,
@@ -317,9 +396,9 @@ function Agenda() {
   const [
     confirmacaoAcao,
     setConfirmacaoAcao
-  ] = useState<
-    ConfirmacaoAcao | null
-  >(null);
+  ] = useState<ConfirmacaoAcao | null>(
+    null
+  );
 
   const [
     executandoAcao,
@@ -328,15 +407,15 @@ function Agenda() {
 
 
   // ========================================
-  // REMARCAÇÃO
+  // REMARCAÇÃO DIRETA DA MÉDICA
   // ========================================
 
   const [
     agendamentoParaRemarcar,
     setAgendamentoParaRemarcar
-  ] = useState<
-    Agendamento | null
-  >(null);
+  ] = useState<Agendamento | null>(
+    null
+  );
 
   const [
     dataRemarcacao,
@@ -360,14 +439,98 @@ function Agenda() {
 
 
   // ========================================
+  // NOVA CONSULTA PELO MÉDICO
+  // ========================================
+
+  const [
+    modalNovaConsultaAberto,
+    setModalNovaConsultaAberto
+  ] = useState(false);
+
+  const [
+    pacienteNovaConsulta,
+    setPacienteNovaConsulta
+  ] = useState<number | null>(
+    null
+  );
+
+  const [
+    buscaPaciente,
+    setBuscaPaciente
+  ] = useState("");
+
+  const [
+    dataNovaConsulta,
+    setDataNovaConsulta
+  ] = useState("");
+
+  const [
+    horaNovaConsulta,
+    setHoraNovaConsulta
+  ] = useState("08:00");
+
+  const [
+    duracaoNovaConsulta,
+    setDuracaoNovaConsulta
+  ] = useState(30);
+
+  const [
+    salvandoNovaConsulta,
+    setSalvandoNovaConsulta
+  ] = useState(false);
+
+  const [
+    carregandoPacientes,
+    setCarregandoPacientes
+  ] = useState(false);
+
+  const [
+    erroNovaConsulta,
+    setErroNovaConsulta
+  ] = useState("");
+
+
+  // ========================================
+  // EXCLUSÃO DEFINITIVA DE CONSULTA
+  // ========================================
+
+  const [
+    agendamentoParaExcluir,
+    setAgendamentoParaExcluir
+  ] = useState<Agendamento | null>(
+    null
+  );
+
+  const [
+    excluindoAgendamento,
+    setExcluindoAgendamento
+  ] = useState(false);
+
+
+  // ========================================
+  // DECISÃO DE REMARCAÇÃO DO PACIENTE
+  // ========================================
+
+  const [
+    confirmacaoRemarcacao,
+    setConfirmacaoRemarcacao
+  ] = useState<ConfirmacaoRemarcacao | null>(
+    null
+  );
+
+  const [
+    processandoRemarcacao,
+    setProcessandoRemarcacao
+  ] = useState(false);
+
+
+  // ========================================
   // CARREGAR DISPONIBILIDADES
   // ========================================
 
   const carregarDisponibilidades =
     useCallback(
-      async (): Promise<
-        Disponibilidade[]
-      > => {
+      async (): Promise<Disponibilidade[]> => {
         try {
           setCarregando(true);
           setErro("");
@@ -401,11 +564,10 @@ function Agenda() {
             );
           }
 
-          const lista:
-            Disponibilidade[] =
-              Array.isArray(dados)
-                ? dados
-                : [];
+          const lista: Disponibilidade[] =
+            Array.isArray(dados)
+              ? dados
+              : [];
 
           setDisponibilidades(
             lista
@@ -501,6 +663,130 @@ function Agenda() {
 
 
   // ========================================
+  // CARREGAR PACIENTES
+  // ========================================
+
+  const carregarPacientes =
+    useCallback(
+      async () => {
+        try {
+          setCarregandoPacientes(
+            true
+          );
+
+          if (!token) {
+            throw new Error(
+              "Sessão não encontrada. Faça login novamente."
+            );
+          }
+
+          const resposta =
+            await fetch(
+              `${API_URL}/pacientes`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            );
+
+          const dados =
+            await resposta.json();
+
+          if (!resposta.ok) {
+            throw new Error(
+              dados.mensagem ||
+                "Erro ao carregar pacientes."
+            );
+          }
+
+          setPacientes(
+            Array.isArray(dados)
+              ? dados
+              : []
+          );
+
+        } catch (error) {
+          setErroNovaConsulta(
+            error instanceof Error
+              ? error.message
+              : "Erro ao carregar pacientes."
+          );
+
+        } finally {
+          setCarregandoPacientes(
+            false
+          );
+        }
+      },
+      [token]
+    );
+
+
+  // ========================================
+  // CARREGAR REMARCAÇÕES PENDENTES
+  // ========================================
+
+  const carregarRemarcacoesPendentes =
+    useCallback(
+      async () => {
+        try {
+          setCarregandoRemarcacoes(
+            true
+          );
+
+          if (!token) {
+            return;
+          }
+
+          const resposta =
+            await fetch(
+              `${API_URL}/agendamentos/remarcacoes/pendentes`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            );
+
+          const dados =
+            await resposta.json();
+
+          if (!resposta.ok) {
+            throw new Error(
+              dados.mensagem ||
+                "Erro ao carregar solicitações de remarcação."
+            );
+          }
+
+          setRemarcacoesPendentes(
+            Array.isArray(
+              dados.remarcacoes
+            )
+              ? dados.remarcacoes
+              : []
+          );
+
+        } catch (error) {
+          setErroAgendamentos(
+            error instanceof Error
+              ? error.message
+              : "Erro ao carregar solicitações de remarcação."
+          );
+
+        } finally {
+          setCarregandoRemarcacoes(
+            false
+          );
+        }
+      },
+      [token]
+    );
+
+
+  // ========================================
   // CARREGAMENTO INICIAL
   // ========================================
 
@@ -516,10 +802,12 @@ function Agenda() {
       abaAtiva === "marcados"
     ) {
       void carregarAgendamentos();
+      void carregarRemarcacoesPendentes();
     }
   }, [
     abaAtiva,
-    carregarAgendamentos
+    carregarAgendamentos,
+    carregarRemarcacoesPendentes
   ]);
 
 
@@ -556,6 +844,18 @@ function Agenda() {
       );
 
       setAgendamentoParaRemarcar(
+        null
+      );
+
+      setModalNovaConsultaAberto(
+        false
+      );
+
+      setAgendamentoParaExcluir(
+        null
+      );
+
+      setConfirmacaoRemarcacao(
         null
       );
 
@@ -660,7 +960,69 @@ function Agenda() {
           );
         }
       );
-    }, [agendamentos]);
+    }, [
+      agendamentos
+    ]);
+
+
+  // ========================================
+  // PACIENTES FILTRADOS
+  // ========================================
+
+  const pacientesFiltrados =
+    useMemo(() => {
+      const termo =
+        buscaPaciente
+          .trim()
+          .toLowerCase();
+
+      return pacientes
+        .filter(
+          (paciente) =>
+            paciente.ativo
+        )
+        .filter(
+          (paciente) => {
+            if (!termo) {
+              return true;
+            }
+
+            const nome =
+              paciente.nome
+                .toLowerCase();
+
+            const email =
+              paciente.email
+                ?.toLowerCase() ||
+              "";
+
+            const telefone =
+              paciente.telefone ||
+              "";
+
+            const termoNumerico =
+              termo.replace(
+                /\D/g,
+                ""
+              );
+
+            return (
+              nome.includes(
+                termo
+              ) ||
+              email.includes(
+                termo
+              ) ||
+              telefone.includes(
+                termoNumerico
+              )
+            );
+          }
+        );
+    }, [
+      pacientes,
+      buscaPaciente
+    ]);
 
 
   // ========================================
@@ -715,183 +1077,175 @@ function Agenda() {
   // ========================================
 
   const slotsRemarcacao =
-    useMemo<
-      SlotRemarcacao[]
-    >(() => {
-      if (
-        !agendamentoParaRemarcar ||
-        !dataRemarcacao
-      ) {
-        return [];
-      }
+    useMemo<SlotRemarcacao[]>(
+      () => {
+        if (
+          !agendamentoParaRemarcar ||
+          !dataRemarcacao
+        ) {
+          return [];
+        }
 
-      const periodos =
-        disponibilidades.filter(
-          (item) =>
-            item.ativo &&
-            item.data ===
-              dataRemarcacao
-        );
-
-      const slots:
-        SlotRemarcacao[] = [];
-
-      for (
-        const periodo
-        of periodos
-      ) {
-        const inicio =
-          horarioParaMinutos(
-            periodo.horaInicio
+        const periodos =
+          disponibilidades.filter(
+            (item) =>
+              item.ativo &&
+              item.data ===
+                dataRemarcacao
           );
 
-        const fim =
-          horarioParaMinutos(
-            periodo.horaFim
-          );
+        const slots:
+          SlotRemarcacao[] = [];
 
-        const duracao =
-          periodo.duracaoConsulta;
-
-        if (
-          duracao <= 0
+        for (
+          const periodo
+          of periodos
         ) {
-          continue;
-        }
+          const inicio =
+            horarioParaMinutos(
+              periodo.horaInicio
+            );
 
-        let horarioAtual =
-          inicio;
+          const fim =
+            horarioParaMinutos(
+              periodo.horaFim
+            );
 
-        while (
-          horarioAtual +
-            duracao <=
-          fim
-        ) {
-          slots.push({
-            horaInicio:
-              minutosParaHorario(
-                horarioAtual
-              ),
+          const duracao =
+            periodo.duracaoConsulta;
 
-            horaFim:
-              minutosParaHorario(
-                horarioAtual +
-                  duracao
-              )
-          });
-
-          horarioAtual +=
-            duracao;
-        }
-      }
-
-      // Consideramos como ocupados os mesmos
-      // status usados pelo backend.
-      //
-      // O agendamento que está sendo remarcado
-      // é ignorado nessa comparação.
-      const ocupados =
-        new Set<string>();
-
-      for (
-        const agendamento
-        of agendamentos
-      ) {
-        if (
-          agendamento.id ===
-          agendamentoParaRemarcar.id
-        ) {
-          continue;
-        }
-
-        if (
-          agendamento.data !==
-          dataRemarcacao
-        ) {
-          continue;
-        }
-
-        const ocupaHorario =
-          agendamento.status ===
-            "PENDENTE" ||
-          agendamento.status ===
-            "AGENDADA" ||
-          agendamento.status ===
-            "CONFIRMADA";
-
-        if (
-          ocupaHorario
-        ) {
-          ocupados.add(
-            agendamento.horaInicio
-          );
-        }
-      }
-
-      // Evita duplicação caso existam
-      // disponibilidades sobrepostas.
-      const slotsUnicos =
-        new Map<
-          string,
-          SlotRemarcacao
-        >();
-
-      for (
-        const slot
-        of slots
-      ) {
-        const chave =
-          `${slot.horaInicio}-${slot.horaFim}`;
-
-        slotsUnicos.set(
-          chave,
-          slot
-        );
-      }
-
-      return Array.from(
-        slotsUnicos.values()
-      )
-        .filter(
-          (slot) => {
-            if (
-              ocupados.has(
-                slot.horaInicio
-              )
-            ) {
-              return false;
-            }
-
-            // Não permite selecionar
-            // exatamente o mesmo horário atual.
-            if (
-              dataRemarcacao ===
-                agendamentoParaRemarcar.data &&
-              slot.horaInicio ===
-                agendamentoParaRemarcar.horaInicio
-            ) {
-              return false;
-            }
-
-            return true;
+          if (
+            duracao <= 0
+          ) {
+            continue;
           }
+
+          let horarioAtual =
+            inicio;
+
+          while (
+            horarioAtual +
+              duracao <=
+            fim
+          ) {
+            slots.push({
+              horaInicio:
+                minutosParaHorario(
+                  horarioAtual
+                ),
+
+              horaFim:
+                minutosParaHorario(
+                  horarioAtual +
+                    duracao
+                )
+            });
+
+            horarioAtual +=
+              duracao;
+          }
+        }
+
+        const ocupados =
+          new Set<string>();
+
+        for (
+          const agendamento
+          of agendamentos
+        ) {
+          if (
+            agendamento.id ===
+            agendamentoParaRemarcar.id
+          ) {
+            continue;
+          }
+
+          if (
+            agendamento.data !==
+            dataRemarcacao
+          ) {
+            continue;
+          }
+
+          const ocupaHorario =
+            agendamento.status ===
+              "PENDENTE" ||
+            agendamento.status ===
+              "AGENDADA" ||
+            agendamento.status ===
+              "CONFIRMADA";
+
+          if (
+            ocupaHorario
+          ) {
+            ocupados.add(
+              agendamento.horaInicio
+            );
+          }
+        }
+
+        const slotsUnicos =
+          new Map<
+            string,
+            SlotRemarcacao
+          >();
+
+        for (
+          const slot
+          of slots
+        ) {
+          const chave =
+            `${slot.horaInicio}-${slot.horaFim}`;
+
+          slotsUnicos.set(
+            chave,
+            slot
+          );
+        }
+
+        return Array.from(
+          slotsUnicos.values()
         )
-        .sort(
-          (a, b) =>
-            a.horaInicio.localeCompare(
-              b.horaInicio
-            )
-        );
-    }, [
-      agendamentoParaRemarcar,
-      dataRemarcacao,
-      disponibilidades,
-      agendamentos
-    ]);
+          .filter(
+            (slot) => {
+              if (
+                ocupados.has(
+                  slot.horaInicio
+                )
+              ) {
+                return false;
+              }
+
+              if (
+                dataRemarcacao ===
+                  agendamentoParaRemarcar.data &&
+                slot.horaInicio ===
+                  agendamentoParaRemarcar.horaInicio
+              ) {
+                return false;
+              }
+
+              return true;
+            }
+          )
+          .sort(
+            (a, b) =>
+              a.horaInicio.localeCompare(
+                b.horaInicio
+              )
+          );
+      },
+      [
+        agendamentoParaRemarcar,
+        dataRemarcacao,
+        disponibilidades,
+        agendamentos
+      ]
+    );
 
 
   // ========================================
-  // MONTAR DATA
+  // DATA
   // ========================================
 
   function montarData(
@@ -919,10 +1273,6 @@ function Agenda() {
   }
 
 
-  // ========================================
-  // FORMATAR DATA
-  // ========================================
-
   function formatarData(
     data: string
   ) {
@@ -940,7 +1290,7 @@ function Agenda() {
 
 
   // ========================================
-  // FORMATAR STATUS
+  // STATUS
   // ========================================
 
   function formatarStatus(
@@ -974,10 +1324,6 @@ function Agenda() {
   }
 
 
-  // ========================================
-  // CLASSE DO STATUS
-  // ========================================
-
   function classeStatus(
     status: StatusAgendamento
   ) {
@@ -1008,7 +1354,7 @@ function Agenda() {
 
 
   // ========================================
-  // DIA COM DISPONIBILIDADE
+  // DISPONIBILIDADE DO CALENDÁRIO
   // ========================================
 
   function dataComDisponibilidade(
@@ -1061,7 +1407,7 @@ function Agenda() {
 
 
   // ========================================
-  // ABRIR NOVO HORÁRIO
+  // NOVO HORÁRIO
   // ========================================
 
   function abrirModalNovoHorario() {
@@ -1094,10 +1440,6 @@ function Agenda() {
     );
   }
 
-
-  // ========================================
-  // VOLTAR PARA DIA
-  // ========================================
 
   function cancelarNovoHorario() {
     const data =
@@ -1138,10 +1480,6 @@ function Agenda() {
     );
   }
 
-
-  // ========================================
-  // SALVAR NOVO HORÁRIO PELO MODAL
-  // ========================================
 
   async function salvarHorarioModal(
     evento:
@@ -1320,7 +1658,7 @@ function Agenda() {
 
 
   // ========================================
-  // SALVAR PELO CARD
+  // SALVAR DISPONIBILIDADE PELO CARD
   // ========================================
 
   async function salvarDisponibilidades(
@@ -1431,7 +1769,7 @@ function Agenda() {
 
 
   // ========================================
-  // ABRIR EXCLUSÃO
+  // EXCLUSÃO DE DISPONIBILIDADE
   // ========================================
 
   function abrirModalExcluir(
@@ -1445,10 +1783,6 @@ function Agenda() {
     );
   }
 
-
-  // ========================================
-  // CONFIRMAR EXCLUSÃO
-  // ========================================
 
   async function confirmarExclusao() {
     if (
@@ -1467,8 +1801,6 @@ function Agenda() {
 
     try {
       setExcluindo(true);
-      setErro("");
-      setMensagem("");
 
       const resposta =
         await fetch(
@@ -1517,7 +1849,7 @@ function Agenda() {
 
 
   // ========================================
-  // ABRIR CONFIRMAÇÃO DE AÇÃO
+  // AÇÕES DE AGENDAMENTO
   // ========================================
 
   function abrirConfirmacaoAcao(
@@ -1533,10 +1865,6 @@ function Agenda() {
     });
   }
 
-
-  // ========================================
-  // TEXTOS DA CONFIRMAÇÃO
-  // ========================================
 
   function tituloConfirmacaoAcao(
     acao: AcaoAgendamento
@@ -1570,29 +1898,16 @@ function Agenda() {
   }
 
 
-  // ========================================
-  // EXECUTAR AÇÃO
-  // ========================================
-
   async function executarAcaoAgendamento() {
     if (
-      !confirmacaoAcao
+      !confirmacaoAcao ||
+      !token
     ) {
-      return;
-    }
-
-    if (!token) {
-      setErroAgendamentos(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
       return;
     }
 
     try {
       setExecutandoAcao(true);
-      setErroAgendamentos("");
-      setMensagemAgendamentos("");
 
       const {
         agendamento,
@@ -1633,6 +1948,7 @@ function Agenda() {
       );
 
       await carregarAgendamentos();
+      await carregarRemarcacoesPendentes();
 
     } catch (error) {
       setErroAgendamentos(
@@ -1648,15 +1964,12 @@ function Agenda() {
 
 
   // ========================================
-  // ABRIR REMARCAÇÃO
+  // REMARCAÇÃO DIRETA
   // ========================================
 
   function abrirRemarcacao(
     agendamento: Agendamento
   ) {
-    setErroAgendamentos("");
-    setMensagemAgendamentos("");
-
     setAgendamentoParaRemarcar(
       agendamento
     );
@@ -1673,30 +1986,16 @@ function Agenda() {
   }
 
 
-  // ========================================
-  // FECHAR REMARCAÇÃO
-  // ========================================
-
   function fecharRemarcacao() {
     setAgendamentoParaRemarcar(
       null
     );
 
-    setDataRemarcacao(
-      ""
-    );
-
-    setHorarioRemarcacao(
-      ""
-    );
-
+    setDataRemarcacao("");
+    setHorarioRemarcacao("");
     setErroRemarcacao("");
   }
 
-
-  // ========================================
-  // CONFIRMAR REMARCAÇÃO
-  // ========================================
 
   async function confirmarRemarcacao() {
     if (
@@ -1726,10 +2025,6 @@ function Agenda() {
     }
 
     if (!token) {
-      setErroRemarcacao(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
       return;
     }
 
@@ -1737,8 +2032,6 @@ function Agenda() {
       setSalvandoRemarcacao(
         true
       );
-
-      setErroRemarcacao("");
 
       const resposta =
         await fetch(
@@ -1791,12 +2084,311 @@ function Agenda() {
           : "Erro ao remarcar consulta."
       );
 
-      // Atualizamos os agendamentos porque
-      // outro slot pode ter sido ocupado.
       await carregarAgendamentos();
 
     } finally {
       setSalvandoRemarcacao(
+        false
+      );
+    }
+  }
+
+
+  // ========================================
+  // NOVA CONSULTA
+  // ========================================
+
+  async function abrirNovaConsulta() {
+    setPacienteNovaConsulta(
+      null
+    );
+
+    setBuscaPaciente("");
+    setDataNovaConsulta("");
+    setHoraNovaConsulta("08:00");
+    setDuracaoNovaConsulta(30);
+    setErroNovaConsulta("");
+
+    setModalNovaConsultaAberto(
+      true
+    );
+
+    await carregarPacientes();
+  }
+
+
+  function fecharNovaConsulta() {
+    if (
+      salvandoNovaConsulta
+    ) {
+      return;
+    }
+
+    setModalNovaConsultaAberto(
+      false
+    );
+
+    setPacienteNovaConsulta(
+      null
+    );
+
+    setBuscaPaciente("");
+    setErroNovaConsulta("");
+  }
+
+
+  async function salvarNovaConsulta(
+    evento:
+      FormEvent<HTMLFormElement>
+  ) {
+    evento.preventDefault();
+
+    setErroNovaConsulta("");
+
+    if (
+      !pacienteNovaConsulta
+    ) {
+      setErroNovaConsulta(
+        "Selecione um paciente."
+      );
+
+      return;
+    }
+
+    if (
+      !dataNovaConsulta
+    ) {
+      setErroNovaConsulta(
+        "Selecione a data da consulta."
+      );
+
+      return;
+    }
+
+    if (
+      !horaNovaConsulta
+    ) {
+      setErroNovaConsulta(
+        "Informe o horário da consulta."
+      );
+
+      return;
+    }
+
+    if (!token) {
+      setErroNovaConsulta(
+        "Sessão não encontrada. Faça login novamente."
+      );
+
+      return;
+    }
+
+    try {
+      setSalvandoNovaConsulta(
+        true
+      );
+
+      const resposta =
+        await fetch(
+          `${API_URL}/agendamentos/medico`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`
+            },
+
+            body:
+              JSON.stringify({
+                pacienteId:
+                  pacienteNovaConsulta,
+
+                data:
+                  dataNovaConsulta,
+
+                horaInicio:
+                  horaNovaConsulta,
+
+                duracaoConsulta:
+                  duracaoNovaConsulta
+              })
+          }
+        );
+
+      const dados =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.mensagem ||
+            "Não foi possível cadastrar a consulta."
+        );
+      }
+
+      setModalNovaConsultaAberto(
+        false
+      );
+
+      setMensagemAgendamentos(
+        dados.mensagem ||
+          "Consulta cadastrada com sucesso."
+      );
+
+      await carregarAgendamentos();
+
+    } catch (error) {
+      setErroNovaConsulta(
+        error instanceof Error
+          ? error.message
+          : "Erro ao cadastrar consulta."
+      );
+
+    } finally {
+      setSalvandoNovaConsulta(
+        false
+      );
+    }
+  }
+
+
+  // ========================================
+  // EXCLUIR CONSULTA
+  // ========================================
+
+  async function excluirConsulta() {
+    if (
+      !agendamentoParaExcluir ||
+      !token
+    ) {
+      return;
+    }
+
+    try {
+      setExcluindoAgendamento(
+        true
+      );
+
+      const resposta =
+        await fetch(
+          `${API_URL}/agendamentos/${agendamentoParaExcluir.id}`,
+          {
+            method: "DELETE",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+      const dados =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.mensagem ||
+            "Não foi possível excluir a consulta."
+        );
+      }
+
+      setAgendamentoParaExcluir(
+        null
+      );
+
+      setMensagemAgendamentos(
+        dados.mensagem ||
+          "Consulta excluída definitivamente."
+      );
+
+      await carregarAgendamentos();
+      await carregarRemarcacoesPendentes();
+
+    } catch (error) {
+      setErroAgendamentos(
+        error instanceof Error
+          ? error.message
+          : "Erro ao excluir consulta."
+      );
+
+    } finally {
+      setExcluindoAgendamento(
+        false
+      );
+    }
+  }
+
+
+  // ========================================
+  // ACEITAR / RECUSAR REMARCAÇÃO
+  // ========================================
+
+  async function executarAcaoRemarcacao() {
+    if (
+      !confirmacaoRemarcacao ||
+      !token
+    ) {
+      return;
+    }
+
+    try {
+      setProcessandoRemarcacao(
+        true
+      );
+
+      const {
+        remarcacao,
+        acao
+      } =
+        confirmacaoRemarcacao;
+
+      const resposta =
+        await fetch(
+          `${API_URL}/agendamentos/remarcacoes/${remarcacao.id}/${acao}`,
+          {
+            method: "PATCH",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+      const dados =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.mensagem ||
+            "Não foi possível responder à remarcação."
+        );
+      }
+
+      setConfirmacaoRemarcacao(
+        null
+      );
+
+      setMensagemAgendamentos(
+        dados.mensagem ||
+          "Solicitação atualizada com sucesso."
+      );
+
+      await carregarAgendamentos();
+      await carregarRemarcacoesPendentes();
+
+    } catch (error) {
+      setErroAgendamentos(
+        error instanceof Error
+          ? error.message
+          : "Erro ao responder à remarcação."
+      );
+
+    } finally {
+      setProcessandoRemarcacao(
         false
       );
     }
@@ -1811,9 +2403,7 @@ function Agenda() {
     <>
       <main className="agenda-page">
 
-        {/* ========================================
-            CABEÇALHO
-        ======================================== */}
+        {/* CABEÇALHO */}
 
         <section className="agenda-header">
           <div>
@@ -1848,9 +2438,7 @@ function Agenda() {
         </section>
 
 
-        {/* ========================================
-            ABAS
-        ======================================== */}
+        {/* ABAS */}
 
         <nav className="agenda-tabs">
           <button
@@ -1923,15 +2511,10 @@ function Agenda() {
 
             <div className="agenda-mensal-layout">
 
-              {/* ========================================
-                  CALENDÁRIO
-              ======================================== */}
-
               <section className="agenda-calendario-card">
                 <div className="agenda-calendario-header">
                   <button
                     type="button"
-                    aria-label="Mês anterior"
                     onClick={() =>
                       alterarMes(-1)
                     }
@@ -1955,7 +2538,6 @@ function Agenda() {
 
                   <button
                     type="button"
-                    aria-label="Próximo mês"
                     onClick={() =>
                       alterarMes(1)
                     }
@@ -2047,10 +2629,6 @@ function Agenda() {
               </section>
 
 
-              {/* ========================================
-                  CONFIGURAÇÃO
-              ======================================== */}
-
               <aside className="agenda-config-card">
                 <div className="agenda-config-titulo">
                   <span className="agenda-icon">
@@ -2113,7 +2691,6 @@ function Agenda() {
                             evento.target.value
                           )
                         }
-                        required
                       />
                     </div>
 
@@ -2134,7 +2711,6 @@ function Agenda() {
                             evento.target.value
                           )
                         }
-                        required
                       />
                     </div>
                   </div>
@@ -2225,6 +2801,7 @@ function Agenda() {
           "marcados" && (
 
             <section className="agenda-marcados-card">
+
               <div className="agenda-marcados-header">
                 <div>
                   <h2>
@@ -2232,29 +2809,35 @@ function Agenda() {
                   </h2>
 
                   <p>
-                    Analise as solicitações,
-                    confirme, recuse, remarque
-                    ou desmarque consultas.
+                    Gerencie consultas e solicitações
+                    dos seus pacientes.
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  className="agenda-btn agenda-btn-primary"
-                  onClick={() => {
-                    void carregarAgendamentos();
-                  }}
-                  disabled={
-                    carregandoAgendamentos
-                  }
-                >
-                  {
-                    carregandoAgendamentos
-                      ? "Atualizando..."
-                      : "Atualizar"
-                  }
-                </button>
+                <div className="agenda-marcado-acoes">
+                  <button
+                    type="button"
+                    className="agenda-btn agenda-btn-primary"
+                    onClick={() => {
+                      void abrirNovaConsulta();
+                    }}
+                  >
+                    + Nova consulta
+                  </button>
+
+                  <button
+                    type="button"
+                    className="agenda-btn agenda-btn-primary"
+                    onClick={() => {
+                      void carregarAgendamentos();
+                      void carregarRemarcacoesPendentes();
+                    }}
+                  >
+                    Atualizar
+                  </button>
+                </div>
               </div>
+
 
               {
                 erroAgendamentos && (
@@ -2272,8 +2855,164 @@ function Agenda() {
                 )
               }
 
+
+              {/* SOLICITAÇÕES DE REMARCAÇÃO */}
+
               {
-                carregandoAgendamentos && (
+                (
+                  carregandoRemarcacoes ||
+                  remarcacoesPendentes.length >
+                    0
+                ) && (
+
+                  <>
+                    <div className="agenda-marcados-header">
+                      <div>
+                        <h2>
+                          Solicitações de remarcação
+                        </h2>
+
+                        <p>
+                          Pedidos enviados pelos pacientes
+                          aguardando sua decisão.
+                        </p>
+                      </div>
+                    </div>
+
+                    {
+                      carregandoRemarcacoes ? (
+
+                        <div className="agenda-empty">
+                          <div className="agenda-loading" />
+
+                          <h3>
+                            Carregando solicitações...
+                          </h3>
+                        </div>
+
+                      ) : (
+
+                        <div className="agenda-marcados-lista">
+                          {
+                            remarcacoesPendentes.map(
+                              (
+                                remarcacao
+                              ) => (
+
+                                <article
+                                  key={
+                                    remarcacao.id
+                                  }
+                                  className="agenda-marcado-item"
+                                >
+                                  <div className="agenda-marcado-info">
+                                    <small>
+                                      Paciente
+                                    </small>
+
+                                    <strong>
+                                      {
+                                        remarcacao.pacienteNome
+                                      }
+                                    </strong>
+                                  </div>
+
+                                  <div className="agenda-marcado-info">
+                                    <small>
+                                      Consulta atual
+                                    </small>
+
+                                    <strong>
+                                      {
+                                        formatarData(
+                                          remarcacao.dataAtual
+                                        )
+                                      }
+                                    </strong>
+
+                                    <span>
+                                      {
+                                        remarcacao.horaInicioAtual
+                                      }
+                                      {" — "}
+                                      {
+                                        remarcacao.horaFimAtual
+                                      }
+                                    </span>
+                                  </div>
+
+                                  <div className="agenda-marcado-info">
+                                    <small>
+                                      Novo horário solicitado
+                                    </small>
+
+                                    <strong>
+                                      {
+                                        formatarData(
+                                          remarcacao.novaData
+                                        )
+                                      }
+                                    </strong>
+
+                                    <span>
+                                      {
+                                        remarcacao.novaHoraInicio
+                                      }
+                                      {" — "}
+                                      {
+                                        remarcacao.novaHoraFim
+                                      }
+                                    </span>
+                                  </div>
+
+                                  <div className="agenda-marcado-acoes">
+                                    <button
+                                      type="button"
+                                      className="agenda-acao agenda-acao-recusar"
+                                      onClick={() =>
+                                        setConfirmacaoRemarcacao({
+                                          acao:
+                                            "recusar",
+
+                                          remarcacao
+                                        })
+                                      }
+                                    >
+                                      Recusar
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      className="agenda-acao agenda-acao-confirmar"
+                                      onClick={() =>
+                                        setConfirmacaoRemarcacao({
+                                          acao:
+                                            "aceitar",
+
+                                          remarcacao
+                                        })
+                                      }
+                                    >
+                                      Aceitar remarcação
+                                    </button>
+                                  </div>
+                                </article>
+                              )
+                            )
+                          }
+                        </div>
+                      )
+                    }
+                  </>
+                )
+              }
+
+
+              {/* CONSULTAS */}
+
+              {
+                carregandoAgendamentos ? (
+
                   <div className="agenda-empty">
                     <div className="agenda-loading" />
 
@@ -2281,14 +3020,10 @@ function Agenda() {
                       Carregando consultas...
                     </h3>
                   </div>
-                )
-              }
 
-              {
-                !carregandoAgendamentos &&
-                !erroAgendamentos &&
+                ) :
                 agendamentosOrdenados.length ===
-                  0 && (
+                  0 ? (
 
                   <div className="agenda-empty">
                     <div className="agenda-empty-icon">
@@ -2300,18 +3035,12 @@ function Agenda() {
                     </h3>
 
                     <p>
-                      Quando um paciente enviar
-                      uma solicitação, ela será
-                      exibida nesta aba.
+                      Você pode cadastrar uma consulta
+                      ou aguardar uma solicitação de paciente.
                     </p>
                   </div>
-                )
-              }
 
-              {
-                !carregandoAgendamentos &&
-                agendamentosOrdenados.length >
-                  0 && (
+                ) : (
 
                   <div className="agenda-marcados-lista">
                     {
@@ -2319,7 +3048,6 @@ function Agenda() {
                         (
                           agendamento
                         ) => {
-
                           const pendente =
                             agendamento.status ===
                               "PENDENTE" ||
@@ -2386,9 +3114,7 @@ function Agenda() {
                                   {
                                     agendamento.horaInicio
                                   }
-
                                   {" — "}
-
                                   {
                                     agendamento.horaFim
                                   }
@@ -2415,46 +3141,45 @@ function Agenda() {
                                 </strong>
                               </div>
 
-                              {
-                                (
-                                  pendente ||
-                                  confirmada
-                                ) && (
+                              <div className="agenda-marcado-acoes">
 
-                                  <div className="agenda-marcado-acoes">
+                                {
+                                  pendente && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        className="agenda-acao agenda-acao-confirmar"
+                                        onClick={() =>
+                                          abrirConfirmacaoAcao(
+                                            agendamento,
+                                            "confirmar"
+                                          )
+                                        }
+                                      >
+                                        Confirmar
+                                      </button>
 
-                                    {
-                                      pendente && (
-                                        <>
-                                          <button
-                                            type="button"
-                                            className="agenda-acao agenda-acao-confirmar"
-                                            onClick={() =>
-                                              abrirConfirmacaoAcao(
-                                                agendamento,
-                                                "confirmar"
-                                              )
-                                            }
-                                          >
-                                            Confirmar
-                                          </button>
+                                      <button
+                                        type="button"
+                                        className="agenda-acao agenda-acao-recusar"
+                                        onClick={() =>
+                                          abrirConfirmacaoAcao(
+                                            agendamento,
+                                            "recusar"
+                                          )
+                                        }
+                                      >
+                                        Recusar
+                                      </button>
+                                    </>
+                                  )
+                                }
 
-                                          <button
-                                            type="button"
-                                            className="agenda-acao agenda-acao-recusar"
-                                            onClick={() =>
-                                              abrirConfirmacaoAcao(
-                                                agendamento,
-                                                "recusar"
-                                              )
-                                            }
-                                          >
-                                            Recusar
-                                          </button>
-                                        </>
-                                      )
-                                    }
-
+                                {
+                                  (
+                                    pendente ||
+                                    confirmada
+                                  ) && (
                                     <button
                                       type="button"
                                       className="agenda-acao agenda-acao-remarcar"
@@ -2466,26 +3191,38 @@ function Agenda() {
                                     >
                                       Remarcar
                                     </button>
+                                  )
+                                }
 
-                                    {
-                                      confirmada && (
-                                        <button
-                                          type="button"
-                                          className="agenda-acao agenda-acao-cancelar"
-                                          onClick={() =>
-                                            abrirConfirmacaoAcao(
-                                              agendamento,
-                                              "cancelar"
-                                            )
-                                          }
-                                        >
-                                          Desmarcar
-                                        </button>
-                                      )
-                                    }
-                                  </div>
-                                )
-                              }
+                                {
+                                  confirmada && (
+                                    <button
+                                      type="button"
+                                      className="agenda-acao agenda-acao-cancelar"
+                                      onClick={() =>
+                                        abrirConfirmacaoAcao(
+                                          agendamento,
+                                          "cancelar"
+                                        )
+                                      }
+                                    >
+                                      Desmarcar
+                                    </button>
+                                  )
+                                }
+
+                                <button
+                                  type="button"
+                                  className="agenda-acao agenda-acao-recusar"
+                                  onClick={() =>
+                                    setAgendamentoParaExcluir(
+                                      agendamento
+                                    )
+                                  }
+                                >
+                                  Excluir
+                                </button>
+                              </div>
                             </article>
                           );
                         }
@@ -2501,36 +3238,516 @@ function Agenda() {
 
 
       {/* ========================================
+          MODAL NOVA CONSULTA
+      ======================================== */}
+
+      {
+        modalNovaConsultaAberto && (
+
+          <div className="agenda-modal-overlay">
+            <div className="agenda-modal agenda-modal-remarcacao">
+
+              <button
+                type="button"
+                className="agenda-modal-close"
+                onClick={
+                  fecharNovaConsulta
+                }
+                disabled={
+                  salvandoNovaConsulta
+                }
+              >
+                ×
+              </button>
+
+              <div className="agenda-modal-dia-header">
+                <span>
+                  Agenda médica
+                </span>
+
+                <h2>
+                  Nova consulta
+                </h2>
+
+                <p>
+                  Escolha o paciente, a data e o horário.
+                </p>
+              </div>
+
+              <form
+                className="agenda-modal-novo-form"
+                onSubmit={
+                  salvarNovaConsulta
+                }
+              >
+
+                <div className="agenda-field">
+                  <label>
+                    Buscar paciente
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Nome, telefone ou e-mail"
+                    value={
+                      buscaPaciente
+                    }
+                    onChange={(
+                      evento
+                    ) =>
+                      setBuscaPaciente(
+                        evento.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="agenda-remarcacao-horarios">
+                  <label>
+                    Paciente
+                  </label>
+
+                  {
+                    carregandoPacientes ? (
+
+                      <p className="agenda-remarcacao-vazio">
+                        Carregando pacientes...
+                      </p>
+
+                    ) :
+                    pacientesFiltrados.length ===
+                      0 ? (
+
+                      <p className="agenda-remarcacao-vazio">
+                        Nenhum paciente encontrado.
+                      </p>
+
+                    ) : (
+
+                      <div className="agenda-remarcacao-grid">
+                        {
+                          pacientesFiltrados.map(
+                            (
+                              paciente
+                            ) => (
+                              <button
+                                key={
+                                  paciente.id
+                                }
+                                type="button"
+                                className={
+                                  pacienteNovaConsulta ===
+                                  paciente.id
+                                    ? "agenda-remarcacao-slot agenda-remarcacao-slot-active"
+                                    : "agenda-remarcacao-slot"
+                                }
+                                onClick={() =>
+                                  setPacienteNovaConsulta(
+                                    paciente.id
+                                  )
+                                }
+                              >
+                                {
+                                  paciente.nome
+                                }
+
+                                <small>
+                                  {
+                                    paciente.telefone ||
+                                    paciente.email ||
+                                    "Paciente"
+                                  }
+                                </small>
+                              </button>
+                            )
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
+
+                <div className="agenda-field">
+                  <label>
+                    Data
+                  </label>
+
+                  <input
+                    type="date"
+                    value={
+                      dataNovaConsulta
+                    }
+                    onChange={(
+                      evento
+                    ) =>
+                      setDataNovaConsulta(
+                        evento.target.value
+                      )
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="agenda-form-row">
+                  <div className="agenda-field">
+                    <label>
+                      Horário
+                    </label>
+
+                    <input
+                      type="time"
+                      value={
+                        horaNovaConsulta
+                      }
+                      onChange={(
+                        evento
+                      ) =>
+                        setHoraNovaConsulta(
+                          evento.target.value
+                        )
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="agenda-field">
+                    <label>
+                      Duração
+                    </label>
+
+                    <select
+                      value={
+                        duracaoNovaConsulta
+                      }
+                      onChange={(
+                        evento
+                      ) =>
+                        setDuracaoNovaConsulta(
+                          Number(
+                            evento.target.value
+                          )
+                        )
+                      }
+                    >
+                      <option value={15}>
+                        15 minutos
+                      </option>
+
+                      <option value={30}>
+                        30 minutos
+                      </option>
+
+                      <option value={45}>
+                        45 minutos
+                      </option>
+
+                      <option value={60}>
+                        60 minutos
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                {
+                  erroNovaConsulta && (
+                    <div className="agenda-alert agenda-alert-error">
+                      {erroNovaConsulta}
+                    </div>
+                  )
+                }
+
+                <div className="agenda-modal-actions">
+                  <button
+                    type="button"
+                    className="agenda-modal-btn agenda-modal-btn-cancel"
+                    onClick={
+                      fecharNovaConsulta
+                    }
+                    disabled={
+                      salvandoNovaConsulta
+                    }
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="agenda-modal-btn agenda-modal-btn-primary"
+                    disabled={
+                      salvandoNovaConsulta
+                    }
+                  >
+                    {
+                      salvandoNovaConsulta
+                        ? "Cadastrando..."
+                        : "Cadastrar consulta"
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+
+
+      {/* ========================================
+          MODAL EXCLUIR CONSULTA
+      ======================================== */}
+
+      {
+        agendamentoParaExcluir && (
+
+          <div className="agenda-modal-overlay">
+            <div className="agenda-modal">
+
+              <button
+                type="button"
+                className="agenda-modal-close"
+                onClick={() =>
+                  setAgendamentoParaExcluir(
+                    null
+                  )
+                }
+                disabled={
+                  excluindoAgendamento
+                }
+              >
+                ×
+              </button>
+
+              <div className="agenda-modal-icon">
+                !
+              </div>
+
+              <h2>
+                Excluir consulta?
+              </h2>
+
+              <p>
+                Essa ação é permanente e não poderá
+                ser desfeita.
+              </p>
+
+              <div className="agenda-modal-info">
+                <span>
+                  {
+                    agendamentoParaExcluir
+                      .pacienteNome
+                  }
+                </span>
+
+                <strong>
+                  {
+                    formatarData(
+                      agendamentoParaExcluir.data
+                    )
+                  }
+                </strong>
+
+                <small>
+                  {
+                    agendamentoParaExcluir.horaInicio
+                  }
+                  {" — "}
+                  {
+                    agendamentoParaExcluir.horaFim
+                  }
+                </small>
+              </div>
+
+              <div className="agenda-modal-actions">
+                <button
+                  type="button"
+                  className="agenda-modal-btn agenda-modal-btn-cancel"
+                  onClick={() =>
+                    setAgendamentoParaExcluir(
+                      null
+                    )
+                  }
+                  disabled={
+                    excluindoAgendamento
+                  }
+                >
+                  Voltar
+                </button>
+
+                <button
+                  type="button"
+                  className="agenda-modal-btn agenda-modal-btn-delete"
+                  onClick={() => {
+                    void excluirConsulta();
+                  }}
+                  disabled={
+                    excluindoAgendamento
+                  }
+                >
+                  {
+                    excluindoAgendamento
+                      ? "Excluindo..."
+                      : "Excluir consulta"
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+
+      {/* ========================================
+          MODAL DECISÃO DE REMARCAÇÃO
+      ======================================== */}
+
+      {
+        confirmacaoRemarcacao && (
+
+          <div className="agenda-modal-overlay">
+            <div className="agenda-modal">
+
+              <button
+                type="button"
+                className="agenda-modal-close"
+                onClick={() =>
+                  setConfirmacaoRemarcacao(
+                    null
+                  )
+                }
+                disabled={
+                  processandoRemarcacao
+                }
+              >
+                ×
+              </button>
+
+              <div className="agenda-modal-icon">
+                !
+              </div>
+
+              <h2>
+                {
+                  confirmacaoRemarcacao.acao ===
+                  "aceitar"
+                    ? "Aceitar remarcação?"
+                    : "Recusar remarcação?"
+                }
+              </h2>
+
+              <p>
+                {
+                  confirmacaoRemarcacao.acao ===
+                  "aceitar"
+                    ? "A consulta será movida para a nova data e horário solicitados."
+                    : "A consulta continuará na data e horário atuais."
+                }
+              </p>
+
+              <div className="agenda-modal-info">
+                <span>
+                  {
+                    confirmacaoRemarcacao
+                      .remarcacao
+                      .pacienteNome
+                  }
+                </span>
+
+                <small>
+                  Atual:{" "}
+                  {
+                    formatarData(
+                      confirmacaoRemarcacao
+                        .remarcacao
+                        .dataAtual
+                    )
+                  }
+                  {" • "}
+                  {
+                    confirmacaoRemarcacao
+                      .remarcacao
+                      .horaInicioAtual
+                  }
+                </small>
+
+                <strong>
+                  Novo:{" "}
+                  {
+                    formatarData(
+                      confirmacaoRemarcacao
+                        .remarcacao
+                        .novaData
+                    )
+                  }
+                  {" • "}
+                  {
+                    confirmacaoRemarcacao
+                      .remarcacao
+                      .novaHoraInicio
+                  }
+                </strong>
+              </div>
+
+              <div className="agenda-modal-actions">
+                <button
+                  type="button"
+                  className="agenda-modal-btn agenda-modal-btn-cancel"
+                  onClick={() =>
+                    setConfirmacaoRemarcacao(
+                      null
+                    )
+                  }
+                  disabled={
+                    processandoRemarcacao
+                  }
+                >
+                  Voltar
+                </button>
+
+                <button
+                  type="button"
+                  className={
+                    confirmacaoRemarcacao.acao ===
+                    "aceitar"
+                      ? "agenda-modal-btn agenda-modal-btn-primary"
+                      : "agenda-modal-btn agenda-modal-btn-delete"
+                  }
+                  onClick={() => {
+                    void executarAcaoRemarcacao();
+                  }}
+                  disabled={
+                    processandoRemarcacao
+                  }
+                >
+                  {
+                    processandoRemarcacao
+                      ? "Salvando..."
+                      : confirmacaoRemarcacao.acao ===
+                          "aceitar"
+                        ? "Aceitar remarcação"
+                        : "Recusar remarcação"
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+
+      {/* ========================================
           MODAL DO DIA
       ======================================== */}
 
       {
         dataModal && (
 
-          <div
-            className="agenda-modal-overlay"
-            onMouseDown={(
-              evento
-            ) => {
-              if (
-                evento.target ===
-                evento.currentTarget
-              ) {
-                setDataModal(
-                  null
-                );
-              }
-            }}
-          >
+          <div className="agenda-modal-overlay">
             <div className="agenda-modal agenda-modal-dia">
+
               <button
                 type="button"
                 className="agenda-modal-close"
-                aria-label="Fechar"
                 onClick={() =>
-                  setDataModal(
-                    null
-                  )
+                  setDataModal(null)
                 }
               >
                 ×
@@ -2556,18 +3773,8 @@ function Agenda() {
               </div>
 
               {
-                carregando ? (
-
-                  <div className="agenda-modal-dia-vazio">
-                    <div className="agenda-loading" />
-
-                    <p>
-                      Carregando horários...
-                    </p>
-                  </div>
-
-                ) : horariosModal.length ===
-                    0 ? (
+                horariosModal.length ===
+                0 ? (
 
                   <div className="agenda-modal-dia-vazio">
                     <div className="agenda-empty-calendar">
@@ -2577,11 +3784,6 @@ function Agenda() {
                     <h3>
                       Nenhum horário disponível
                     </h3>
-
-                    <p>
-                      Ainda não foi configurado
-                      nenhum período para esta data.
-                    </p>
                   </div>
 
                 ) : (
@@ -2592,7 +3794,6 @@ function Agenda() {
                         (
                           item
                         ) => (
-
                           <div
                             key={
                               item.id
@@ -2608,16 +3809,13 @@ function Agenda() {
                                 {
                                   item.horaInicio
                                 }
-
                                 {" — "}
-
                                 {
                                   item.horaFim
                                 }
                               </strong>
 
                               <small>
-                                Consultas de{" "}
                                 {
                                   item.duracaoConsulta
                                 }{" "}
@@ -2648,9 +3846,7 @@ function Agenda() {
                   type="button"
                   className="agenda-modal-btn agenda-modal-btn-cancel"
                   onClick={() =>
-                    setDataModal(
-                      null
-                    )
+                    setDataModal(null)
                   }
                 >
                   Fechar
@@ -2680,20 +3876,9 @@ function Agenda() {
         modalNovoHorarioAberto &&
         dataNovoHorario && (
 
-          <div
-            className="agenda-modal-overlay"
-            onMouseDown={(
-              evento
-            ) => {
-              if (
-                evento.target ===
-                evento.currentTarget
-              ) {
-                cancelarNovoHorario();
-              }
-            }}
-          >
+          <div className="agenda-modal-overlay">
             <div className="agenda-modal agenda-modal-novo-horario">
+
               <button
                 type="button"
                 className="agenda-modal-close"
@@ -2716,11 +3901,6 @@ function Agenda() {
                     )
                   }
                 </h2>
-
-                <p>
-                  Defina o período de atendimento
-                  para esta data.
-                </p>
               </div>
 
               <form
@@ -2747,7 +3927,6 @@ function Agenda() {
                           evento.target.value
                         )
                       }
-                      required
                     />
                   </div>
 
@@ -2768,14 +3947,13 @@ function Agenda() {
                           evento.target.value
                         )
                       }
-                      required
                     />
                   </div>
                 </div>
 
                 <div className="agenda-field">
                   <label>
-                    Duração da consulta
+                    Duração
                   </label>
 
                   <select
@@ -2829,9 +4007,6 @@ function Agenda() {
                     onClick={
                       cancelarNovoHorario
                     }
-                    disabled={
-                      salvandoModal
-                    }
                   >
                     Voltar
                   </button>
@@ -2839,9 +4014,6 @@ function Agenda() {
                   <button
                     type="submit"
                     className="agenda-modal-btn agenda-modal-btn-primary"
-                    disabled={
-                      salvandoModal
-                    }
                   >
                     {
                       salvandoModal
@@ -2858,7 +4030,7 @@ function Agenda() {
 
 
       {/* ========================================
-          MODAL EXCLUSÃO
+          MODAL EXCLUSÃO DISPONIBILIDADE
       ======================================== */}
 
       {
@@ -2866,17 +4038,6 @@ function Agenda() {
 
           <div className="agenda-modal-overlay">
             <div className="agenda-modal">
-              <button
-                type="button"
-                className="agenda-modal-close"
-                onClick={() =>
-                  setDisponibilidadeParaExcluir(
-                    null
-                  )
-                }
-              >
-                ×
-              </button>
 
               <div className="agenda-modal-icon">
                 !
@@ -2885,11 +4046,6 @@ function Agenda() {
               <h2>
                 Remover disponibilidade?
               </h2>
-
-              <p>
-                Este período deixará de estar
-                disponível para novos agendamentos.
-              </p>
 
               <div className="agenda-modal-info">
                 <span>
@@ -2904,20 +4060,11 @@ function Agenda() {
                   {
                     disponibilidadeParaExcluir.horaInicio
                   }
-
                   {" — "}
-
                   {
                     disponibilidadeParaExcluir.horaFim
                   }
                 </strong>
-
-                <small>
-                  {
-                    disponibilidadeParaExcluir.duracaoConsulta
-                  }{" "}
-                  minutos por consulta
-                </small>
               </div>
 
               <div className="agenda-modal-actions">
@@ -2939,9 +4086,6 @@ function Agenda() {
                   onClick={() => {
                     void confirmarExclusao();
                   }}
-                  disabled={
-                    excluindo
-                  }
                 >
                   {
                     excluindo
@@ -2957,43 +4101,14 @@ function Agenda() {
 
 
       {/* ========================================
-          MODAL CONFIRMAÇÃO DE AÇÃO
+          MODAL AÇÃO AGENDAMENTO
       ======================================== */}
 
       {
         confirmacaoAcao && (
 
-          <div
-            className="agenda-modal-overlay"
-            onMouseDown={(
-              evento
-            ) => {
-              if (
-                evento.target ===
-                evento.currentTarget &&
-                !executandoAcao
-              ) {
-                setConfirmacaoAcao(
-                  null
-                );
-              }
-            }}
-          >
+          <div className="agenda-modal-overlay">
             <div className="agenda-modal">
-              <button
-                type="button"
-                className="agenda-modal-close"
-                disabled={
-                  executandoAcao
-                }
-                onClick={() =>
-                  setConfirmacaoAcao(
-                    null
-                  )
-                }
-              >
-                ×
-              </button>
 
               <div className="agenda-modal-icon">
                 !
@@ -3040,9 +4155,7 @@ function Agenda() {
                       .agendamento
                       .horaInicio
                   }
-
                   {" — "}
-
                   {
                     confirmacaoAcao
                       .agendamento
@@ -3060,9 +4173,6 @@ function Agenda() {
                       null
                     )
                   }
-                  disabled={
-                    executandoAcao
-                  }
                 >
                   Voltar
                 </button>
@@ -3071,14 +4181,9 @@ function Agenda() {
                   type="button"
                   className={
                     confirmacaoAcao.acao ===
-                      "recusar" ||
-                    confirmacaoAcao.acao ===
-                      "cancelar"
-                      ? "agenda-modal-btn agenda-modal-btn-delete"
-                      : "agenda-modal-btn agenda-modal-btn-primary"
-                  }
-                  disabled={
-                    executandoAcao
+                      "confirmar"
+                      ? "agenda-modal-btn agenda-modal-btn-primary"
+                      : "agenda-modal-btn agenda-modal-btn-delete"
                   }
                   onClick={() => {
                     void executarAcaoAgendamento();
@@ -3104,33 +4209,18 @@ function Agenda() {
 
 
       {/* ========================================
-          MODAL REMARCAÇÃO
+          MODAL REMARCAÇÃO DIRETA
       ======================================== */}
 
       {
         agendamentoParaRemarcar && (
 
-          <div
-            className="agenda-modal-overlay"
-            onMouseDown={(
-              evento
-            ) => {
-              if (
-                evento.target ===
-                evento.currentTarget &&
-                !salvandoRemarcacao
-              ) {
-                fecharRemarcacao();
-              }
-            }}
-          >
+          <div className="agenda-modal-overlay">
             <div className="agenda-modal agenda-modal-remarcacao">
+
               <button
                 type="button"
                 className="agenda-modal-close"
-                disabled={
-                  salvandoRemarcacao
-                }
                 onClick={
                   fecharRemarcacao
                 }
@@ -3149,11 +4239,6 @@ function Agenda() {
                       .pacienteNome
                   }
                 </h2>
-
-                <p>
-                  Selecione uma nova data
-                  e um horário disponível.
-                </p>
               </div>
 
               <div className="agenda-remarcacao-atual">
@@ -3173,9 +4258,7 @@ function Agenda() {
                   {
                     agendamentoParaRemarcar.horaInicio
                   }
-
                   {" — "}
-
                   {
                     agendamentoParaRemarcar.horaFim
                   }
@@ -3202,10 +4285,6 @@ function Agenda() {
                     setHorarioRemarcacao(
                       ""
                     );
-
-                    setErroRemarcacao(
-                      ""
-                    );
                   }}
                 />
               </div>
@@ -3216,14 +4295,8 @@ function Agenda() {
                 </label>
 
                 {
-                  !dataRemarcacao ? (
-
-                    <p className="agenda-remarcacao-vazio">
-                      Selecione uma data.
-                    </p>
-
-                  ) : slotsRemarcacao.length ===
-                      0 ? (
+                  slotsRemarcacao.length ===
+                  0 ? (
 
                     <p className="agenda-remarcacao-vazio">
                       Nenhum horário disponível
@@ -3238,7 +4311,6 @@ function Agenda() {
                           (
                             slot
                           ) => (
-
                             <button
                               key={
                                 `${slot.horaInicio}-${slot.horaFim}`
@@ -3250,15 +4322,11 @@ function Agenda() {
                                   ? "agenda-remarcacao-slot agenda-remarcacao-slot-active"
                                   : "agenda-remarcacao-slot"
                               }
-                              onClick={() => {
+                              onClick={() =>
                                 setHorarioRemarcacao(
                                   slot.horaInicio
-                                );
-
-                                setErroRemarcacao(
-                                  ""
-                                );
-                              }}
+                                )
+                              }
                             >
                               {
                                 slot.horaInicio
@@ -3294,9 +4362,6 @@ function Agenda() {
                   onClick={
                     fecharRemarcacao
                   }
-                  disabled={
-                    salvandoRemarcacao
-                  }
                 >
                   Voltar
                 </button>
@@ -3306,7 +4371,6 @@ function Agenda() {
                   className="agenda-modal-btn agenda-modal-btn-primary"
                   disabled={
                     salvandoRemarcacao ||
-                    !dataRemarcacao ||
                     !horarioRemarcacao
                   }
                   onClick={() => {

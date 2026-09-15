@@ -8,10 +8,11 @@ import {
 } from "react";
 
 import "../../styles/meusAgendamentos.css";
+import "../../styles/agendarConsulta.css";
 
 
 // ========================================
-// STATUS DO AGENDAMENTO
+// TIPOS
 // ========================================
 
 type StatusAgendamento =
@@ -24,9 +25,11 @@ type StatusAgendamento =
   | "FALTOU";
 
 
-// ========================================
-// TIPO DO AGENDAMENTO
-// ========================================
+type StatusRemarcacao =
+  | "PENDENTE"
+  | "ACEITA"
+  | "RECUSADA";
+
 
 type Agendamento = {
   id: number;
@@ -37,11 +40,76 @@ type Agendamento = {
 };
 
 
+type RemarcacaoPaciente = {
+  id: number;
+  agendamentoId: number;
+  novaData: string;
+  novaHoraInicio: string;
+  novaHoraFim: string;
+  status: StatusRemarcacao;
+  visualizadoPaciente: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+
+type HorarioDisponivel = {
+  horaInicio: string;
+  horaFim: string;
+};
+
+
+type RespostaHorarios = {
+  data?: string;
+  horarios?: HorarioDisponivel[];
+  mensagem?: string;
+};
+
+
+type QuantidadeHorariosPorDia = {
+  [data: string]: number;
+};
+
+
+// ========================================
+// CALENDÁRIO
+// ========================================
+
+const nomesMeses = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro"
+];
+
+
+const diasSemana = [
+  "DOM",
+  "SEG",
+  "TER",
+  "QUA",
+  "QUI",
+  "SEX",
+  "SÁB"
+];
+
+
 // ========================================
 // COMPONENTE
 // ========================================
 
 export default function MeusAgendamentos() {
+
+  const agora = new Date();
+
 
   // ========================================
   // ESTADOS
@@ -52,15 +120,175 @@ export default function MeusAgendamentos() {
     setAgendamentos
   ] = useState<Agendamento[]>([]);
 
+
+  const [
+    remarcacoes,
+    setRemarcacoes
+  ] = useState<RemarcacaoPaciente[]>([]);
+
+
   const [
     carregando,
     setCarregando
   ] = useState(true);
 
+
   const [
     erro,
     setErro
   ] = useState("");
+
+
+  const [
+    cancelandoId,
+    setCancelandoId
+  ] = useState<number | null>(null);
+
+
+  const [
+    agendamentoRemarcacao,
+    setAgendamentoRemarcacao
+  ] = useState<Agendamento | null>(null);
+
+
+  const [
+    modalCalendarioAberto,
+    setModalCalendarioAberto
+  ] = useState(false);
+
+
+  const [
+    modalHorariosAberto,
+    setModalHorariosAberto
+  ] = useState(false);
+
+
+  const [
+    modalConfirmacaoAberto,
+    setModalConfirmacaoAberto
+  ] = useState(false);
+
+
+  const [
+    mesAtual,
+    setMesAtual
+  ] = useState(
+    agora.getMonth()
+  );
+
+
+  const [
+    anoAtual,
+    setAnoAtual
+  ] = useState(
+    agora.getFullYear()
+  );
+
+
+  const [
+    quantidadePorDia,
+    setQuantidadePorDia
+  ] = useState<QuantidadeHorariosPorDia>({});
+
+
+  const [
+    dataSelecionada,
+    setDataSelecionada
+  ] = useState("");
+
+
+  const [
+    horarios,
+    setHorarios
+  ] = useState<HorarioDisponivel[]>([]);
+
+
+  const [
+    horarioSelecionado,
+    setHorarioSelecionado
+  ] = useState<HorarioDisponivel | null>(
+    null
+  );
+
+
+  const [
+    carregandoCalendario,
+    setCarregandoCalendario
+  ] = useState(false);
+
+
+  const [
+    carregandoHorarios,
+    setCarregandoHorarios
+  ] = useState(false);
+
+
+  const [
+    solicitandoRemarcacao,
+    setSolicitandoRemarcacao
+  ] = useState(false);
+
+
+  const [
+    erroRemarcacao,
+    setErroRemarcacao
+  ] = useState("");
+
+
+  const [
+    sucesso,
+    setSucesso
+  ] = useState("");
+
+
+  // ========================================
+  // MONTAR DATA
+  // ========================================
+
+  function montarData(
+    ano: number,
+    mes: number,
+    dia: number
+  ) {
+
+    const mesFormatado =
+      String(
+        mes + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const diaFormatado =
+      String(
+        dia
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    return `${ano}-${mesFormatado}-${diaFormatado}`;
+  }
+
+
+  // ========================================
+  // DATA DE HOJE
+  // ========================================
+
+  function obterDataHoje() {
+
+    const hoje =
+      new Date();
+
+
+    return montarData(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate()
+    );
+  }
 
 
   // ========================================
@@ -70,18 +298,22 @@ export default function MeusAgendamentos() {
   function formatarData(
     data: string
   ) {
+
     if (!data) {
       return "";
     }
 
+
     const partes =
       data.split("-");
+
 
     if (
       partes.length !== 3
     ) {
       return data;
     }
+
 
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
@@ -94,6 +326,7 @@ export default function MeusAgendamentos() {
   function formatarStatus(
     status: StatusAgendamento
   ) {
+
     switch (status) {
 
       case "PENDENTE":
@@ -130,6 +363,7 @@ export default function MeusAgendamentos() {
   function classeStatus(
     status: StatusAgendamento
   ) {
+
     switch (status) {
 
       case "PENDENTE":
@@ -158,12 +392,13 @@ export default function MeusAgendamentos() {
 
 
   // ========================================
-  // TEXTO AUXILIAR DO STATUS
+  // DESCRIÇÃO DO STATUS
   // ========================================
 
   function descricaoStatus(
     status: StatusAgendamento
   ) {
+
     switch (status) {
 
       case "PENDENTE":
@@ -194,6 +429,60 @@ export default function MeusAgendamentos() {
 
 
   // ========================================
+  // VERIFICAR DATA PASSADA
+  // ========================================
+
+  function dataJaPassou(
+    data: string
+  ) {
+
+    return (
+      data < obterDataHoje()
+    );
+  }
+
+
+  // ========================================
+  // PODE ALTERAR AGENDAMENTO
+  // ========================================
+
+  function podeAlterarAgendamento(
+    status: StatusAgendamento
+  ) {
+
+    return (
+      status === "PENDENTE" ||
+      status === "CONFIRMADA" ||
+      status === "AGENDADA"
+    );
+  }
+
+
+  // ========================================
+  // BUSCAR REMARCAÇÃO PENDENTE
+  // ========================================
+
+  function buscarRemarcacaoPendente(
+    agendamentoId: number
+  ) {
+
+    return remarcacoes.find(
+      (
+        remarcacao
+      ) =>
+        Number(
+          remarcacao.agendamentoId
+        ) ===
+          Number(
+            agendamentoId
+          ) &&
+        remarcacao.status ===
+          "PENDENTE"
+    );
+  }
+
+
+  // ========================================
   // BUSCAR AGENDAMENTOS
   // ========================================
 
@@ -202,12 +491,15 @@ export default function MeusAgendamentos() {
     try {
 
       setCarregando(true);
+
       setErro("");
+
 
       const token =
         localStorage.getItem(
           "token"
         );
+
 
       if (!token) {
 
@@ -217,6 +509,7 @@ export default function MeusAgendamentos() {
 
         return;
       }
+
 
       const resposta =
         await fetch(
@@ -231,8 +524,10 @@ export default function MeusAgendamentos() {
           }
         );
 
+
       const dados =
         await resposta.json();
+
 
       if (!resposta.ok) {
 
@@ -243,6 +538,7 @@ export default function MeusAgendamentos() {
 
         return;
       }
+
 
       if (
         Array.isArray(
@@ -267,6 +563,7 @@ export default function MeusAgendamentos() {
         error
       );
 
+
       setErro(
         "Não foi possível conectar ao servidor."
       );
@@ -280,14 +577,1111 @@ export default function MeusAgendamentos() {
 
 
   // ========================================
-  // CARREGAR AO ABRIR
+  // BUSCAR REMARCAÇÕES
+  // ========================================
+
+  async function buscarRemarcacoes() {
+
+    try {
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+
+        setRemarcacoes([]);
+
+        return;
+      }
+
+
+      const resposta =
+        await fetch(
+          "http://localhost:3000/agendamentos/remarcacoes/minhas",
+          {
+            method: "GET",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      const dados =
+        await resposta.json();
+
+
+      if (!resposta.ok) {
+
+        console.error(
+          "Erro ao buscar remarcações:",
+          dados.mensagem
+        );
+
+        setRemarcacoes([]);
+
+        return;
+      }
+
+
+      if (
+        Array.isArray(
+          dados.remarcacoes
+        )
+      ) {
+
+        setRemarcacoes(
+          dados.remarcacoes
+        );
+
+      } else {
+
+        setRemarcacoes([]);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao buscar remarcações:",
+        error
+      );
+
+
+      setRemarcacoes([]);
+
+    }
+  }
+
+
+  // ========================================
+  // ATUALIZAR TELA
+  // ========================================
+
+  async function atualizarDados() {
+
+    await Promise.all([
+      buscarAgendamentos(),
+      buscarRemarcacoes()
+    ]);
+  }
+
+
+  // ========================================
+  // CANCELAR CONSULTA
+  // ========================================
+
+  async function cancelarConsulta(
+    agendamento: Agendamento
+  ) {
+
+    const mensagem =
+      agendamento.status ===
+      "PENDENTE"
+        ? "Deseja cancelar esta solicitação de consulta?"
+        : "Deseja cancelar esta consulta?";
+
+
+    const confirmou =
+      window.confirm(
+        mensagem
+      );
+
+
+    if (!confirmou) {
+      return;
+    }
+
+
+    try {
+
+      setCancelandoId(
+        agendamento.id
+      );
+
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+
+        window.alert(
+          "Sessão não encontrada. Faça login novamente."
+        );
+
+        return;
+      }
+
+
+      const resposta =
+        await fetch(
+          `http://localhost:3000/agendamentos/${agendamento.id}/cancelar-paciente`,
+          {
+            method: "PATCH",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      const dados =
+        await resposta.json();
+
+
+      if (!resposta.ok) {
+
+        window.alert(
+          dados.mensagem ||
+          "Não foi possível cancelar a consulta."
+        );
+
+        return;
+      }
+
+
+      await atualizarDados();
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao cancelar consulta:",
+        error
+      );
+
+
+      window.alert(
+        "Não foi possível conectar ao servidor."
+      );
+
+    } finally {
+
+      setCancelandoId(null);
+
+    }
+  }
+
+
+  // ========================================
+  // BUSCAR HORÁRIOS DO DIA
+  // ========================================
+
+  async function buscarHorariosDoDia(
+    data: string
+  ) {
+
+    try {
+
+      setCarregandoHorarios(
+        true
+      );
+
+      setErroRemarcacao("");
+
+      setHorarios([]);
+
+      setHorarioSelecionado(
+        null
+      );
+
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+
+        setErroRemarcacao(
+          "Sessão não encontrada. Faça login novamente."
+        );
+
+        return;
+      }
+
+
+      const resposta =
+        await fetch(
+          `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+            data
+          )}`,
+          {
+            method: "GET",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+
+      const dados:
+        RespostaHorarios =
+          await resposta.json();
+
+
+      if (!resposta.ok) {
+
+        setErroRemarcacao(
+          dados.mensagem ||
+          "Não foi possível buscar os horários."
+        );
+
+        return;
+      }
+
+
+      setHorarios(
+        dados.horarios || []
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao buscar horários:",
+        error
+      );
+
+
+      setErroRemarcacao(
+        "Não foi possível conectar ao servidor."
+      );
+
+    } finally {
+
+      setCarregandoHorarios(
+        false
+      );
+
+    }
+  }
+
+
+  // ========================================
+  // CARREGAR MÊS
+  // ========================================
+
+  async function carregarMes(
+    mes: number,
+    ano: number
+  ) {
+
+    try {
+
+      setCarregandoCalendario(
+        true
+      );
+
+      setErroRemarcacao("");
+
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+
+        setErroRemarcacao(
+          "Sessão não encontrada. Faça login novamente."
+        );
+
+        return;
+      }
+
+
+      const quantidadeDias =
+        new Date(
+          ano,
+          mes + 1,
+          0
+        ).getDate();
+
+
+      const dias =
+        Array.from(
+          {
+            length:
+              quantidadeDias
+          },
+          (
+            _,
+            indice
+          ) =>
+            indice + 1
+        );
+
+
+      const resultados =
+        await Promise.all(
+
+          dias.map(
+            async (
+              dia
+            ) => {
+
+              const data =
+                montarData(
+                  ano,
+                  mes,
+                  dia
+                );
+
+
+              if (
+                dataJaPassou(
+                  data
+                )
+              ) {
+
+                return {
+                  data,
+                  quantidade: 0
+                };
+              }
+
+
+              try {
+
+                const resposta =
+                  await fetch(
+                    `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+                      data
+                    )}`,
+                    {
+                      method: "GET",
+
+                      headers: {
+                        Authorization:
+                          `Bearer ${token}`
+                      }
+                    }
+                  );
+
+
+                if (!resposta.ok) {
+
+                  return {
+                    data,
+                    quantidade: 0
+                  };
+                }
+
+
+                const dados:
+                  RespostaHorarios =
+                    await resposta.json();
+
+
+                return {
+                  data,
+
+                  quantidade:
+                    dados.horarios
+                      ?.length || 0
+                };
+
+              } catch {
+
+                return {
+                  data,
+                  quantidade: 0
+                };
+
+              }
+            }
+          )
+        );
+
+
+      const mapa:
+        QuantidadeHorariosPorDia = {};
+
+
+      resultados.forEach(
+        (
+          resultado
+        ) => {
+
+          mapa[
+            resultado.data
+          ] =
+            resultado.quantidade;
+
+        }
+      );
+
+
+      setQuantidadePorDia(
+        mapa
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao carregar calendário de remarcação:",
+        error
+      );
+
+
+      setErroRemarcacao(
+        "Não foi possível carregar o calendário."
+      );
+
+    } finally {
+
+      setCarregandoCalendario(
+        false
+      );
+
+    }
+  }
+
+
+  // ========================================
+  // ABRIR REMARCAÇÃO
+  // ========================================
+
+  function abrirRemarcacao(
+    agendamento: Agendamento
+  ) {
+
+    const remarcacaoPendente =
+      buscarRemarcacaoPendente(
+        agendamento.id
+      );
+
+
+    if (
+      remarcacaoPendente
+    ) {
+
+      setSucesso(
+        "Já existe uma remarcação aguardando confirmação do médico."
+      );
+
+      return;
+    }
+
+
+    const hoje =
+      new Date();
+
+
+    setAgendamentoRemarcacao(
+      agendamento
+    );
+
+
+    setMesAtual(
+      hoje.getMonth()
+    );
+
+    setAnoAtual(
+      hoje.getFullYear()
+    );
+
+
+    setQuantidadePorDia({});
+
+    setDataSelecionada("");
+
+    setHorarios([]);
+
+    setHorarioSelecionado(
+      null
+    );
+
+    setErroRemarcacao("");
+
+    setSucesso("");
+
+
+    setModalHorariosAberto(
+      false
+    );
+
+    setModalConfirmacaoAberto(
+      false
+    );
+
+    setModalCalendarioAberto(
+      true
+    );
+
+
+    void carregarMes(
+      hoje.getMonth(),
+      hoje.getFullYear()
+    );
+  }
+
+
+  // ========================================
+  // FECHAR REMARCAÇÃO
+  // ========================================
+
+  function fecharRemarcacao() {
+
+    if (
+      solicitandoRemarcacao
+    ) {
+      return;
+    }
+
+
+    setModalCalendarioAberto(
+      false
+    );
+
+    setModalHorariosAberto(
+      false
+    );
+
+    setModalConfirmacaoAberto(
+      false
+    );
+
+
+    setAgendamentoRemarcacao(
+      null
+    );
+
+    setDataSelecionada("");
+
+    setHorarios([]);
+
+    setHorarioSelecionado(
+      null
+    );
+
+    setQuantidadePorDia({});
+
+    setErroRemarcacao("");
+  }
+
+
+  // ========================================
+  // MÊS ANTERIOR
+  // ========================================
+
+  function mesAnterior() {
+
+    const mesAnteriorData =
+      new Date(
+        anoAtual,
+        mesAtual - 1,
+        1
+      );
+
+
+    const mesAtualReal =
+      new Date(
+        agora.getFullYear(),
+        agora.getMonth(),
+        1
+      );
+
+
+    if (
+      mesAnteriorData <
+      mesAtualReal
+    ) {
+      return;
+    }
+
+
+    let novoMes =
+      mesAtual - 1;
+
+    let novoAno =
+      anoAtual;
+
+
+    if (
+      novoMes < 0
+    ) {
+
+      novoMes = 11;
+
+      novoAno -= 1;
+    }
+
+
+    setMesAtual(
+      novoMes
+    );
+
+    setAnoAtual(
+      novoAno
+    );
+
+    setDataSelecionada("");
+
+    setQuantidadePorDia({});
+
+
+    void carregarMes(
+      novoMes,
+      novoAno
+    );
+  }
+
+
+  // ========================================
+  // PRÓXIMO MÊS
+  // ========================================
+
+  function proximoMes() {
+
+    let novoMes =
+      mesAtual + 1;
+
+    let novoAno =
+      anoAtual;
+
+
+    if (
+      novoMes > 11
+    ) {
+
+      novoMes = 0;
+
+      novoAno += 1;
+    }
+
+
+    setMesAtual(
+      novoMes
+    );
+
+    setAnoAtual(
+      novoAno
+    );
+
+    setDataSelecionada("");
+
+    setQuantidadePorDia({});
+
+
+    void carregarMes(
+      novoMes,
+      novoAno
+    );
+  }
+
+
+  // ========================================
+  // SELECIONAR DIA
+  // ========================================
+
+  async function selecionarDia(
+    dia: number
+  ) {
+
+    const data =
+      montarData(
+        anoAtual,
+        mesAtual,
+        dia
+      );
+
+
+    if (
+      dataJaPassou(
+        data
+      )
+    ) {
+      return;
+    }
+
+
+    const quantidade =
+      quantidadePorDia[
+        data
+      ] || 0;
+
+
+    if (
+      quantidade === 0
+    ) {
+      return;
+    }
+
+
+    setDataSelecionada(
+      data
+    );
+
+    setHorarioSelecionado(
+      null
+    );
+
+    setErroRemarcacao("");
+
+
+    setModalCalendarioAberto(
+      false
+    );
+
+    setModalHorariosAberto(
+      true
+    );
+
+
+    await buscarHorariosDoDia(
+      data
+    );
+  }
+
+
+  // ========================================
+  // VOLTAR PARA CALENDÁRIO
+  // ========================================
+
+  function voltarParaCalendario() {
+
+    setModalHorariosAberto(
+      false
+    );
+
+    setHorarioSelecionado(
+      null
+    );
+
+    setErroRemarcacao("");
+
+    setModalCalendarioAberto(
+      true
+    );
+  }
+
+
+  // ========================================
+  // SELECIONAR HORÁRIO
+  // ========================================
+
+  function selecionarHorario(
+    horario: HorarioDisponivel
+  ) {
+
+    setHorarioSelecionado(
+      horario
+    );
+
+    setErroRemarcacao("");
+
+    setModalHorariosAberto(
+      false
+    );
+
+    setModalConfirmacaoAberto(
+      true
+    );
+  }
+
+
+  // ========================================
+  // VOLTAR PARA HORÁRIOS
+  // ========================================
+
+  function voltarParaHorarios() {
+
+    setModalConfirmacaoAberto(
+      false
+    );
+
+    setErroRemarcacao("");
+
+    setModalHorariosAberto(
+      true
+    );
+  }
+
+
+  // ========================================
+  // CONFIRMAR REMARCAÇÃO
+  // ========================================
+
+  async function confirmarRemarcacao() {
+
+    if (
+      !agendamentoRemarcacao ||
+      !dataSelecionada ||
+      !horarioSelecionado
+    ) {
+
+      setErroRemarcacao(
+        "Selecione uma nova data e um novo horário."
+      );
+
+      return;
+    }
+
+
+    try {
+
+      setSolicitandoRemarcacao(
+        true
+      );
+
+      setErroRemarcacao("");
+
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+
+      if (!token) {
+
+        setErroRemarcacao(
+          "Sessão não encontrada. Faça login novamente."
+        );
+
+        return;
+      }
+
+
+      const resposta =
+        await fetch(
+          `http://localhost:3000/agendamentos/${agendamentoRemarcacao.id}/remarcacoes`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`
+            },
+
+            body:
+              JSON.stringify({
+                data:
+                  dataSelecionada,
+
+                horaInicio:
+                  horarioSelecionado.horaInicio
+              })
+          }
+        );
+
+
+      const dados =
+        await resposta.json();
+
+
+      if (!resposta.ok) {
+
+        setErroRemarcacao(
+          dados.mensagem ||
+          "Não foi possível solicitar a remarcação."
+        );
+
+
+        if (
+          resposta.status ===
+          409
+        ) {
+
+          setModalConfirmacaoAberto(
+            false
+          );
+
+          setHorarioSelecionado(
+            null
+          );
+
+
+          await buscarHorariosDoDia(
+            dataSelecionada
+          );
+
+
+          setModalHorariosAberto(
+            true
+          );
+        }
+
+
+        return;
+      }
+
+
+      setModalConfirmacaoAberto(
+        false
+      );
+
+      setModalHorariosAberto(
+        false
+      );
+
+      setModalCalendarioAberto(
+        false
+      );
+
+
+      setAgendamentoRemarcacao(
+        null
+      );
+
+      setDataSelecionada("");
+
+      setHorarioSelecionado(
+        null
+      );
+
+      setHorarios([]);
+
+      setQuantidadePorDia({});
+
+
+      setSucesso(
+        dados.mensagem ||
+        "Solicitação de remarcação enviada. Aguarde a confirmação do médico."
+      );
+
+
+      // Atualiza consulta + remarcação.
+      // Isso faz o card mudar imediatamente.
+      await atualizarDados();
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao solicitar remarcação:",
+        error
+      );
+
+
+      setErroRemarcacao(
+        "Não foi possível conectar ao servidor."
+      );
+
+    } finally {
+
+      setSolicitandoRemarcacao(
+        false
+      );
+
+    }
+  }
+
+
+  // ========================================
+  // CARREGAMENTO INICIAL
   // ========================================
 
   useEffect(() => {
 
-    void buscarAgendamentos();
+    void atualizarDados();
 
   }, []);
+
+
+  // ========================================
+  // BLOQUEAR SCROLL COM MODAL
+  // ========================================
+
+  useEffect(() => {
+
+    if (
+      modalCalendarioAberto ||
+      modalHorariosAberto ||
+      modalConfirmacaoAberto
+    ) {
+
+      document.body.classList.add(
+        "agendamento-modal-aberto"
+      );
+
+    } else {
+
+      document.body.classList.remove(
+        "agendamento-modal-aberto"
+      );
+
+    }
+
+
+    return () => {
+
+      document.body.classList.remove(
+        "agendamento-modal-aberto"
+      );
+
+    };
+
+  }, [
+    modalCalendarioAberto,
+    modalHorariosAberto,
+    modalConfirmacaoAberto
+  ]);
+
+
+  // ========================================
+  // CALENDÁRIO
+  // ========================================
+
+  const primeiroDiaSemana =
+    new Date(
+      anoAtual,
+      mesAtual,
+      1
+    ).getDay();
+
+
+  const quantidadeDiasMes =
+    new Date(
+      anoAtual,
+      mesAtual + 1,
+      0
+    ).getDate();
+
+
+  const espacosInicio =
+    Array.from({
+      length:
+        primeiroDiaSemana
+    });
+
+
+  const diasDoMes =
+    Array.from(
+      {
+        length:
+          quantidadeDiasMes
+      },
+      (
+        _,
+        indice
+      ) =>
+        indice + 1
+    );
+
+
+  const podeVoltarMes = !(
+    mesAtual ===
+      agora.getMonth() &&
+    anoAtual ===
+      agora.getFullYear()
+  );
 
 
   // ========================================
@@ -315,26 +1709,39 @@ export default function MeusAgendamentos() {
           </h1>
 
           <p>
-            Consulte suas consultas e acompanhe
-            a confirmação do médico.
+            Acompanhe suas consultas e
+            solicitações de remarcação.
           </p>
 
         </div>
 
-
-        <div className="meus-agendamentos-resumo">
-
-          <span>
-            Agendamentos
-          </span>
-
-          <strong>
-            {agendamentos.length}
-          </strong>
-
-        </div>
-
       </section>
+
+
+      {/* ========================================
+          MENSAGENS
+      ======================================== */}
+
+      {
+        sucesso !== "" && (
+
+          <div className="agendamento-mensagem sucesso">
+            {sucesso}
+          </div>
+
+        )
+      }
+
+
+      {
+        erro !== "" && (
+
+          <div className="agendamento-mensagem erro">
+            {erro}
+          </div>
+
+        )
+      }
 
 
       {/* ========================================
@@ -344,58 +1751,9 @@ export default function MeusAgendamentos() {
       {
         carregando && (
 
-          <section className="meus-agendamentos-estado">
-
-            <div className="meus-agendamentos-loading" />
-
-            <h2>
-              Carregando agendamentos...
-            </h2>
-
-            <p>
-              Aguarde enquanto buscamos
-              suas consultas.
-            </p>
-
-          </section>
-
-        )
-      }
-
-
-      {/* ========================================
-          ERRO
-      ======================================== */}
-
-      {
-        !carregando &&
-        erro !== "" && (
-
-          <section className="meus-agendamentos-estado">
-
-            <div className="meus-agendamentos-estado-icone meus-agendamentos-estado-erro">
-              !
-            </div>
-
-            <h2>
-              Não foi possível carregar
-            </h2>
-
-            <p>
-              {erro}
-            </p>
-
-            <button
-              type="button"
-              className="meus-agendamentos-btn"
-              onClick={() => {
-                void buscarAgendamentos();
-              }}
-            >
-              Tentar novamente
-            </button>
-
-          </section>
+          <div className="meus-agendamentos-carregando">
+            Carregando agendamentos...
+          </div>
 
         )
       }
@@ -407,37 +1765,31 @@ export default function MeusAgendamentos() {
 
       {
         !carregando &&
-        erro === "" &&
-        agendamentos.length === 0 && (
+        agendamentos.length === 0 &&
+        erro === "" && (
 
-          <section className="meus-agendamentos-estado">
-
-            <div className="meus-agendamentos-estado-icone">
-              ◷
-            </div>
+          <div className="meus-agendamentos-vazio">
 
             <h2>
-              Nenhuma consulta agendada
+              Nenhum agendamento encontrado
             </h2>
 
             <p>
-              Quando você solicitar uma consulta,
-              ela aparecerá aqui.
+              Suas consultas aparecerão aqui.
             </p>
 
-          </section>
+          </div>
 
         )
       }
 
 
       {/* ========================================
-          LISTA
+          LISTA DE AGENDAMENTOS
       ======================================== */}
 
       {
         !carregando &&
-        erro === "" &&
         agendamentos.length > 0 && (
 
           <section className="meus-agendamentos-lista">
@@ -446,119 +1798,1110 @@ export default function MeusAgendamentos() {
               agendamentos.map(
                 (
                   agendamento
-                ) => (
+                ) => {
 
-                  <article
-                    key={
+                  // Procura uma remarcação PENDENTE
+                  // relacionada especificamente a este
+                  // agendamento.
+                  const remarcacaoPendente =
+                    buscarRemarcacaoPendente(
                       agendamento.id
-                    }
-                    className="meus-agendamentos-card"
-                  >
+                    );
 
-                    {/* ========================================
-                        TOPO DO CARD
-                    ======================================== */}
 
-                    <div className="meus-agendamentos-card-topo">
+                  return (
 
-                      <div className="meus-agendamentos-data">
+                    <article
+                      key={
+                        agendamento.id
+                      }
+                      className="meus-agendamentos-card"
+                    >
 
-                        <span>
-                          Data da consulta
+                      {/* ========================================
+                          TOPO DO CARD
+                      ======================================== */}
+
+                      <div className="meus-agendamentos-card-topo">
+
+                        <div className="meus-agendamentos-data">
+
+                          <span>
+                            Data da consulta
+                          </span>
+
+                          <strong>
+                            {
+                              formatarData(
+                                agendamento.data
+                              )
+                            }
+                          </strong>
+
+                        </div>
+
+
+                        {/*
+                          IMPORTANTE:
+
+                          Se existir uma remarcação pendente,
+                          NÃO mostramos "Confirmada".
+
+                          Visualmente o status passa a ser:
+                          "Aguardando confirmação da remarcação".
+
+                          O agendamento continua CONFIRMADA no
+                          banco até o médico tomar uma decisão.
+                        */}
+
+                        <span
+                          className={
+                            remarcacaoPendente
+                              ? "meus-agendamentos-status meus-agendamentos-status-pendente"
+                              : `meus-agendamentos-status ${classeStatus(
+                                  agendamento.status
+                                )}`
+                          }
+                        >
+
+                          {
+                            remarcacaoPendente
+                              ? "Aguardando confirmação da remarcação"
+                              : formatarStatus(
+                                  agendamento.status
+                                )
+                          }
+
                         </span>
 
-                        <strong>
-                          {
-                            formatarData(
-                              agendamento.data
-                            )
-                          }
-                        </strong>
+                      </div>
+
+
+                      {/* ========================================
+                          HORÁRIO ATUAL
+                      ======================================== */}
+
+                      <div className="meus-agendamentos-horario">
+
+                        <div className="meus-agendamentos-horario-icone">
+                          ◷
+                        </div>
+
+                        <div>
+
+                          <small>
+                            Horário
+                          </small>
+
+                          <strong>
+
+                            {
+                              agendamento.horaInicio
+                            }
+
+                            {" — "}
+
+                            {
+                              agendamento.horaFim
+                            }
+
+                          </strong>
+
+                        </div>
 
                       </div>
 
 
-                      <span
-                        className={
-                          `meus-agendamentos-status ${classeStatus(
-                            agendamento.status
-                          )}`
-                        }
-                      >
-                        {
-                          formatarStatus(
-                            agendamento.status
-                          )
-                        }
-                      </span>
+                      {/* ========================================
+                          DESCRIÇÃO
+                      ======================================== */}
 
-                    </div>
+                      <div className="meus-agendamentos-descricao">
 
-
-                    {/* ========================================
-                        HORÁRIO
-                    ======================================== */}
-
-                    <div className="meus-agendamentos-horario">
-
-                      <div className="meus-agendamentos-horario-icone">
-                        ◷
-                      </div>
-
-                      <div>
-
-                        <small>
-                          Horário
-                        </small>
-
-                        <strong>
-                          {
-                            agendamento.horaInicio
+                        <span
+                          className={
+                            remarcacaoPendente
+                              ? "meus-agendamentos-indicador meus-agendamentos-status-pendente"
+                              : `meus-agendamentos-indicador ${classeStatus(
+                                  agendamento.status
+                                )}`
                           }
+                        />
 
-                          {" — "}
+
+                        <p>
 
                           {
-                            agendamento.horaFim
+                            remarcacaoPendente
+                              ? "Sua solicitação de remarcação foi enviada e aguarda a confirmação do médico."
+                              : descricaoStatus(
+                                  agendamento.status
+                                )
                           }
-                        </strong>
+
+                        </p>
 
                       </div>
 
-                    </div>
+
+                      {/* ========================================
+                          DADOS DA REMARCAÇÃO PENDENTE
+                      ======================================== */}
+
+                      {
+                        remarcacaoPendente && (
+
+                          <div className="meus-agendamentos-remarcacao-pendente">
+
+                            <div className="meus-agendamentos-remarcacao-pendente-topo">
+
+                              <div className="meus-agendamentos-remarcacao-pendente-icone">
+                                ◷
+                              </div>
 
 
-                    {/* ========================================
-                        DESCRIÇÃO DO STATUS
-                    ======================================== */}
+                              <div>
 
-                    <div className="meus-agendamentos-descricao">
+                                <strong>
+                                  Remarcação aguardando confirmação
+                                </strong>
 
-                      <span
-                        className={
-                          `meus-agendamentos-indicador ${classeStatus(
-                            agendamento.status
-                          )}`
-                        }
-                      />
+                                <span>
+                                  Aguardando resposta do médico
+                                </span>
 
-                      <p>
-                        {
-                          descricaoStatus(
-                            agendamento.status
-                          )
-                        }
-                      </p>
+                              </div>
 
-                    </div>
+                            </div>
 
-                  </article>
 
-                )
+                            <div className="meus-agendamentos-remarcacao-pendente-dados">
+
+                              <div>
+
+                                <small>
+                                  Nova data solicitada
+                                </small>
+
+                                <strong>
+                                  {
+                                    formatarData(
+                                      remarcacaoPendente.novaData
+                                    )
+                                  }
+                                </strong>
+
+                              </div>
+
+
+                              <div>
+
+                                <small>
+                                  Novo horário
+                                </small>
+
+                                <strong>
+
+                                  {
+                                    remarcacaoPendente.novaHoraInicio
+                                  }
+
+                                  {" — "}
+
+                                  {
+                                    remarcacaoPendente.novaHoraFim
+                                  }
+
+                                </strong>
+
+                              </div>
+
+                            </div>
+
+
+                            <p className="meus-agendamentos-remarcacao-pendente-aviso">
+                              Sua consulta atual continua válida
+                              até o médico confirmar a remarcação.
+                            </p>
+
+                          </div>
+
+                        )
+                      }
+
+
+                      {/* ========================================
+                          AÇÕES
+                      ======================================== */}
+
+                      {
+                        podeAlterarAgendamento(
+                          agendamento.status
+                        ) && (
+
+                          <div className="meus-agendamentos-acoes">
+
+                            <button
+                              type="button"
+                              className={
+                                remarcacaoPendente
+                                  ? "meus-agendamentos-btn-remarcar meus-agendamentos-btn-remarcacao-pendente"
+                                  : "meus-agendamentos-btn-remarcar"
+                              }
+                              disabled={
+                                cancelandoId ===
+                                  agendamento.id ||
+                                Boolean(
+                                  remarcacaoPendente
+                                )
+                              }
+                              onClick={() => {
+
+                                abrirRemarcacao(
+                                  agendamento
+                                );
+
+                              }}
+                            >
+
+                              {
+                                remarcacaoPendente
+                                  ? "Remarcação pendente"
+                                  : "Remarcar"
+                              }
+
+                            </button>
+
+
+                            <button
+                              type="button"
+                              className="meus-agendamentos-btn-cancelar"
+                              disabled={
+                                cancelandoId ===
+                                agendamento.id
+                              }
+                              onClick={() => {
+
+                                void cancelarConsulta(
+                                  agendamento
+                                );
+
+                              }}
+                            >
+
+                              {
+                                cancelandoId ===
+                                agendamento.id
+
+                                  ? "Cancelando..."
+
+                                  : agendamento.status ===
+                                      "PENDENTE"
+
+                                    ? "Cancelar solicitação"
+
+                                    : "Cancelar consulta"
+                              }
+
+                            </button>
+
+                          </div>
+
+                        )
+                      }
+
+                    </article>
+
+                  );
+                }
               )
             }
 
           </section>
+
+        )
+      }
+
+
+      {/* ========================================
+          MODAL DO CALENDÁRIO
+      ======================================== */}
+
+      {
+        modalCalendarioAberto &&
+        agendamentoRemarcacao && (
+
+          <div
+            className="agendamento-modal-fundo"
+            onMouseDown={
+              (
+                evento
+              ) => {
+
+                if (
+                  evento.target ===
+                  evento.currentTarget
+                ) {
+
+                  fecharRemarcacao();
+
+                }
+
+              }
+            }
+          >
+
+            <div className="agendamento-modal meus-agendamentos-modal-calendario">
+
+              <div className="agendamento-modal-cabecalho">
+
+                <div>
+
+                  <p className="agendamento-modal-etiqueta">
+                    Remarcação
+                  </p>
+
+                  <h2>
+                    Escolha uma nova data
+                  </h2>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="agendamento-modal-fechar"
+                  onClick={
+                    fecharRemarcacao
+                  }
+                  aria-label="Fechar"
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              {/* ========================================
+                  CONSULTA ATUAL
+              ======================================== */}
+
+              <div className="meus-agendamentos-remarcacao-atual">
+
+                <span>
+                  Consulta atual
+                </span>
+
+                <strong>
+                  {
+                    formatarData(
+                      agendamentoRemarcacao.data
+                    )
+                  }
+                </strong>
+
+                <p>
+
+                  {
+                    agendamentoRemarcacao.horaInicio
+                  }
+
+                  {" — "}
+
+                  {
+                    agendamentoRemarcacao.horaFim
+                  }
+
+                </p>
+
+              </div>
+
+
+              {/* ========================================
+                  CALENDÁRIO
+              ======================================== */}
+
+              <div className="agendamento-calendario meus-agendamentos-calendario-remarcacao">
+
+                <div className="agendamento-calendario-topo">
+
+                  <button
+                    type="button"
+                    className="agendamento-mes-botao"
+                    onClick={
+                      mesAnterior
+                    }
+                    disabled={
+                      !podeVoltarMes ||
+                      carregandoCalendario
+                    }
+                    aria-label="Mês anterior"
+                  >
+                    ‹
+                  </button>
+
+
+                  <div className="agendamento-mes-titulo">
+
+                    <h2>
+
+                      {
+                        nomesMeses[
+                          mesAtual
+                        ]
+                      }
+
+                      {" "}
+
+                      {anoAtual}
+
+                    </h2>
+
+                    <p>
+                      Dias em verde possuem horários disponíveis
+                    </p>
+
+                  </div>
+
+
+                  <button
+                    type="button"
+                    className="agendamento-mes-botao"
+                    onClick={
+                      proximoMes
+                    }
+                    disabled={
+                      carregandoCalendario
+                    }
+                    aria-label="Próximo mês"
+                  >
+                    ›
+                  </button>
+
+                </div>
+
+
+                {
+                  carregandoCalendario && (
+
+                    <div className="agendamento-calendario-carregando">
+
+                      <div className="agendamento-spinner" />
+
+                      <span>
+                        Buscando horários disponíveis...
+                      </span>
+
+                    </div>
+
+                  )
+                }
+
+
+                <div className="agendamento-semana">
+
+                  {
+                    diasSemana.map(
+                      (
+                        diaSemana
+                      ) => (
+
+                        <div
+                          key={
+                            diaSemana
+                          }
+                          className="agendamento-semana-dia"
+                        >
+                          {diaSemana}
+                        </div>
+
+                      )
+                    )
+                  }
+
+                </div>
+
+
+                <div className="agendamento-calendario-grade">
+
+                  {
+                    espacosInicio.map(
+                      (
+                        _,
+                        indice
+                      ) => (
+
+                        <div
+                          key={
+                            `vazio-${indice}`
+                          }
+                          className="agendamento-dia vazio"
+                        />
+
+                      )
+                    )
+                  }
+
+
+                  {
+                    diasDoMes.map(
+                      (
+                        dia
+                      ) => {
+
+                        const data =
+                          montarData(
+                            anoAtual,
+                            mesAtual,
+                            dia
+                          );
+
+
+                        const quantidade =
+                          quantidadePorDia[
+                            data
+                          ] || 0;
+
+
+                        const passado =
+                          dataJaPassou(
+                            data
+                          );
+
+
+                        const disponivel =
+                          quantidade > 0 &&
+                          !passado;
+
+
+                        const hoje =
+                          data ===
+                          obterDataHoje();
+
+
+                        const selecionado =
+                          data ===
+                          dataSelecionada;
+
+
+                        let classeDia =
+                          "agendamento-dia";
+
+
+                        if (passado) {
+
+                          classeDia +=
+                            " passado";
+
+                        } else if (
+                          disponivel
+                        ) {
+
+                          classeDia +=
+                            " disponivel";
+
+                        } else {
+
+                          classeDia +=
+                            " indisponivel";
+
+                        }
+
+
+                        if (hoje) {
+
+                          classeDia +=
+                            " hoje";
+                        }
+
+
+                        if (
+                          selecionado
+                        ) {
+
+                          classeDia +=
+                            " selecionado";
+                        }
+
+
+                        return (
+
+                          <button
+                            key={
+                              data
+                            }
+                            type="button"
+                            className={
+                              classeDia
+                            }
+                            disabled={
+                              !disponivel ||
+                              carregandoCalendario
+                            }
+                            onClick={() => {
+
+                              void selecionarDia(
+                                dia
+                              );
+
+                            }}
+                          >
+
+                            <span className="agendamento-dia-numero">
+                              {dia}
+                            </span>
+
+
+                            {
+                              hoje && (
+
+                                <span className="agendamento-dia-hoje">
+                                  Hoje
+                                </span>
+
+                              )
+                            }
+
+
+                            {
+                              disponivel ? (
+
+                                <div className="agendamento-dia-disponibilidade">
+
+                                  <span className="agendamento-dia-ponto" />
+
+                                  <span className="agendamento-dia-quantidade">
+
+                                    {quantidade}
+
+                                    {" "}
+
+                                    {
+                                      quantidade ===
+                                      1
+                                        ? "horário"
+                                        : "horários"
+                                    }
+
+                                  </span>
+
+                                </div>
+
+                              ) : (
+
+                                !passado && (
+
+                                  <span className="agendamento-dia-sem-horario">
+                                    Sem horários
+                                  </span>
+
+                                )
+
+                              )
+                            }
+
+                          </button>
+
+                        );
+                      }
+                    )
+                  }
+
+                </div>
+
+              </div>
+
+
+              {
+                erroRemarcacao !==
+                "" && (
+
+                  <div className="agendamento-mensagem erro">
+                    {erroRemarcacao}
+                  </div>
+
+                )
+              }
+
+            </div>
+
+          </div>
+
+        )
+      }
+
+
+      {/* ========================================
+          MODAL DE HORÁRIOS
+      ======================================== */}
+
+      {
+        modalHorariosAberto &&
+        agendamentoRemarcacao && (
+
+          <div className="agendamento-modal-fundo">
+
+            <div className="agendamento-modal">
+
+              <div className="agendamento-modal-cabecalho">
+
+                <div>
+
+                  <p className="agendamento-modal-etiqueta">
+                    Remarcação
+                  </p>
+
+                  <h2>
+                    Horários disponíveis
+                  </h2>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="agendamento-modal-fechar"
+                  onClick={
+                    fecharRemarcacao
+                  }
+                  aria-label="Fechar"
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <div className="agendamento-modal-conteudo">
+
+                <p className="agendamento-modal-instrucao">
+
+                  Escolha um novo horário para{" "}
+
+                  <strong>
+                    {
+                      formatarData(
+                        dataSelecionada
+                      )
+                    }
+                  </strong>.
+
+                </p>
+
+
+                {
+                  erroRemarcacao !==
+                  "" && (
+
+                    <div className="agendamento-mensagem erro">
+                      {erroRemarcacao}
+                    </div>
+
+                  )
+                }
+
+
+                {
+                  carregandoHorarios && (
+
+                    <div className="agendamento-modal-carregando">
+
+                      <div className="agendamento-spinner" />
+
+                      <span>
+                        Buscando horários disponíveis...
+                      </span>
+
+                    </div>
+
+                  )
+                }
+
+
+                {
+                  !carregandoHorarios &&
+                  horarios.length > 0 && (
+
+                    <div className="agendamento-horarios">
+
+                      {
+                        horarios.map(
+                          (
+                            horario
+                          ) => (
+
+                            <button
+                              key={
+                                `${horario.horaInicio}-${horario.horaFim}`
+                              }
+                              type="button"
+                              className="agendamento-horario"
+                              onClick={() => {
+
+                                selecionarHorario(
+                                  horario
+                                );
+
+                              }}
+                            >
+
+                              <span className="agendamento-horario-inicio">
+                                {
+                                  horario.horaInicio
+                                }
+                              </span>
+
+                              <span className="agendamento-horario-separador">
+                                —
+                              </span>
+
+                              <span>
+                                {
+                                  horario.horaFim
+                                }
+                              </span>
+
+                            </button>
+
+                          )
+                        )
+                      }
+
+                    </div>
+
+                  )
+                }
+
+
+                {
+                  !carregandoHorarios &&
+                  horarios.length ===
+                    0 &&
+                  erroRemarcacao ===
+                    "" && (
+
+                    <div className="agendamento-sem-horarios">
+
+                      <span>
+                        ◷
+                      </span>
+
+                      <p>
+                        Não existem mais horários
+                        disponíveis para esta data.
+                      </p>
+
+                    </div>
+
+                  )
+                }
+
+
+                <div className="meus-agendamentos-modal-voltar-container">
+
+                  <button
+                    type="button"
+                    className="meus-agendamentos-confirmacao-voltar"
+                    onClick={
+                      voltarParaCalendario
+                    }
+                  >
+                    ← Escolher outra data
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )
+      }
+
+
+      {/* ========================================
+          MODAL DE CONFIRMAÇÃO
+      ======================================== */}
+
+      {
+        modalConfirmacaoAberto &&
+        agendamentoRemarcacao &&
+        horarioSelecionado && (
+
+          <div className="agendamento-modal-fundo">
+
+            <div className="agendamento-modal confirmacao">
+
+              <div className="agendamento-confirmacao-icone">
+                ↻
+              </div>
+
+
+              <h2>
+                Solicitar remarcação?
+              </h2>
+
+
+              <p className="agendamento-confirmacao-texto">
+                Confira a alteração antes de enviar
+                a solicitação ao médico.
+              </p>
+
+
+              {/* ========================================
+                  CONSULTA ATUAL X NOVA
+              ======================================== */}
+
+              <div className="meus-agendamentos-comparacao">
+
+                <div className="meus-agendamentos-comparacao-item atual">
+
+                  <span>
+                    Consulta atual
+                  </span>
+
+                  <strong>
+                    {
+                      formatarData(
+                        agendamentoRemarcacao.data
+                      )
+                    }
+                  </strong>
+
+                  <p>
+
+                    {
+                      agendamentoRemarcacao.horaInicio
+                    }
+
+                    {" — "}
+
+                    {
+                      agendamentoRemarcacao.horaFim
+                    }
+
+                  </p>
+
+                </div>
+
+
+                <div className="meus-agendamentos-comparacao-seta">
+                  →
+                </div>
+
+
+                <div className="meus-agendamentos-comparacao-item nova">
+
+                  <span>
+                    Nova solicitação
+                  </span>
+
+                  <strong>
+                    {
+                      formatarData(
+                        dataSelecionada
+                      )
+                    }
+                  </strong>
+
+                  <p>
+
+                    {
+                      horarioSelecionado.horaInicio
+                    }
+
+                    {" — "}
+
+                    {
+                      horarioSelecionado.horaFim
+                    }
+
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              {/* ========================================
+                  AVISO
+              ======================================== */}
+
+              <div className="meus-agendamentos-remarcacao-aviso">
+
+                <strong>
+                  Importante
+                </strong>
+
+                <p>
+                  Sua consulta atual continuará válida
+                  até o médico aceitar a solicitação
+                  de remarcação.
+                </p>
+
+              </div>
+
+
+              {
+                erroRemarcacao !==
+                "" && (
+
+                  <div className="agendamento-mensagem erro">
+                    {erroRemarcacao}
+                  </div>
+
+                )
+              }
+
+
+              {/* ========================================
+                  BOTÕES
+              ======================================== */}
+
+              <div className="meus-agendamentos-confirmacao-acoes">
+
+                <button
+                  type="button"
+                  className="meus-agendamentos-confirmacao-voltar"
+                  disabled={
+                    solicitandoRemarcacao
+                  }
+                  onClick={
+                    voltarParaHorarios
+                  }
+                >
+                  Voltar
+                </button>
+
+
+                <button
+                  type="button"
+                  className="meus-agendamentos-confirmacao-enviar"
+                  disabled={
+                    solicitandoRemarcacao
+                  }
+                  onClick={() => {
+
+                    void confirmarRemarcacao();
+
+                  }}
+                >
+
+                  {
+                    solicitandoRemarcacao
+                      ? "Enviando..."
+                      : "Solicitar remarcação"
+                  }
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
 
         )
       }

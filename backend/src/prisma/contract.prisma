@@ -20,6 +20,24 @@ enum StatusAgendamento {
   FALTOU
 }
 
+// Status possíveis de uma solicitação
+// de remarcação.
+//
+// PENDENTE:
+// o paciente solicitou um novo horário
+// e aguarda a decisão do médico.
+//
+// ACEITA:
+// o médico aprovou o novo horário.
+//
+// RECUSADA:
+// o médico recusou o novo horário.
+enum StatusRemarcacao {
+  PENDENTE
+  ACEITA
+  RECUSADA
+}
+
 
 // ========================================
 // USUÁRIO
@@ -127,7 +145,7 @@ model Paciente {
 // 08:00 até 12:00
 // duração de consulta: 30 minutos
 model DisponibilidadeAgenda {
-  id              Int        @id @default(autoincrement())
+  id              Int @id @default(autoincrement())
 
   medicoId        Int
   data            DateString
@@ -135,11 +153,11 @@ model DisponibilidadeAgenda {
   horaInicio      String
   horaFim         String
 
-  duracaoConsulta Int        @default(30)
+  duracaoConsulta Int @default(30)
 
   // Permite exclusão lógica sem
   // remover o histórico do banco
-  ativo           Boolean    @default(true)
+  ativo Boolean @default(true)
 
   // Médico proprietário
   medico Medico @relation(
@@ -204,6 +222,13 @@ model Agendamento {
     references: [id]
   )
 
+  // Histórico de solicitações de
+  // remarcação desta consulta.
+  //
+  // Uma consulta pode ter várias
+  // solicitações ao longo do tempo.
+  remarcacoes RemarcacaoAgendamento[]
+
   // ========================================
   // ÍNDICES
   // ========================================
@@ -223,21 +248,140 @@ model Agendamento {
 
 
 // ========================================
+// REMARCAÇÃO DE AGENDAMENTO
+// ========================================
+
+// Representa uma solicitação feita pelo
+// paciente para alterar a data e/ou
+// horário de uma consulta.
+//
+// IMPORTANTE:
+//
+// A consulta original não será alterada
+// enquanto o médico não responder.
+//
+// Exemplo:
+//
+// Consulta original:
+// 18/09/2026 - 14:00
+//
+// Paciente solicita:
+// 20/09/2026 - 09:30
+//
+// Enquanto a remarcação estiver PENDENTE,
+// a consulta continua oficialmente marcada
+// para 18/09/2026 às 14:00.
+//
+// Se o médico ACEITAR:
+// o novo horário passa a ser o horário
+// oficial do Agendamento.
+//
+// Se o médico RECUSAR:
+// a consulta original permanece intacta.
+model RemarcacaoAgendamento {
+  id Int @id @default(autoincrement())
+
+  // ========================================
+  // AGENDAMENTO ORIGINAL
+  // ========================================
+
+  // Consulta que o paciente
+  // deseja remarcar
+  agendamentoId Int
+
+  // ========================================
+  // NOVO HORÁRIO SOLICITADO
+  // ========================================
+
+  // Nova data escolhida pelo paciente
+  novaData DateString
+
+  // Novo horário inicial
+  novaHoraInicio String
+
+  // Novo horário final
+  novaHoraFim String
+
+  // ========================================
+  // STATUS DA SOLICITAÇÃO
+  // ========================================
+
+  // Toda nova solicitação começa
+  // como PENDENTE.
+  //
+  // O médico posteriormente poderá
+  // ACEITAR ou RECUSAR.
+  status StatusRemarcacao @default(PENDENTE)
+
+  // ========================================
+  // VISUALIZAÇÃO PELO PACIENTE
+  // ========================================
+
+  // Indica se o paciente já visualizou
+  // a resposta do médico.
+  //
+  // Exemplo:
+  //
+  // Médico recusou
+  //        ↓
+  // status = RECUSADA
+  // visualizadoPaciente = false
+  //        ↓
+  // paciente recebe o aviso
+  //        ↓
+  // paciente clica em "Entendi"
+  //        ↓
+  // visualizadoPaciente = true
+  //
+  // O registro não será apagado.
+  visualizadoPaciente Boolean @default(false)
+
+  // ========================================
+  // CONTROLE
+  // ========================================
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  // ========================================
+  // RELACIONAMENTO
+  // ========================================
+
+  agendamento Agendamento @relation(
+    fields: [agendamentoId],
+    references: [id]
+  )
+
+  // ========================================
+  // ÍNDICES
+  // ========================================
+
+  // Busca o histórico de remarcações
+  // de uma consulta
+  @@index([agendamentoId])
+
+  // Facilita buscar solicitações
+  // PENDENTES, ACEITAS ou RECUSADAS
+  @@index([status])
+}
+
+
+// ========================================
 // REDEFINIÇÃO DE SENHA
 // ========================================
 
 // Códigos temporários utilizados
 // na recuperação de senha
 model CodigoRedefinicaoSenha {
-  id        Int               @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   usuarioId Int
 
-  codigo    String
+  codigo String
 
-  expiraEm  TimestamptzString
+  expiraEm TimestamptzString
 
-  usado     Boolean           @default(false)
+  usado Boolean @default(false)
 
   createdAt TimestamptzString @default(now())
 

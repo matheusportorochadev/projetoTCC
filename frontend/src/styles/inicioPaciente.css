@@ -5,136 +5,618 @@
 .inicio-paciente {
   min-height: 100vh;
 
-  padding: 40px;
+  padding: 38px 40px 50px;
 
-  background: #f5f7fb;
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #f3f6f9 100%
+    );
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+
+.inicio-paciente-conteudo {
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto;
 }
 
 
 /* ========================================
-   CABEÇALHO
+   HERO / BOAS-VINDAS
 ======================================== */
 
-.inicio-paciente-cabecalho {
-  max-width: 1100px;
+.inicio-paciente-hero {
+  position: relative;
 
-  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  padding: 32px;
+  min-height: 230px;
 
-  background: #ffffff;
+  padding: 42px 46px;
 
-  border-radius: 16px;
+  overflow: hidden;
 
-  border: 1px solid #e5e7eb;
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7fbf9 100%
+    );
+
+  border: 1px solid #e3e9e6;
+  border-radius: 22px;
 
   box-shadow:
-    0 5px 20px rgba(0, 0, 0, 0.05);
+    0 10px 35px rgba(15, 23, 42, 0.06);
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* LINHA VERDE SUPERIOR */
+
+.inicio-paciente-hero::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #15803d,
+      #16a34a,
+      #22c55e
+    );
+}
+
+
+/* CÍRCULO DECORATIVO */
+
+.inicio-paciente-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 310px;
+  height: 310px;
+
+  right: -125px;
+  bottom: -175px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(34, 197, 94, 0.065);
+
+  pointer-events: none;
+}
+
+
+/* ========================================
+   CONTEÚDO DO HERO
+======================================== */
+
+.inicio-paciente-hero-conteudo {
+  position: relative;
+
+  z-index: 2;
+
+  max-width: 650px;
 }
 
 
 .inicio-paciente-tipo {
-  margin: 0 0 8px;
+  display: inline-flex;
+  align-items: center;
 
-  color: #2563eb;
+  margin-bottom: 13px;
 
-  font-size: 14px;
+  padding: 6px 12px;
 
-  font-weight: 600;
+  background: #ecfdf3;
+
+  border: 1px solid #d1fae0;
+  border-radius: 999px;
+
+  color: #15803d;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 0.2px;
 }
 
 
-.inicio-paciente-cabecalho h1 {
-  margin: 0 0 10px;
+.inicio-paciente-hero h1 {
+  margin: 0 0 12px;
 
   color: #111827;
 
-  font-size: 30px;
+  font-size: 34px;
+  font-weight: 750;
+
+  letter-spacing: -0.7px;
 }
 
 
-.inicio-paciente-cabecalho > p:last-child {
+.inicio-paciente-hero p {
+  max-width: 610px;
+
   margin: 0;
 
-  color: #6b7280;
+  color: #64748b;
 
-  line-height: 1.6;
+  font-size: 15.5px;
+
+  line-height: 1.7;
 }
 
 
 /* ========================================
-   CARDS
+   ELEMENTO VISUAL DO HERO
+======================================== */
+
+.inicio-paciente-hero-visual {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 150px;
+  min-width: 150px;
+
+  margin-left: 35px;
+}
+
+
+.inicio-paciente-hero-icone {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 92px;
+  height: 92px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #15803d,
+      #22c55e
+    );
+
+  border-radius: 26px;
+
+  color: #ffffff;
+
+  font-size: 52px;
+  font-weight: 300;
+
+  box-shadow:
+    0 15px 35px rgba(22, 163, 74, 0.22);
+
+  transform: rotate(-5deg);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.inicio-paciente-hero:hover
+.inicio-paciente-hero-icone {
+  transform:
+    rotate(0deg)
+    scale(1.04);
+
+  box-shadow:
+    0 18px 40px rgba(22, 163, 74, 0.28);
+}
+
+
+/* ========================================
+   TÍTULO DA SEÇÃO
+======================================== */
+
+.inicio-paciente-secao-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 34px 2px 17px;
+}
+
+
+.inicio-paciente-secao-titulo h2 {
+  margin: 0 0 4px;
+
+  color: #172033;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+
+.inicio-paciente-secao-titulo p {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 14px;
+}
+
+
+/* ========================================
+   GRID DOS CARDS
 ======================================== */
 
 .inicio-paciente-cards {
-  max-width: 1100px;
-
-  margin: 0 auto;
-
   display: grid;
 
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 24px;
+  gap: 22px;
 }
 
 
+/* ========================================
+   CARD
+======================================== */
+
 .inicio-paciente-card {
-  padding: 28px;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 275px;
+
+  padding: 27px;
+
+  overflow: hidden;
 
   background: #ffffff;
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 16px;
+  border: 1px solid #e5e9e7;
+  border-radius: 18px;
 
   box-shadow:
-    0 5px 20px rgba(0, 0, 0, 0.05);
+    0 5px 22px rgba(15, 23, 42, 0.045);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.25s ease;
 }
 
+
+/* DETALHE VERDE NO CARD */
+
+.inicio-paciente-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      #16a34a,
+      #22c55e
+    );
+
+  transition:
+    height 0.25s ease;
+}
+
+
+.inicio-paciente-card:hover {
+  transform: translateY(-4px);
+
+  border-color: #cfe5d7;
+
+  box-shadow:
+    0 14px 35px rgba(15, 23, 42, 0.08);
+}
+
+
+.inicio-paciente-card:hover::before {
+  height: 100%;
+}
+
+
+/* ========================================
+   TOPO DO CARD
+======================================== */
+
+.inicio-paciente-card-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 23px;
+}
+
+
+/* ========================================
+   ÍCONE DO CARD
+======================================== */
 
 .inicio-paciente-icone {
-  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  font-size: 32px;
+  width: 54px;
+  height: 54px;
+
+  flex-shrink: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f0fdf4,
+      #ecfdf5
+    );
+
+  border: 1px solid #dcfce7;
+  border-radius: 15px;
+
+  font-size: 25px;
+
+  box-shadow:
+    0 4px 12px rgba(22, 163, 74, 0.06);
+
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease;
 }
 
 
-.inicio-paciente-card h2 {
-  margin: 0 0 10px;
+.inicio-paciente-card:hover
+.inicio-paciente-icone {
+  transform:
+    translateY(-2px)
+    scale(1.04);
+}
 
-  color: #111827;
 
-  font-size: 20px;
+/* ========================================
+   CONTEÚDO DO CARD
+======================================== */
+
+.inicio-paciente-card-conteudo {
+  flex: 1;
+}
+
+
+.inicio-paciente-card h3 {
+  margin: 0 0 9px;
+
+  color: #172033;
+
+  font-size: 19px;
+  font-weight: 700;
 }
 
 
 .inicio-paciente-card p {
-  min-height: 55px;
+  max-width: 440px;
 
-  margin: 0 0 20px;
+  margin: 0;
 
-  color: #6b7280;
+  color: #718096;
 
-  line-height: 1.6;
+  font-size: 14.5px;
+
+  line-height: 1.65;
 }
 
 
-.inicio-paciente-card button {
-  padding: 10px 18px;
+/* ========================================
+   BOTÃO DOS CARDS
+======================================== */
+
+.inicio-paciente-botao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  margin-top: 23px;
+
+  padding: 12px 15px;
 
   border: none;
+  border-radius: 10px;
 
-  border-radius: 8px;
+  font-family: inherit;
 
-  background: #d1d5db;
+  font-size: 13.5px;
+  font-weight: 650;
 
-  color: #6b7280;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
 
-  font-weight: 600;
 
-  cursor: not-allowed;
+/* BOTÃO ATIVO */
+
+.inicio-paciente-botao-ativo {
+  background:
+    linear-gradient(
+      135deg,
+      #15803d,
+      #16a34a
+    );
+
+  color: #ffffff;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 14px rgba(22, 163, 74, 0.17);
+}
+
+
+.inicio-paciente-botao-ativo:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #166534,
+      #15803d
+    );
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 20px rgba(22, 163, 74, 0.23);
+}
+
+
+.inicio-paciente-botao-ativo:active {
+  transform: translateY(0);
+
+  box-shadow:
+    0 4px 10px rgba(22, 163, 74, 0.18);
+}
+
+
+/* SETA DO BOTÃO */
+
+.inicio-paciente-botao span {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.inicio-paciente-botao-ativo:hover span {
+  transform: translateX(4px);
+}
+
+
+/* ACESSIBILIDADE VIA TECLADO */
+
+.inicio-paciente-botao-ativo:focus-visible {
+  outline: 3px solid rgba(34, 197, 94, 0.28);
+
+  outline-offset: 3px;
+}
+
+
+/* ========================================
+   BLOCO DE INFORMAÇÃO INFERIOR
+======================================== */
+
+.inicio-paciente-informacao {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 24px;
+
+  padding: 17px 20px;
+
+  background:
+    rgba(255, 255, 255, 0.7);
+
+  border: 1px solid #e6ebe8;
+  border-radius: 14px;
+
+  box-shadow:
+    0 3px 14px rgba(15, 23, 42, 0.025);
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+.inicio-paciente-informacao-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 35px;
+  height: 35px;
+
+  flex-shrink: 0;
+
+  background: #ecfdf3;
+
+  border: 1px solid #d9f7e3;
+  border-radius: 50%;
+
+  color: #15803d;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 17px;
+  font-weight: bold;
+}
+
+
+.inicio-paciente-informacao strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #334155;
+
+  font-size: 13px;
+}
+
+
+.inicio-paciente-informacao p {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 12.5px;
+
+  line-height: 1.5;
 }
 
 
@@ -142,58 +624,528 @@
    MODO ESCURO
 ======================================== */
 
-body.modo-escuro .inicio-paciente {
-  background: #111827;
+body.modo-escuro
+.inicio-paciente {
+  background:
+    linear-gradient(
+      180deg,
+      #111827 0%,
+      #0f172a 100%
+    );
+}
+
+
+/* HERO */
+
+body.modo-escuro
+.inicio-paciente-hero {
+  background:
+    linear-gradient(
+      135deg,
+      #1f2937 0%,
+      #1b2634 100%
+    );
+
+  border-color: #374151;
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.18);
 }
 
 
 body.modo-escuro
-.inicio-paciente-cabecalho,
+.inicio-paciente-hero::after {
+  background:
+    rgba(34, 197, 94, 0.05);
+}
+
+
+body.modo-escuro
+.inicio-paciente-tipo {
+  background:
+    rgba(22, 163, 74, 0.12);
+
+  border-color:
+    rgba(34, 197, 94, 0.18);
+
+  color: #4ade80;
+}
+
+
+body.modo-escuro
+.inicio-paciente-hero h1 {
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.inicio-paciente-hero p {
+  color: #cbd5e1;
+}
+
+
+/* TÍTULO */
+
+body.modo-escuro
+.inicio-paciente-secao-titulo h2 {
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.inicio-paciente-secao-titulo p {
+  color: #94a3b8;
+}
+
+
+/* CARDS */
 
 body.modo-escuro
 .inicio-paciente-card {
   background: #1f2937;
 
   border-color: #374151;
+
+  box-shadow:
+    0 5px 22px rgba(0, 0, 0, 0.14);
 }
 
 
 body.modo-escuro
-.inicio-paciente-cabecalho h1,
+.inicio-paciente-card:hover {
+  background: #202c3c;
 
-body.modo-escuro
-.inicio-paciente-card h2 {
-  color: #f9fafb;
+  border-color: #465669;
+
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.22);
 }
 
 
 body.modo-escuro
-.inicio-paciente-cabecalho > p:last-child,
+.inicio-paciente-card h3 {
+  color: #f8fafc;
+}
+
 
 body.modo-escuro
 .inicio-paciente-card p {
-  color: #d1d5db;
+  color: #cbd5e1;
+}
+
+
+/* ÍCONES */
+
+body.modo-escuro
+.inicio-paciente-icone {
+  background:
+    rgba(22, 163, 74, 0.1);
+
+  border-color:
+    rgba(34, 197, 94, 0.16);
+
+  box-shadow: none;
+}
+
+
+/* BOTÕES */
+
+body.modo-escuro
+.inicio-paciente-botao-ativo {
+  background:
+    linear-gradient(
+      135deg,
+      #15803d,
+      #16a34a
+    );
+
+  color: #ffffff;
+
+  border: none;
+
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.18);
+}
+
+
+body.modo-escuro
+.inicio-paciente-botao-ativo:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #16a34a,
+      #22c55e
+    );
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.23);
+}
+
+
+/* INFORMAÇÃO */
+
+body.modo-escuro
+.inicio-paciente-informacao {
+  background:
+    rgba(31, 41, 55, 0.72);
+
+  border-color: #374151;
+
+  box-shadow: none;
+}
+
+
+body.modo-escuro
+.inicio-paciente-informacao-icone {
+  background:
+    rgba(22, 163, 74, 0.12);
+
+  border-color:
+    rgba(34, 197, 94, 0.15);
+
+  color: #4ade80;
+}
+
+
+body.modo-escuro
+.inicio-paciente-informacao strong {
+  color: #e5e7eb;
+}
+
+
+body.modo-escuro
+.inicio-paciente-informacao p {
+  color: #94a3b8;
 }
 
 
 /* ========================================
-   RESPONSIVIDADE
+   TABLET
+======================================== */
+
+@media (max-width: 900px) {
+
+  .inicio-paciente {
+    padding:
+      30px
+      26px
+      45px;
+  }
+
+
+  .inicio-paciente-hero {
+    min-height: 210px;
+
+    padding: 36px;
+  }
+
+
+  .inicio-paciente-hero h1 {
+    font-size: 31px;
+  }
+
+
+  .inicio-paciente-hero-visual {
+    width: 120px;
+    min-width: 120px;
+
+    margin-left: 25px;
+  }
+
+
+  .inicio-paciente-hero-icone {
+    width: 78px;
+    height: 78px;
+
+    border-radius: 22px;
+
+    font-size: 44px;
+  }
+
+}
+
+
+/* ========================================
+   CELULAR
 ======================================== */
 
 @media (max-width: 700px) {
 
   .inicio-paciente {
-    padding: 20px;
+    padding:
+      18px
+      16px
+      35px;
   }
 
+
+  /* ========================================
+     HERO
+  ======================================== */
+
+  .inicio-paciente-hero {
+    min-height: auto;
+
+    padding:
+      28px
+      23px;
+
+    border-radius: 18px;
+  }
+
+
+  .inicio-paciente-hero::before {
+    height: 3px;
+  }
+
+
+  .inicio-paciente-hero::after {
+    width: 200px;
+    height: 200px;
+
+    right: -110px;
+    bottom: -120px;
+  }
+
+
+  .inicio-paciente-hero-conteudo {
+    max-width: 100%;
+  }
+
+
+  .inicio-paciente-tipo {
+    margin-bottom: 11px;
+
+    padding:
+      5px
+      10px;
+
+    font-size: 11.5px;
+  }
+
+
+  .inicio-paciente-hero h1 {
+    margin-bottom: 9px;
+
+    font-size: 27px;
+
+    letter-spacing: -0.4px;
+  }
+
+
+  .inicio-paciente-hero p {
+    font-size: 14px;
+
+    line-height: 1.6;
+  }
+
+
+  /* ESCONDE ÍCONE GRANDE */
+
+  .inicio-paciente-hero-visual {
+    display: none;
+  }
+
+
+  /* ========================================
+     TÍTULO
+  ======================================== */
+
+  .inicio-paciente-secao-titulo {
+    margin:
+      27px
+      2px
+      14px;
+  }
+
+
+  .inicio-paciente-secao-titulo h2 {
+    font-size: 19px;
+  }
+
+
+  .inicio-paciente-secao-titulo p {
+    font-size: 12.5px;
+  }
+
+
+  /* ========================================
+     CARDS
+  ======================================== */
 
   .inicio-paciente-cards {
     grid-template-columns: 1fr;
+
+    gap: 15px;
   }
 
 
-  .inicio-paciente-cabecalho {
-    padding: 24px;
+  .inicio-paciente-card {
+    min-height: auto;
+
+    padding: 21px;
+
+    border-radius: 16px;
+  }
+
+
+  /* DESATIVA MOVIMENTO DO CARD NO MOBILE */
+
+  .inicio-paciente-card:hover {
+    transform: none;
+  }
+
+
+  .inicio-paciente-card::before {
+    width: 3px;
+  }
+
+
+  .inicio-paciente-card-topo {
+    margin-bottom: 18px;
+  }
+
+
+  /* ========================================
+     ÍCONE
+  ======================================== */
+
+  .inicio-paciente-icone {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 13px;
+
+    font-size: 22px;
+  }
+
+
+  /* ========================================
+     TEXTO
+  ======================================== */
+
+  .inicio-paciente-card h3 {
+    margin-bottom: 7px;
+
+    font-size: 17px;
+  }
+
+
+  .inicio-paciente-card p {
+    max-width: 100%;
+
+    font-size: 13.5px;
+
+    line-height: 1.6;
+  }
+
+
+  /* ========================================
+     BOTÃO
+  ======================================== */
+
+  .inicio-paciente-botao {
+    margin-top: 19px;
+
+    padding:
+      12px
+      14px;
+
+    font-size: 13px;
+  }
+
+
+  /* ========================================
+     INFORMAÇÃO
+  ======================================== */
+
+  .inicio-paciente-informacao {
+    align-items: flex-start;
+
+    margin-top: 18px;
+
+    padding:
+      15px
+      16px;
+
+    border-radius: 13px;
+  }
+
+
+  .inicio-paciente-informacao-icone {
+    width: 32px;
+    height: 32px;
+
+    font-size: 15px;
+  }
+
+
+  .inicio-paciente-informacao strong {
+    font-size: 12.5px;
+  }
+
+
+  .inicio-paciente-informacao p {
+    font-size: 12px;
+  }
+
+}
+
+
+/* ========================================
+   CELULARES PEQUENOS
+======================================== */
+
+@media (max-width: 400px) {
+
+  .inicio-paciente {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+
+  .inicio-paciente-hero {
+    padding:
+      24px
+      20px;
+  }
+
+
+  .inicio-paciente-hero h1 {
+    font-size: 25px;
+  }
+
+
+  .inicio-paciente-hero p {
+    font-size: 13.5px;
+  }
+
+
+  .inicio-paciente-card {
+    padding: 19px;
+  }
+
+
+  .inicio-paciente-botao {
+    padding:
+      11px
+      13px;
+  }
+
+}
+
+
+/* ========================================
+   REDUZIR ANIMAÇÕES
+   PARA QUEM POSSUI ESSA PREFERÊNCIA
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .inicio-paciente *,
+  .inicio-paciente *::before,
+  .inicio-paciente *::after {
+    transition: none !important;
   }
 
 }

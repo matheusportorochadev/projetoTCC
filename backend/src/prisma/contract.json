@@ -24,6 +24,10 @@
       "model": "Paciente",
       "namespace": "public"
     },
+    "remarcacaoAgendamento": {
+      "model": "RemarcacaoAgendamento",
+      "namespace": "public"
+    },
     "usuario": {
       "model": "Usuario",
       "namespace": "public"
@@ -63,6 +67,23 @@
               {
                 "name": "FALTOU",
                 "value": "FALTOU"
+              }
+            ]
+          },
+          "StatusRemarcacao": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDENTE",
+                "value": "PENDENTE"
+              },
+              {
+                "name": "ACEITA",
+                "value": "ACEITA"
+              },
+              {
+                "name": "RECUSADA",
+                "value": "RECUSADA"
               }
             ]
           },
@@ -185,6 +206,21 @@
                 },
                 "to": {
                   "model": "Paciente",
+                  "namespace": "public"
+                }
+              },
+              "remarcacoes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "agendamentoId"
+                  ]
+                },
+                "to": {
+                  "model": "RemarcacaoAgendamento",
                   "namespace": "public"
                 }
               }
@@ -654,6 +690,129 @@
               },
               "namespaceId": "public",
               "table": "paciente"
+            }
+          },
+          "RemarcacaoAgendamento": {
+            "fields": {
+              "agendamentoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "novaData": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/date-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "novaHoraFim": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "novaHoraInicio": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusRemarcacao",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "visualizadoPaciente": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "agendamento": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "agendamentoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Agendamento",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "agendamentoId": {
+                  "column": "agendamentoId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "novaData": {
+                  "column": "novaData"
+                },
+                "novaHoraFim": {
+                  "column": "novaHoraFim"
+                },
+                "novaHoraInicio": {
+                  "column": "novaHoraInicio"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "visualizadoPaciente": {
+                  "column": "visualizadoPaciente"
+                }
+              },
+              "namespaceId": "public",
+              "table": "remarcacaoAgendamento"
             }
           },
           "Usuario": {
@@ -1333,6 +1492,126 @@
                 }
               ]
             },
+            "remarcacaoAgendamento": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('PENDENTE', 'ACEITA', 'RECUSADA')",
+                  "name": "remarcacaoAgendamento_status_check_1b3b9d6e",
+                  "prefix": "remarcacaoAgendamento_status_check"
+                }
+              ],
+              "columns": {
+                "agendamentoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "novaData": {
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
+                  "nullable": false
+                },
+                "novaHoraFim": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "novaHoraInicio": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PENDENTE"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusRemarcacao",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "visualizadoPaciente": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "agendamentoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "remarcacaoAgendamento"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "agendamento"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "agendamentoId"
+                  ],
+                  "name": "remarcacaoAgendamento_agendamentoId_idx_b943086d",
+                  "prefix": "remarcacaoAgendamento_agendamentoId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "remarcacaoAgendamento_status_idx_e98638ab",
+                  "prefix": "remarcacaoAgendamento_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "usuario": {
               "checks": [
                 {
@@ -1439,6 +1718,14 @@
                 "FALTOU"
               ]
             },
+            "StatusRemarcacao": {
+              "kind": "valueSet",
+              "values": [
+                "PENDENTE",
+                "ACEITA",
+                "RECUSADA"
+              ]
+            },
             "TipoUsuario": {
               "kind": "valueSet",
               "values": [
@@ -1453,10 +1740,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "a3fc2948462eb98695593c3e1f8d29a8446aa8cb7f4731ec8bc864fc7e43f357"
+    "storageHash": "aee25a5e6d655054e4454e4cc1959db1ef1cfa90d6cbe45132b61317b5f07902"
   },
   "execution": {
-    "executionHash": "9d81c93591673b0d12524d87fe00b796577c7b57a2b5823bfff9599765755a00",
+    "executionHash": "f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27",
     "mutations": {
       "defaults": [
         {
@@ -1472,6 +1759,21 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "agendamento"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "remarcacaoAgendamento"
           }
         },
         {
