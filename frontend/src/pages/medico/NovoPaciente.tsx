@@ -76,24 +76,16 @@ export default function NovoPaciente() {
         );
       }
 
-      const token =
-        localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error(
-          "Sessão não encontrada. Faça login novamente."
-        );
-      }
 
       const resposta = await fetch(
         "http://localhost:3000/pacientes",
         {
           method: "POST",
+
+          credentials: "include",
           headers: {
             "Content-Type":
-              "application/json",
-            Authorization:
-              `Bearer ${token}`
+              "application/json"
           },
           body: JSON.stringify({
             nome: nome.trim(),

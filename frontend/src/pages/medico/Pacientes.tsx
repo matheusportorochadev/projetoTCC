@@ -6,6 +6,8 @@ import {
 
 import { Link } from "react-router-dom";
 
+import ModalSistema from "../../components/ModalSistema";
+
 import "../../styles/pacientes.css";
 
 
@@ -156,6 +158,17 @@ export default function Pacientes() {
 
 
   // ========================================
+  // CONFIRMAÇÃO DE EXCLUSÃO
+  // ========================================
+
+  const [
+    confirmarExclusao,
+    setConfirmarExclusao
+  ] =
+    useState(false);
+
+
+  // ========================================
   // CARREGAMENTO INICIAL
   // ========================================
 
@@ -173,25 +186,12 @@ export default function Pacientes() {
       setCarregando(true);
       setErro("");
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-        throw new Error(
-          "Sessão não encontrada."
-        );
-      }
 
       const resposta =
         await fetch(
           "http://localhost:3000/pacientes",
           {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -291,16 +291,6 @@ export default function Pacientes() {
       setProcessando(true);
       setErroModal("");
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-        throw new Error(
-          "Sessão não encontrada."
-        );
-      }
 
       // Inverte o estado atual.
       //
@@ -319,12 +309,10 @@ export default function Pacientes() {
           {
             method: "PATCH",
 
+            credentials: "include",
             headers: {
               "Content-Type":
-                "application/json",
-
-              Authorization:
-                `Bearer ${token}`
+                "application/json"
             },
 
             body: JSON.stringify({
@@ -375,16 +363,6 @@ export default function Pacientes() {
       setProcessando(true);
       setErroModal("");
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-        throw new Error(
-          "Sessão não encontrada."
-        );
-      }
 
       const novoStatus =
         !pacienteSelecionado.ativo;
@@ -395,12 +373,10 @@ export default function Pacientes() {
           {
             method: "PATCH",
 
+            credentials: "include",
             headers: {
               "Content-Type":
-                "application/json",
-
-              Authorization:
-                `Bearer ${token}`
+                "application/json"
             },
 
             body: JSON.stringify({
@@ -436,38 +412,44 @@ export default function Pacientes() {
 
 
   // ========================================
-  // EXCLUIR PACIENTE
+  // ABRIR CONFIRMAÇÃO DE EXCLUSÃO
   // ========================================
 
-  async function excluirPaciente() {
+  function excluirPaciente() {
+
     if (!pacienteSelecionado) {
       return;
     }
 
-    // Confirmação antes de excluir.
-    const confirmou =
-      window.confirm(
-        `Deseja realmente excluir o paciente "${pacienteSelecionado.nome}"?`
-      );
 
-    if (!confirmou) {
+    setErroModal("");
+
+
+    setConfirmarExclusao(
+      true
+    );
+  }
+
+
+  // ========================================
+  // CONFIRMAR EXCLUSÃO DO PACIENTE
+  // ========================================
+
+  async function confirmarExclusaoPaciente() {
+
+    if (!pacienteSelecionado) {
       return;
     }
 
+
     try {
-      setProcessando(true);
+
+      setProcessando(
+        true
+      );
+
       setErroModal("");
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-        throw new Error(
-          "Sessão não encontrada."
-        );
-      }
 
       const resposta =
         await fetch(
@@ -475,22 +457,24 @@ export default function Pacientes() {
           {
             method: "DELETE",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
+
 
       const dados =
         await resposta.json();
 
+
       if (!resposta.ok) {
+
         throw new Error(
           dados.mensagem ||
             "Erro ao excluir paciente."
         );
+
       }
+
 
       // Remove o paciente da lista.
       setPacientes(
@@ -502,18 +486,40 @@ export default function Pacientes() {
           )
       );
 
-      // Fecha o modal.
+
+      // Fecha confirmação.
+      setConfirmarExclusao(
+        false
+      );
+
+
+      // Fecha detalhes do paciente.
       setPacienteSelecionado(
         null
       );
+
     } catch (erro) {
+
+      // Fecha o modal de confirmação
+      // para exibir o erro no modal
+      // de detalhes do paciente.
+      setConfirmarExclusao(
+        false
+      );
+
+
       setErroModal(
         erro instanceof Error
           ? erro.message
           : "Erro ao excluir paciente."
       );
+
     } finally {
-      setProcessando(false);
+
+      setProcessando(
+        false
+      );
+
     }
   }
 
@@ -1003,6 +1009,38 @@ export default function Pacientes() {
 
         </div>
       )}
+
+
+      {/* ========================================
+          MODAL - EXCLUIR PACIENTE
+         ======================================== */}
+
+      <ModalSistema
+        aberto={
+          confirmarExclusao &&
+          pacienteSelecionado !== null
+        }
+        tipo="perigo"
+        titulo="Excluir paciente"
+        mensagem={
+          pacienteSelecionado
+            ? `Tem certeza que deseja excluir o paciente "${pacienteSelecionado.nome}"? Esta ação não poderá ser desfeita.`
+            : ""
+        }
+        textoConfirmar="Excluir"
+        textoCancelar="Cancelar"
+        carregando={
+          processando
+        }
+        onConfirmar={
+          confirmarExclusaoPaciente
+        }
+        onCancelar={() =>
+          setConfirmarExclusao(
+            false
+          )
+        }
+      />
 
     </div>
   );

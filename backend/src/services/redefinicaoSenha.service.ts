@@ -54,9 +54,11 @@ function obterSegredoCodigo() {
     !segredo ||
     segredo.length < 32
   ) {
+
     throw new Error(
       "RESET_CODE_SECRET não está configurado corretamente."
     );
+
   }
 
   return segredo;
@@ -122,6 +124,7 @@ async function invalidarCodigosAtivos(
       })
       .all();
 
+
   for (
     const registro
     of codigos
@@ -130,10 +133,12 @@ async function invalidarCodigosAtivos(
     await db.orm.public
       .CodigoRedefinicaoSenha
       .where({
-        id: registro.id
+        id:
+          registro.id
       })
       .update({
-        usado: true
+        usado:
+          true
       });
 
   }
@@ -171,20 +176,58 @@ export async function solicitarRedefinicaoSenha(
   // NÃO REVELAR EXISTÊNCIA DO USUÁRIO
   // ========================================
 
-  // Não lançamos erro se o usuário
-  // não existir.
-  //
-  // Assim ninguém consegue utilizar
-  // a recuperação de senha para descobrir
-  // quais e-mails estão cadastrados.
+  /*
+    Não lançamos erro nos casos abaixo.
+
+    Isso evita que alguém utilize
+    "Esqueci minha senha" para descobrir:
+
+    - se determinado e-mail existe;
+    - se a conta está ativa;
+    - se a pessoa ainda está no
+      primeiro acesso.
+  */
+
   if (!usuario) {
     return;
   }
 
 
-  // O mesmo vale para usuários inativos.
   if (!usuario.ativo) {
     return;
+  }
+
+
+  // ========================================
+  // PROTEÇÃO DO PRIMEIRO ACESSO
+  // ========================================
+
+  /*
+    Usuários novos podem existir com:
+
+    senha = null
+    primeiroAcesso = true
+
+    Esses usuários NÃO podem utilizar
+    o fluxo de redefinição de senha.
+
+    Eles devem utilizar exclusivamente:
+
+    /auth/primeiro-acesso/solicitar
+
+    e depois:
+
+    /auth/primeiro-acesso/concluir
+
+    Assim mantemos os dois fluxos
+    completamente separados.
+  */
+  if (
+    usuario.senha === null
+  ) {
+
+    return;
+
   }
 
 
@@ -261,11 +304,13 @@ export async function solicitarRedefinicaoSenha(
 
   try {
 
-    // Aqui utilizamos usuario.email,
-    // que veio do banco.
-    //
-    // Não utilizamos diretamente
-    // o endereço recebido do frontend.
+    /*
+      Aqui utilizamos usuario.email,
+      que veio diretamente do banco.
+
+      Não utilizamos diretamente
+      o endereço recebido pelo frontend.
+    */
     await enviarCodigoRedefinicao(
       usuario.email,
       codigo
@@ -273,17 +318,30 @@ export async function solicitarRedefinicaoSenha(
 
   } catch (erro) {
 
-    // Se a Brevo/SMTP falhar,
-    // invalidamos imediatamente
-    // o código criado.
+    // ========================================
+    // FALHA NO ENVIO
+    // ========================================
+
+    /*
+      Se a Brevo ou o SMTP falhar,
+      invalidamos imediatamente
+      o código que acabou de ser criado.
+
+      Dessa forma não fica um código
+      válido no banco que nunca chegou
+      ao usuário.
+    */
     await db.orm.public
       .CodigoRedefinicaoSenha
       .where({
-        id: registro.id
+        id:
+          registro.id
       })
       .update({
-        usado: true
+        usado:
+          true
       });
+
 
     throw erro;
   }
@@ -319,10 +377,19 @@ export async function redefinirSenha(
       .first();
 
 
-  // Não revelamos se:
-  //
-  // - usuário não existe;
-  // - usuário está inativo.
+  // ========================================
+  // USUÁRIO INVÁLIDO
+  // ========================================
+
+  /*
+    Não revelamos se:
+
+    - usuário não existe;
+    - usuário está inativo.
+
+    Retornamos sempre uma mensagem
+    genérica relacionada ao código.
+  */
   if (
     !usuario ||
     !usuario.ativo
@@ -330,6 +397,84 @@ export async function redefinirSenha(
 
     throw new Error(
       "Código inválido ou expirado."
+    );
+
+  }
+
+
+  // ========================================
+  // PROTEÇÃO DO PRIMEIRO ACESSO
+  // ========================================
+
+  /*
+    Mesmo que alguém tente chamar
+    diretamente o endpoint:
+
+    POST /auth/redefinir-senha
+
+    um usuário que ainda não possui
+    senha NÃO poderá criar sua primeira
+    senha por este fluxo.
+
+    Esta é uma segunda camada
+    de proteção.
+
+    A primeira existe em:
+
+    solicitarRedefinicaoSenha()
+  */
+  if (
+    usuario.senha === null
+  ) {
+
+    throw new Error(
+      "Código inválido ou expirado."
+    );
+
+  }
+
+
+  // ========================================
+  // VALIDAR FORMATO DO CÓDIGO
+  // ========================================
+
+  /*
+    Mesmo que o controller já valide
+    esse formato, fazemos uma proteção
+    adicional aqui no service.
+
+    Isso evita depender exclusivamente
+    da camada HTTP.
+  */
+  if (
+    !/^\d{6}$/.test(
+      codigo
+    )
+  ) {
+
+    throw new Error(
+      "Código inválido ou expirado."
+    );
+
+  }
+
+
+  // ========================================
+  // VALIDAR NOVA SENHA
+  // ========================================
+
+  /*
+    O controller também pode validar,
+    mas o service não deve aceitar
+    uma senha muito curta caso seja
+    chamado por outro ponto do sistema.
+  */
+  if (
+    novaSenha.length < 8
+  ) {
+
+    throw new Error(
+      "A nova senha deve possuir pelo menos 8 caracteres."
     );
 
   }
@@ -464,9 +609,11 @@ export async function redefinirSenha(
   // INVALIDAR TODOS OS CÓDIGOS
   // ========================================
 
-  // Depois que a senha for alterada,
-  // qualquer outro código desse usuário
-  // deixa de ser válido.
+  /*
+    Depois que a senha for alterada,
+    qualquer outro código desse usuário
+    deixa de ser válido.
+  */
   await invalidarCodigosAtivos(
     usuario.id
   );

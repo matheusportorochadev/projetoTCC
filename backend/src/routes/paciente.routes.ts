@@ -1,10 +1,50 @@
-// Dependência do Express
-import { Router } from "express";
+// ========================================
+// ROTAS DE PACIENTES
+// ========================================
 
-// Middleware de autenticação
-import { authMiddleware } from "../middlewares/auth.middleware";
+import {
+  Router
+} from "express";
 
-// Controllers de paciente
+
+// ========================================
+// MIDDLEWARES
+// ========================================
+
+import {
+  authMiddleware
+} from "../middlewares/auth.middleware";
+
+import {
+  permitirPerfis
+} from "../middlewares/role.middleware";
+
+import {
+  validarBody,
+  validarParams
+} from "../middlewares/validar.middleware";
+
+
+// ========================================
+// SCHEMAS
+// ========================================
+
+import {
+  idParamsSchema
+} from "../schemas/comum.schema";
+
+import {
+  criarPacienteSchema,
+  atualizarPacienteSchema,
+  statusPacienteSchema,
+  acessoPacienteSchema
+} from "../schemas/paciente.schema";
+
+
+// ========================================
+// CONTROLLERS
+// ========================================
+
 import {
   criarPacienteController,
   listarPacientesController,
@@ -16,18 +56,39 @@ import {
 } from "../controllers/paciente.controller";
 
 
-// Cria o roteador
-const pacienteRoutes = Router();
+// ========================================
+// ROUTER
+// ========================================
+
+const pacienteRoutes =
+  Router();
 
 
 // ========================================
-// AUTENTICAÇÃO
+// AUTENTICAÇÃO E PERFIL
 // ========================================
 
-// Todas as rotas abaixo
-// exigem usuário autenticado.
+/*
+  Todas as operações desta rota são
+  ferramentas de gerenciamento do médico.
+
+  Portanto:
+
+  - precisa estar autenticado;
+  - precisa possuir perfil MEDICO.
+
+  Um PACIENTE não poderá chamar
+  diretamente /pacientes/:id.
+
+  O ADMIN também não usa estas rotas.
+*/
+
 pacienteRoutes.use(
-  authMiddleware
+  authMiddleware,
+
+  permitirPerfis(
+    "MEDICO"
+  )
 );
 
 
@@ -37,6 +98,11 @@ pacienteRoutes.use(
 
 pacienteRoutes.post(
   "/",
+
+  validarBody(
+    criarPacienteSchema
+  ),
+
   criarPacienteController
 );
 
@@ -47,6 +113,7 @@ pacienteRoutes.post(
 
 pacienteRoutes.get(
   "/",
+
   listarPacientesController
 );
 
@@ -57,6 +124,11 @@ pacienteRoutes.get(
 
 pacienteRoutes.get(
   "/:id",
+
+  validarParams(
+    idParamsSchema
+  ),
+
   buscarPacienteController
 );
 
@@ -67,6 +139,15 @@ pacienteRoutes.get(
 
 pacienteRoutes.patch(
   "/:id",
+
+  validarParams(
+    idParamsSchema
+  ),
+
+  validarBody(
+    atualizarPacienteSchema
+  ),
+
   atualizarPacienteController
 );
 
@@ -77,6 +158,15 @@ pacienteRoutes.patch(
 
 pacienteRoutes.patch(
   "/:id/status",
+
+  validarParams(
+    idParamsSchema
+  ),
+
+  validarBody(
+    statusPacienteSchema
+  ),
+
   atualizarStatusPacienteController
 );
 
@@ -87,6 +177,15 @@ pacienteRoutes.patch(
 
 pacienteRoutes.patch(
   "/:id/acesso",
+
+  validarParams(
+    idParamsSchema
+  ),
+
+  validarBody(
+    acessoPacienteSchema
+  ),
+
   atualizarAcessoPacienteController
 );
 
@@ -97,9 +196,17 @@ pacienteRoutes.patch(
 
 pacienteRoutes.delete(
   "/:id",
+
+  validarParams(
+    idParamsSchema
+  ),
+
   excluirPacienteController
 );
 
 
-// Exporta as rotas
+// ========================================
+// EXPORTAÇÃO
+// ========================================
+
 export default pacienteRoutes;

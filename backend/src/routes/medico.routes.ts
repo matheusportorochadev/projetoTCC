@@ -1,5 +1,16 @@
-// Rotas relacionadas aos médicos
-import { Router } from "express";
+// ========================================
+// ROTAS DE MÉDICOS
+// ========================================
+
+import {
+  Router
+} from "express";
+
+
+// ========================================
+// CONTROLLERS
+// ========================================
+
 import {
   criarMedicoController,
   listarMedicosController,
@@ -7,49 +18,155 @@ import {
   atualizarStatusMedicoController,
   excluirMedicoController
 } from "../controllers/medico.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { permitirPerfis } from "../middlewares/role.middleware";
 
-const medicoRoutes = Router();
 
-// Lista todos os médicos
+// ========================================
+// MIDDLEWARES
+// ========================================
+
+import {
+  authMiddleware
+} from "../middlewares/auth.middleware";
+
+import {
+  permitirPerfis
+} from "../middlewares/role.middleware";
+
+import {
+  validarBody,
+  validarParams
+} from "../middlewares/validar.middleware";
+
+
+// ========================================
+// SCHEMAS
+// ========================================
+
+import {
+  idParamsSchema
+} from "../schemas/comum.schema";
+
+import {
+  criarMedicoSchema,
+  statusMedicoSchema
+} from "../schemas/medico.schema";
+
+
+// ========================================
+// ROUTER
+// ========================================
+
+const medicoRoutes =
+  Router();
+
+
+// ========================================
+// LISTAR MÉDICOS
+// ========================================
+
 medicoRoutes.get(
   "/",
+
   authMiddleware,
-  permitirPerfis("ADMIN"),
+
+  permitirPerfis(
+    "ADMIN"
+  ),
+
   listarMedicosController
 );
 
-// Busca um médico pelo ID
+
+// ========================================
+// BUSCAR MÉDICO
+// ========================================
+
 medicoRoutes.get(
   "/:id",
+
   authMiddleware,
-  permitirPerfis("ADMIN"),
+
+  permitirPerfis(
+    "ADMIN"
+  ),
+
+  validarParams(
+    idParamsSchema
+  ),
+
   buscarMedicoPorIdController
 );
 
-// Cadastra um novo médico
+
+// ========================================
+// CRIAR MÉDICO
+// ========================================
+
 medicoRoutes.post(
   "/",
+
   authMiddleware,
-  permitirPerfis("ADMIN"),
+
+  permitirPerfis(
+    "ADMIN"
+  ),
+
+  validarBody(
+    criarMedicoSchema
+  ),
+
   criarMedicoController
 );
 
-// Ativa ou bloqueia um médico
+
+// ========================================
+// ATUALIZAR STATUS
+// ========================================
+
 medicoRoutes.patch(
   "/:id/status",
+
   authMiddleware,
-  permitirPerfis("ADMIN"),
+
+  permitirPerfis(
+    "ADMIN"
+  ),
+
+  validarParams(
+    idParamsSchema
+  ),
+
+  validarBody(
+    statusMedicoSchema
+  ),
+
   atualizarStatusMedicoController
 );
 
-// Exclui um médico
+
+// ========================================
+// EXCLUIR MÉDICO
+// ========================================
+
 medicoRoutes.delete(
   "/:id",
+
   authMiddleware,
-  permitirPerfis("ADMIN"),
+
+  permitirPerfis(
+    "ADMIN"
+  ),
+
+  validarParams(
+    idParamsSchema
+  ),
+
   excluirMedicoController
 );
+
+
+// ========================================
+// EXPORTAÇÃO
+// ========================================
 
 export default medicoRoutes;

@@ -2,23 +2,49 @@
 // TELA DE REDEFINIÇÃO DE SENHA
 // ========================================
 
-import { useState } from "react";
+import {
+  useState
+} from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate
+} from "react-router-dom";
+
+import CampoSenha
+  from "../components/CampoSenha";
+
+import CodigoOtp
+  from "../components/CodigoOtp";
+
+import ModalSistema
+  from "../components/ModalSistema";
 
 import "../styles/login.css";
 
 
+// ========================================
+// COMPONENTE
+// ========================================
+
 export default function RedefinirSenha() {
+
   // ========================================
   // ESTADOS
   // ========================================
 
-  const [codigo, setCodigo] =
+  const [
+    codigo,
+    setCodigo
+  ] =
     useState("");
 
-  const [novaSenha, setNovaSenha] =
+
+  const [
+    novaSenha,
+    setNovaSenha
+  ] =
     useState("");
+
 
   const [
     confirmarSenha,
@@ -26,10 +52,29 @@ export default function RedefinirSenha() {
   ] =
     useState("");
 
-  const [mensagem, setMensagem] =
+
+  const [
+    mensagem,
+    setMensagem
+  ] =
     useState("");
 
-  const [carregando, setCarregando] =
+
+  const [
+    carregando,
+    setCarregando
+  ] =
+    useState(false);
+
+
+  // ========================================
+  // MODAL DE SUCESSO
+  // ========================================
+
+  const [
+    modalSucessoAberto,
+    setModalSucessoAberto
+  ] =
     useState(false);
 
 
@@ -38,16 +83,9 @@ export default function RedefinirSenha() {
 
 
   // ========================================
-  // E-MAIL DO USUÁRIO
+  // E-MAIL
   // ========================================
 
-  /*
-    O e-mail foi salvo pelo Login.tsx
-    antes do redirecionamento.
-
-    Isso evita pedir novamente
-    o e-mail para o usuário.
-  */
   const email =
     sessionStorage.getItem(
       "emailRedefinicao"
@@ -59,15 +97,7 @@ export default function RedefinirSenha() {
   // ========================================
 
   function validarSenha() {
-    /*
-      Regras:
 
-      - mínimo de 8 caracteres;
-      - pelo menos uma letra minúscula;
-      - pelo menos uma letra maiúscula;
-      - pelo menos um número;
-      - pelo menos um caractere especial.
-    */
     const senhaRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -77,22 +107,25 @@ export default function RedefinirSenha() {
         novaSenha
       )
     ) {
+
       throw new Error(
         "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, letra minúscula, número e caractere especial."
       );
+
     }
 
 
-    // Confirma se as duas senhas
-    // digitadas são iguais.
     if (
       novaSenha !==
       confirmarSenha
     ) {
+
       throw new Error(
         "As senhas informadas não são iguais."
       );
+
     }
+
   }
 
 
@@ -101,12 +134,15 @@ export default function RedefinirSenha() {
   // ========================================
 
   async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
+    event:
+      React.FormEvent<HTMLFormElement>
   ) {
+
     event.preventDefault();
 
 
     try {
+
       setMensagem("");
 
 
@@ -115,9 +151,11 @@ export default function RedefinirSenha() {
       // ========================================
 
       if (!email) {
+
         throw new Error(
-          "E-mail de redefinição não encontrado. Faça o login novamente."
+          "E-mail de redefinição não encontrado. Solicite um novo código."
         );
+
       }
 
 
@@ -130,44 +168,54 @@ export default function RedefinirSenha() {
           codigo
         )
       ) {
+
         throw new Error(
-          "O código deve conter exatamente 6 números."
+          "Informe os 6 números do código enviado para seu e-mail."
         );
+
       }
 
 
       // ========================================
-      // VALIDAR NOVA SENHA
+      // VALIDAR SENHAS
       // ========================================
 
       validarSenha();
 
 
-      setCarregando(true);
+      setCarregando(
+        true
+      );
 
 
       // ========================================
-      // ENVIAR PARA O BACKEND
+      // BACKEND
       // ========================================
 
       const resposta =
         await fetch(
           "http://localhost:3000/auth/redefinir-senha",
           {
+
             method:
               "POST",
 
             headers: {
+
               "Content-Type":
                 "application/json"
+
             },
 
             body:
               JSON.stringify({
+
                 email,
                 codigo,
                 novaSenha
+
               })
+
           }
         );
 
@@ -176,15 +224,15 @@ export default function RedefinirSenha() {
         await resposta.json();
 
 
-      // ========================================
-      // TRATAR ERRO DO BACKEND
-      // ========================================
+      if (
+        !resposta.ok
+      ) {
 
-      if (!resposta.ok) {
         throw new Error(
           dados.mensagem ||
-            "Erro ao redefinir senha."
+          "Erro ao redefinir senha."
         );
+
       }
 
 
@@ -197,8 +245,11 @@ export default function RedefinirSenha() {
       );
 
 
-      // Também removemos qualquer sessão
-      // antiga por segurança.
+      /*
+        Mantemos esta limpeza somente
+        para remover possíveis dados
+        antigos de versões anteriores.
+      */
       localStorage.removeItem(
         "token"
       );
@@ -212,29 +263,28 @@ export default function RedefinirSenha() {
       // SUCESSO
       // ========================================
 
-      alert(
-        "Senha definida com sucesso. Faça login novamente utilizando sua nova senha."
+      setModalSucessoAberto(
+        true
       );
 
-
-      // Depois de criar a nova senha,
-      // volta para a tela de login.
-      navigate(
-        "/login"
-      );
     } catch (erro) {
-      const mensagemErro =
-        erro instanceof Error
-          ? erro.message
-          : "Erro ao redefinir senha.";
-
 
       setMensagem(
-        mensagemErro
+
+        erro instanceof Error
+          ? erro.message
+          : "Erro ao redefinir senha."
+
       );
+
     } finally {
-      setCarregando(false);
+
+      setCarregando(
+        false
+      );
+
     }
+
   }
 
 
@@ -243,130 +293,233 @@ export default function RedefinirSenha() {
   // ========================================
 
   return (
+
     <div className="login-page">
+
       <div className="login-card">
 
+        {/* CABEÇALHO */}
+
         <div className="login-header">
+
           <h1>
-            Primeiro acesso
+            Redefinir senha
           </h1>
 
           <p>
-            Digite o código enviado para seu e-mail e crie sua nova senha.
+            Digite o código enviado para
+            seu e-mail e escolha uma nova senha.
           </p>
+
         </div>
 
 
+        {/* E-MAIL */}
+
+        {
+          email && (
+
+            <div className="login-email-info">
+
+              Código enviado para:
+
+              {" "}
+
+              <strong>
+                {email}
+              </strong>
+
+            </div>
+
+          )
+        }
+
+
         <form
-          onSubmit={handleSubmit}
+          onSubmit={
+            handleSubmit
+          }
           className="login-form"
         >
 
-          {/* CÓDIGO */}
+
+          {/* ========================================
+              CÓDIGO
+          ======================================== */}
+
           <div className="form-group">
-            <label htmlFor="codigo">
-              Código
+
+            <label>
+              Código de segurança
             </label>
 
-            <input
-              id="codigo"
-              type="text"
-              inputMode="numeric"
-              placeholder="Código de 6 dígitos"
-              value={codigo}
-              onChange={(event) =>
-                setCodigo(
-                  event.target.value
-                    .replace(
-                      /\D/g,
-                      ""
-                    )
-                    .slice(
-                      0,
-                      6
-                    )
-                )
+
+            <CodigoOtp
+              value={
+                codigo
               }
-              minLength={6}
-              maxLength={6}
-              required
-            />
-          </div>
-
-
-          {/* NOVA SENHA */}
-          <div className="form-group">
-            <label htmlFor="novaSenha">
-              Nova senha
-            </label>
-
-            <input
-              id="novaSenha"
-              type="password"
-              placeholder="Digite sua nova senha"
-              value={novaSenha}
-              onChange={(event) =>
-                setNovaSenha(
-                  event.target.value
-                )
+              onChange={
+                setCodigo
               }
-              minLength={8}
-              maxLength={100}
-              required
+              disabled={
+                carregando
+              }
             />
+
 
             <small>
-              Mínimo 8 caracteres, com letra maiúscula,
-              minúscula, número e caractere especial.
+              Digite os 6 números enviados
+              para seu e-mail.
             </small>
+
           </div>
 
 
-          {/* CONFIRMAR SENHA */}
-          <div className="form-group">
-            <label htmlFor="confirmarSenha">
-              Confirmar nova senha
-            </label>
+          {/* ========================================
+              NOVA SENHA
+          ======================================== */}
 
-            <input
-              id="confirmarSenha"
-              type="password"
-              placeholder="Digite novamente sua nova senha"
-              value={confirmarSenha}
-              onChange={(event) =>
-                setConfirmarSenha(
-                  event.target.value
-                )
-              }
-              minLength={8}
-              maxLength={100}
-              required
-            />
-          </div>
-
-
-          {/* ERRO */}
-          {mensagem && (
-            <p className="login-message">
-              {mensagem}
-            </p>
-          )}
+          <CampoSenha
+            id="novaSenha"
+            label="Nova senha"
+            placeholder="Digite sua nova senha"
+            value={
+              novaSenha
+            }
+            onChange={
+              setNovaSenha
+            }
+            minLength={8}
+            maxLength={100}
+            required
+            disabled={
+              carregando
+            }
+            autoComplete="new-password"
+            ajuda="Mínimo 8 caracteres, com letra maiúscula, minúscula, número e caractere especial."
+          />
 
 
-          {/* BOTÃO */}
+          {/* ========================================
+              CONFIRMAR SENHA
+          ======================================== */}
+
+          <CampoSenha
+            id="confirmarSenha"
+            label="Confirmar nova senha"
+            placeholder="Digite novamente sua nova senha"
+            value={
+              confirmarSenha
+            }
+            onChange={
+              setConfirmarSenha
+            }
+            minLength={8}
+            maxLength={100}
+            required
+            disabled={
+              carregando
+            }
+            autoComplete="new-password"
+          />
+
+
+          {/* ========================================
+              ERRO
+          ======================================== */}
+
+          {
+            mensagem && (
+
+              <div
+                className="
+                  login-message
+                  login-message-error
+                "
+              >
+
+                {mensagem}
+
+              </div>
+
+            )
+          }
+
+
+          {/* ========================================
+              BOTÃO
+          ======================================== */}
+
           <button
             type="submit"
             className="login-button"
-            disabled={carregando}
+            disabled={
+              carregando
+            }
           >
-            {carregando
-              ? "Redefinindo..."
-              : "Definir nova senha"}
+
+            {
+              carregando
+                ? "Redefinindo..."
+                : "Redefinir senha"
+            }
+
           </button>
+
+
+          {/* VOLTAR */}
+
+          <div className="login-links">
+
+            <button
+              type="button"
+              className="login-link-button"
+              onClick={() =>
+                navigate(
+                  "/login"
+                )
+              }
+              disabled={
+                carregando
+              }
+            >
+              Voltar para o login
+            </button>
+
+          </div>
 
         </form>
 
       </div>
+
+
+      {/* ========================================
+          MODAL - SENHA REDEFINIDA
+         ======================================== */}
+
+      <ModalSistema
+        aberto={
+          modalSucessoAberto
+        }
+        tipo="sucesso"
+        titulo="Senha redefinida"
+        mensagem="Senha redefinida com sucesso. Faça login utilizando sua nova senha."
+        textoConfirmar="Continuar"
+        onConfirmar={() => {
+
+          setModalSucessoAberto(
+            false
+          );
+
+          navigate(
+            "/login"
+          );
+
+        }}
+      />
+
     </div>
+
   );
+
 }

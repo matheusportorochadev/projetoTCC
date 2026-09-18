@@ -7,6 +7,8 @@ import {
   useState
 } from "react";
 
+import ModalSistema from "../../components/ModalSistema";
+
 import "../../styles/meusAgendamentos.css";
 import "../../styles/agendarConsulta.css";
 
@@ -143,6 +145,30 @@ export default function MeusAgendamentos() {
     cancelandoId,
     setCancelandoId
   ] = useState<number | null>(null);
+
+
+  // ========================================
+  // MODAL DE CANCELAMENTO
+  // ========================================
+
+  const [
+    agendamentoCancelamento,
+    setAgendamentoCancelamento
+  ] =
+    useState<Agendamento | null>(
+      null
+    );
+
+
+  // ========================================
+  // MODAL DE ERRO DO CANCELAMENTO
+  // ========================================
+
+  const [
+    erroCancelamentoModal,
+    setErroCancelamentoModal
+  ] =
+    useState("");
 
 
   const [
@@ -495,20 +521,8 @@ export default function MeusAgendamentos() {
       setErro("");
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErro(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -517,10 +531,7 @@ export default function MeusAgendamentos() {
           {
             method: "GET",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -584,18 +595,8 @@ export default function MeusAgendamentos() {
 
     try {
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setRemarcacoes([]);
-
-        return;
-      }
 
 
       const resposta =
@@ -604,10 +605,7 @@ export default function MeusAgendamentos() {
           {
             method: "GET",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -673,29 +671,44 @@ export default function MeusAgendamentos() {
 
 
   // ========================================
-  // CANCELAR CONSULTA
+  // ABRIR CONFIRMAÇÃO DE CANCELAMENTO
   // ========================================
 
-  async function cancelarConsulta(
+  function cancelarConsulta(
     agendamento: Agendamento
   ) {
 
-    const mensagem =
-      agendamento.status ===
-      "PENDENTE"
-        ? "Deseja cancelar esta solicitação de consulta?"
-        : "Deseja cancelar esta consulta?";
+    setErroCancelamentoModal(
+      ""
+    );
 
 
-    const confirmou =
-      window.confirm(
-        mensagem
-      );
+    setAgendamentoCancelamento(
+      agendamento
+    );
+  }
 
 
-    if (!confirmou) {
+  // ========================================
+  // CONFIRMAR CANCELAMENTO
+  // ========================================
+
+  async function confirmarCancelamentoConsulta() {
+
+    if (
+      !agendamentoCancelamento
+    ) {
       return;
     }
+
+
+    /*
+      Guardamos o agendamento atual
+      porque o modal poderá ser fechado
+      depois da resposta da API.
+    */
+    const agendamento =
+      agendamentoCancelamento;
 
 
     try {
@@ -705,20 +718,9 @@ export default function MeusAgendamentos() {
       );
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-
-      if (!token) {
-
-        window.alert(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
+      setErroCancelamentoModal(
+        ""
+      );
 
 
       const resposta =
@@ -727,10 +729,7 @@ export default function MeusAgendamentos() {
           {
             method: "PATCH",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -741,16 +740,30 @@ export default function MeusAgendamentos() {
 
       if (!resposta.ok) {
 
-        window.alert(
+        // Fecha a confirmação.
+        setAgendamentoCancelamento(
+          null
+        );
+
+
+        // Abre o modal de erro.
+        setErroCancelamentoModal(
           dados.mensagem ||
           "Não foi possível cancelar a consulta."
         );
+
 
         return;
       }
 
 
       await atualizarDados();
+
+
+      // Fecha o modal após sucesso.
+      setAgendamentoCancelamento(
+        null
+      );
 
     } catch (error) {
 
@@ -760,13 +773,22 @@ export default function MeusAgendamentos() {
       );
 
 
-      window.alert(
+      // Fecha a confirmação.
+      setAgendamentoCancelamento(
+        null
+      );
+
+
+      // Exibe o erro no modal do sistema.
+      setErroCancelamentoModal(
         "Não foi possível conectar ao servidor."
       );
 
     } finally {
 
-      setCancelandoId(null);
+      setCancelandoId(
+        null
+      );
 
     }
   }
@@ -795,20 +817,8 @@ export default function MeusAgendamentos() {
       );
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErroRemarcacao(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -819,10 +829,7 @@ export default function MeusAgendamentos() {
           {
             method: "GET",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -887,20 +894,8 @@ export default function MeusAgendamentos() {
       setErroRemarcacao("");
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErroRemarcacao(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const quantidadeDias =
@@ -964,10 +959,7 @@ export default function MeusAgendamentos() {
                     {
                       method: "GET",
 
-                      headers: {
-                        Authorization:
-                          `Bearer ${token}`
-                      }
+                      credentials: "include"
                     }
                   );
 
@@ -1441,20 +1433,8 @@ export default function MeusAgendamentos() {
       setErroRemarcacao("");
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErroRemarcacao(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -1463,12 +1443,11 @@ export default function MeusAgendamentos() {
           {
             method: "POST",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:
@@ -2905,6 +2884,70 @@ export default function MeusAgendamentos() {
 
         )
       }
+
+
+
+
+      {/* ========================================
+          MODAL - CANCELAR CONSULTA
+         ======================================== */}
+
+      <ModalSistema
+        aberto={
+          agendamentoCancelamento !==
+          null
+        }
+        tipo="aviso"
+        titulo={
+          agendamentoCancelamento?.status ===
+          "PENDENTE"
+            ? "Cancelar solicitação"
+            : "Cancelar consulta"
+        }
+        mensagem={
+          agendamentoCancelamento?.status ===
+          "PENDENTE"
+            ? "Tem certeza que deseja cancelar esta solicitação de consulta?"
+            : "Tem certeza que deseja cancelar esta consulta?"
+        }
+        textoConfirmar="Cancelar"
+        textoCancelar="Voltar"
+        carregando={
+          cancelandoId !== null
+        }
+        onConfirmar={() => {
+          void confirmarCancelamentoConsulta();
+        }}
+        onCancelar={() =>
+          setAgendamentoCancelamento(
+            null
+          )
+        }
+      />
+
+
+      {/* ========================================
+          MODAL - ERRO AO CANCELAR
+         ======================================== */}
+
+      <ModalSistema
+        aberto={
+          erroCancelamentoModal !==
+          ""
+        }
+        tipo="erro"
+        titulo="Não foi possível cancelar"
+        mensagem={
+          erroCancelamentoModal
+        }
+        textoConfirmar="Entendi"
+        onConfirmar={() =>
+          setErroCancelamentoModal(
+            ""
+          )
+        }
+      />
+
 
     </main>
 

@@ -433,20 +433,8 @@ export default function AgendarConsulta() {
       );
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setProximaConsulta(
-          null
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -455,10 +443,7 @@ export default function AgendarConsulta() {
           {
             method: "GET",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -604,20 +589,8 @@ export default function AgendarConsulta() {
       }
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErro(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -628,10 +601,7 @@ export default function AgendarConsulta() {
           {
             method: "GET",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -709,20 +679,8 @@ export default function AgendarConsulta() {
       }
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErro(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const quantidadeDias =
@@ -783,10 +741,7 @@ export default function AgendarConsulta() {
                     {
                       method: "GET",
 
-                      headers: {
-                        Authorization:
-                          `Bearer ${token}`
-                      }
+                      credentials: "include"
                     }
                   );
 
@@ -1199,20 +1154,8 @@ export default function AgendarConsulta() {
       setErro("");
 
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
 
 
-      if (!token) {
-
-        setErro(
-          "Sessão não encontrada. Faça login novamente."
-        );
-
-        return;
-      }
 
 
       const resposta =
@@ -1221,12 +1164,11 @@ export default function AgendarConsulta() {
           {
             method: "POST",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:

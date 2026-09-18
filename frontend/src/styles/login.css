@@ -1,17 +1,11 @@
 /* ========================================
-   PÁGINA PRINCIPAL DO LOGIN
+   CONTAINER GERAL
 ======================================== */
 
-.login-page {
+.login-container {
   min-height: 100vh;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   background: #f4f7f9;
-
-  padding: 24px;
 
   transition:
     background-color 0.2s ease,
@@ -20,48 +14,220 @@
 
 
 /* ========================================
-   CARD DO FORMULÁRIO
+   NAVBAR
+======================================== */
+
+.login-navbar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 100;
+
+  height: 68px;
+
+  padding:
+    0
+    32px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  box-sizing: border-box;
+
+  border-bottom:
+    1px solid
+    rgba(
+      15,
+      23,
+      42,
+      0.07
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.94
+    );
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+/* ========================================
+   MARCA DA NAVBAR
+======================================== */
+
+.login-navbar-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  color: #1e293b;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.login-navbar-logo {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 23px;
+
+  font-weight: 500;
+
+  line-height: 1;
+}
+
+
+.login-navbar-nome {
+  font-size: 17px;
+
+  font-weight: 700;
+}
+
+
+/* ========================================
+   BOTÃO DE TEMA NA NAVBAR
+======================================== */
+
+.login-navbar-tema {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ========================================
+   PÁGINA PRINCIPAL
+======================================== */
+
+.login-page {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding:
+    92px
+    24px
+    24px;
+
+  background: #f4f7f9;
+
+  color: #111827;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* ========================================
+   CARD
 ======================================== */
 
 .login-card {
   width: 100%;
+
   max-width: 420px;
 
-  background: #ffffff;
+  box-sizing: border-box;
 
   padding: 40px;
 
+  border:
+    1px solid
+    rgba(
+      15,
+      23,
+      42,
+      0.05
+    );
+
   border-radius: 14px;
+
+  background: #ffffff;
 
   box-shadow:
     0 8px 30px
-    rgba(0, 0, 0, 0.08);
+    rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
 
   transition:
     background-color 0.2s ease,
+    border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 
 /* ========================================
-   CABEÇALHO DO LOGIN
+   CABEÇALHO
 ======================================== */
 
 .login-header {
-  text-align: center;
-
   margin-bottom: 30px;
+
+  text-align: center;
 }
 
-.login-header h1 {
-  margin: 0 0 8px;
 
-  font-size: 28px;
+.login-header h1 {
+  margin:
+    0
+    0
+    8px;
 
   color: #1f2937;
 
-  transition: color 0.2s ease;
+  font-size: 28px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  transition:
+    color 0.2s ease;
 }
+
 
 .login-header p {
   margin: 0;
@@ -69,9 +235,11 @@
   color: #6b7280;
 
   font-size: 14px;
-  line-height: 1.5;
 
-  transition: color 0.2s ease;
+  line-height: 1.55;
+
+  transition:
+    color 0.2s ease;
 }
 
 
@@ -81,13 +249,20 @@
 
 .login-form {
   display: flex;
+
   flex-direction: column;
 
   gap: 20px;
 }
 
+
+/* ========================================
+   FORM GROUP
+======================================== */
+
 .form-group {
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
@@ -95,39 +270,51 @@
 
 
 /* ========================================
-   LABELS
+   LABEL
 ======================================== */
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 600;
-
   color: #374151;
 
-  transition: color 0.2s ease;
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition:
+    color 0.2s ease;
 }
 
 
 /* ========================================
-   INPUTS
+   INPUT
 ======================================== */
 
 .form-group input {
   width: 100%;
 
+  min-height: 46px;
+
   box-sizing: border-box;
 
-  padding: 12px 14px;
+  padding:
+    12px
+    14px;
 
-  border: 1px solid #d1d5db;
+  border:
+    1px solid
+    #d1d5db;
+
   border-radius: 8px;
 
+  outline: none;
+
   background: #ffffff;
+
   color: #111827;
 
-  font-size: 15px;
+  font-family: inherit;
 
-  outline: none;
+  font-size: 15px;
 
   transition:
     border-color 0.2s ease,
@@ -137,251 +324,1201 @@
 }
 
 
-/* Placeholder */
-
 .form-group input::placeholder {
   color: #9ca3af;
 }
 
 
-/* Input em foco */
+.form-group input:hover:not(:disabled) {
+  border-color: #aeb8c5;
+}
+
 
 .form-group input:focus {
   border-color: #2563eb;
 
   box-shadow:
     0 0 0 3px
-    rgba(37, 99, 235, 0.12);
+    rgba(
+      37,
+      99,
+      235,
+      0.12
+    );
+}
+
+
+.form-group input:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.65;
+
+  background: #f8fafc;
 }
 
 
 /* ========================================
-   MENSAGEM DE RETORNO
+   TEXTO AUXILIAR
+======================================== */
+
+.form-group small {
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   CAMPO DE SENHA
+======================================== */
+
+.senha-wrapper {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+}
+
+
+.senha-wrapper input {
+  width: 100%;
+
+  padding-right:
+    50px !important;
+}
+
+
+/* ========================================
+   BOTÃO DO OLHO
+======================================== */
+
+.senha-toggle {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  transform:
+    translateY(-50%);
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #64748b;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+.senha-toggle:hover:not(:disabled) {
+  color: #2563eb;
+
+  background:
+    rgba(
+      37,
+      99,
+      235,
+      0.08
+    );
+}
+
+
+.senha-toggle:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      37,
+      99,
+      235,
+      0.12
+    );
+}
+
+
+.senha-toggle:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.5;
+}
+
+
+/* ========================================
+   SVG DO OLHO
+======================================== */
+
+.senha-toggle svg {
+  width: 20px;
+  height: 20px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+
+  pointer-events: none;
+}
+
+
+/* ========================================
+   MENSAGENS
 ======================================== */
 
 .login-message {
   margin: 0;
 
-  text-align: center;
+  padding:
+    11px
+    13px;
 
-  font-size: 14px;
+  border-radius: 9px;
+
+  text-align: center;
 
   color: #374151;
 
-  transition: color 0.2s ease;
+  font-size: 13px;
+
+  line-height: 1.45;
+}
+
+
+.login-message-error {
+  border:
+    1px solid
+    rgba(
+      220,
+      38,
+      38,
+      0.15
+    );
+
+  background:
+    rgba(
+      239,
+      68,
+      68,
+      0.08
+    );
+
+  color: #b91c1c;
+}
+
+
+.login-message-success {
+  border:
+    1px solid
+    rgba(
+      22,
+      163,
+      74,
+      0.15
+    );
+
+  background:
+    rgba(
+      34,
+      197,
+      94,
+      0.08
+    );
+
+  color: #15803d;
 }
 
 
 /* ========================================
-   BOTÃO DE ACESSO
+   E-MAIL INFO
+======================================== */
+
+.login-email-info {
+  margin-bottom: 20px;
+
+  padding:
+    12px
+    14px;
+
+  border:
+    1px solid
+    #e2e8f0;
+
+  border-radius: 9px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+.login-email-info strong {
+  color: #334155;
+
+  font-weight: 600;
+}
+
+
+/* ========================================
+   BOTÃO PRINCIPAL
 ======================================== */
 
 .login-button {
   width: 100%;
 
-  border: none;
-  border-radius: 8px;
+  min-height: 46px;
 
-  padding: 13px;
+  padding:
+    13px
+    16px;
+
+  border: none;
+
+  border-radius: 8px;
 
   background: #2563eb;
 
   color: #ffffff;
 
+  font-family: inherit;
+
   font-size: 15px;
+
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
     background-color 0.2s ease,
-    transform 0.1s ease;
+    transform 0.1s ease,
+    opacity 0.2s ease;
 }
 
-.login-button:hover {
+
+.login-button:hover:not(:disabled) {
   background: #1d4ed8;
 }
 
-.login-button:active {
-  transform: scale(0.99);
+
+.login-button:active:not(:disabled) {
+  transform:
+    scale(0.99);
 }
 
-.login-button:disabled {
-  opacity: 0.7;
 
+.login-button:disabled {
   cursor: not-allowed;
+
+  opacity: 0.65;
 }
 
 
 /* ========================================
-   MODO ESCURO
+   BOTÃO SECUNDÁRIO
 ======================================== */
 
+.login-secondary-button {
+  width: 100%;
 
-/* Fundo da página */
+  min-height: 44px;
 
-body.modo-escuro .login-page {
+  padding:
+    11px
+    14px;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.login-secondary-button:hover:not(:disabled) {
+  border-color: #2563eb;
+
+  color: #2563eb;
+
+  background: #f8faff;
+}
+
+
+/* ========================================
+   LINKS
+======================================== */
+
+.login-links {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 2px;
+}
+
+
+.login-link-button {
+  padding: 3px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+.login-link-button:hover:not(:disabled) {
+  color: #2563eb;
+
+  text-decoration: underline;
+}
+
+
+.login-link-primary {
+  color: #2563eb;
+
+  font-weight: 600;
+}
+
+
+.login-link-button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.55;
+}
+
+
+/* ========================================
+   OTP
+======================================== */
+
+.codigo-otp {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 8px;
+}
+
+
+.codigo-otp input,
+.codigo-otp-input {
+  width: 100%;
+
+  min-width: 0;
+
+  height: 52px;
+
+  box-sizing: border-box;
+
+  padding: 0;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  text-align: center;
+
+  font-family: inherit;
+
+  font-size: 21px;
+
+  font-weight: 700;
+
+  caret-color: #2563eb;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+
+.codigo-otp input:focus,
+.codigo-otp-input:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      37,
+      99,
+      235,
+      0.12
+    );
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* ========================================
+   RECUPERAÇÃO DE SENHA
+======================================== */
+
+.recuperacao-card {
+  position: relative;
+
+  overflow: hidden;
+}
+
+
+.recuperacao-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #38bdf8
+    );
+}
+
+
+.recuperacao-etapa {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  color: #2563eb;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+
+.recuperacao-aviso {
+  margin:
+    22px
+    0
+    24px;
+
+  padding:
+    15px
+    17px;
+
+  border:
+    1px solid
+    rgba(
+      37,
+      99,
+      235,
+      0.12
+    );
+
+  border-radius: 12px;
+
+  background:
+    rgba(
+      37,
+      99,
+      235,
+      0.05
+    );
+}
+
+
+.recuperacao-aviso > div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.recuperacao-aviso strong {
+  color: #1e293b;
+
+  font-size: 14px;
+}
+
+
+.recuperacao-aviso span {
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.55;
+}
+
+
+.recuperacao-campo {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+.recuperacao-campo label {
+  color: #334155;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.recuperacao-input-container {
+  width: 100%;
+}
+
+
+.recuperacao-input-container input {
+  width: 100%;
+
+  min-height: 52px;
+
+  box-sizing: border-box;
+
+  padding:
+    0
+    16px;
+
+  border:
+    1px solid
+    #d5dde8;
+
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  font-family: inherit;
+
+  font-size: 15px;
+}
+
+
+.recuperacao-input-container
+input:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(
+      37,
+      99,
+      235,
+      0.10
+    );
+}
+
+
+.recuperacao-botao {
+  min-height: 48px;
+
+  margin-top: 4px;
+}
+
+
+.recuperacao-voltar {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+
+/* ========================================
+   TEMA ESCURO
+======================================== */
+
+body.modo-escuro
+.login-container,
+body.modo-escuro
+.login-page {
   background: #0f172a;
 
   color: #f8fafc;
 }
 
 
-/* ========================================
-   CARD - MODO ESCURO
-======================================== */
+body.modo-escuro
+.login-navbar {
+  border-bottom-color:
+    rgba(
+      148,
+      163,
+      184,
+      0.12
+    );
 
-body.modo-escuro .login-card {
+  background:
+    rgba(
+      15,
+      23,
+      42,
+      0.94
+    );
+}
+
+
+body.modo-escuro
+.login-navbar-brand {
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.login-card {
+  border-color: #334155;
+
   background: #1e293b;
 
   box-shadow:
     0 8px 30px
-    rgba(0, 0, 0, 0.25);
+    rgba(
+      0,
+      0,
+      0,
+      0.25
+    );
 }
 
 
-/* ========================================
-   CABEÇALHO - MODO ESCURO
-======================================== */
-
-body.modo-escuro .login-header h1 {
+body.modo-escuro
+.login-header h1 {
   color: #f8fafc;
 }
 
-body.modo-escuro .login-header p {
+
+body.modo-escuro
+.login-header p {
   color: #94a3b8;
 }
 
 
-/* ========================================
-   LABELS - MODO ESCURO
-======================================== */
-
-body.modo-escuro .form-group label {
+body.modo-escuro
+.form-group label {
   color: #e2e8f0;
 }
 
 
-/* ========================================
-   INPUTS - MODO ESCURO
-======================================== */
-
-body.modo-escuro .form-group input {
-  background: #0f172a;
-
+body.modo-escuro
+.form-group input {
   border-color: #475569;
+
+  background: #0f172a;
 
   color: #f8fafc;
 }
 
-body.modo-escuro .form-group input::placeholder {
+
+body.modo-escuro
+.form-group input::placeholder {
   color: #64748b;
 }
 
 
-/* Foco no input */
-
-body.modo-escuro .form-group input:focus {
+body.modo-escuro
+.form-group input:focus {
   border-color: #3b82f6;
 
   box-shadow:
     0 0 0 3px
-    rgba(59, 130, 246, 0.15);
+    rgba(
+      59,
+      130,
+      246,
+      0.15
+    );
 }
 
 
-/* ========================================
-   MENSAGEM - MODO ESCURO
-======================================== */
+body.modo-escuro
+.senha-toggle {
+  color: #94a3b8;
+}
 
-body.modo-escuro .login-message {
+
+body.modo-escuro
+.senha-toggle:hover:not(:disabled) {
+  color: #60a5fa;
+
+  background:
+    rgba(
+      96,
+      165,
+      250,
+      0.10
+    );
+}
+
+
+body.modo-escuro
+.login-message-error {
+  border-color:
+    rgba(
+      248,
+      113,
+      113,
+      0.18
+    );
+
+  background:
+    rgba(
+      239,
+      68,
+      68,
+      0.12
+    );
+
+  color: #fca5a5;
+}
+
+
+body.modo-escuro
+.login-message-success {
+  border-color:
+    rgba(
+      74,
+      222,
+      128,
+      0.18
+    );
+
+  background:
+    rgba(
+      34,
+      197,
+      94,
+      0.12
+    );
+
+  color: #86efac;
+}
+
+
+body.modo-escuro
+.login-email-info {
+  border-color: #334155;
+
+  background: #0f172a;
+
+  color: #94a3b8;
+}
+
+
+body.modo-escuro
+.login-email-info strong {
+  color: #e2e8f0;
+}
+
+
+body.modo-escuro
+.login-secondary-button {
+  border-color: #475569;
+
+  background: #0f172a;
+
   color: #cbd5e1;
 }
 
 
-/* ========================================
-   BOTÃO - MODO ESCURO
-======================================== */
-
-body.modo-escuro .login-button {
-  background: #2563eb;
-
-  color: #ffffff;
-}
-
-body.modo-escuro .login-button:hover {
-  background: #3b82f6;
+body.modo-escuro
+.login-link-button {
+  color: #94a3b8;
 }
 
 
+body.modo-escuro
+.login-link-button:hover:not(:disabled) {
+  color: #60a5fa;
+}
+
+
+body.modo-escuro
+.login-link-primary {
+  color: #60a5fa;
+}
+
+
+body.modo-escuro
+.codigo-otp input,
+body.modo-escuro
+.codigo-otp-input {
+  border-color: #475569;
+
+  background: #0f172a;
+
+  color: #f8fafc;
+}
+
+
+body.modo-escuro
+.codigo-otp input:focus,
+body.modo-escuro
+.codigo-otp-input:focus {
+  border-color: #60a5fa;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      96,
+      165,
+      250,
+      0.15
+    );
+}
+
+
+body.modo-escuro
+.recuperacao-etapa {
+  color: #60a5fa;
+}
+
+
+body.modo-escuro
+.recuperacao-aviso {
+  border-color:
+    rgba(
+      96,
+      165,
+      250,
+      0.15
+    );
+
+  background:
+    rgba(
+      96,
+      165,
+      250,
+      0.07
+    );
+}
+
+
+body.modo-escuro
+.recuperacao-aviso strong {
+  color: #f1f5f9;
+}
+
+
+body.modo-escuro
+.recuperacao-aviso span,
+body.modo-escuro
+.recuperacao-voltar {
+  color: #94a3b8;
+}
+
+
+body.modo-escuro
+.recuperacao-campo label {
+  color: #e2e8f0;
+}
+
+
+body.modo-escuro
+.recuperacao-input-container input {
+  border-color: #475569;
+
+  background: #0f172a;
+
+  color: #f8fafc;
+}
+
+
 /* ========================================
-   RESPONSIVIDADE - TABLETS
+   TABLET
 ======================================== */
 
-@media (max-width: 768px) {
+@media (
+  max-width: 768px
+) {
+
+  .login-navbar {
+    padding:
+      0
+      24px;
+  }
+
 
   .login-page {
-    padding: 20px;
+    padding:
+      88px
+      20px
+      20px;
   }
+
 
   .login-card {
-    max-width: 380px;
+    max-width: 400px;
 
-    padding: 32px;
+    padding: 34px;
   }
+
 
   .login-header h1 {
     font-size: 26px;
   }
+
 }
 
 
 /* ========================================
-   RESPONSIVIDADE - CELULARES
+   CELULAR
 ======================================== */
 
-@media (max-width: 480px) {
+@media (
+  max-width: 480px
+) {
+
+  .login-navbar {
+    height: 62px;
+
+    padding:
+      0
+      18px;
+  }
+
+
+  .login-navbar-logo {
+    width: 32px;
+    height: 32px;
+
+    font-size: 20px;
+  }
+
+
+  .login-navbar-nome {
+    font-size: 15px;
+  }
+
 
   .login-page {
-    align-items: center;
-    justify-content: center;
-
-    padding: 16px;
+    padding:
+      78px
+      16px
+      16px;
   }
+
 
   .login-card {
     max-width: 100%;
 
-    padding: 28px 20px;
+    padding:
+      28px
+      20px;
 
     border-radius: 12px;
   }
+
 
   .login-header {
     margin-bottom: 24px;
   }
 
+
   .login-header h1 {
     font-size: 24px;
   }
+
 
   .login-header p {
     font-size: 13px;
   }
 
+
   .login-form {
     gap: 16px;
   }
 
+
   .form-group input {
-    padding: 13px;
+    min-height: 48px;
 
     font-size: 16px;
   }
+
 
   .login-button {
-    padding: 14px;
+    min-height: 48px;
 
     font-size: 16px;
   }
+
+
+  .codigo-otp {
+    gap: 5px;
+  }
+
+
+  .codigo-otp input,
+  .codigo-otp-input {
+    height: 47px;
+
+    border-radius: 8px;
+
+    font-size: 19px;
+  }
+
+
+  .recuperacao-input-container input {
+    font-size: 16px;
+  }
+
+
+  .recuperacao-voltar {
+    flex-direction: column;
+
+    gap: 4px;
+  }
+
+}
+
+
+/* ========================================
+   CELULAR PEQUENO
+======================================== */
+
+@media (
+  max-width: 360px
+) {
+
+  .login-navbar {
+    padding:
+      0
+      14px;
+  }
+
+
+  .login-navbar-nome {
+    font-size: 14px;
+  }
+
+
+  .login-page {
+    padding:
+      76px
+      12px
+      12px;
+  }
+
+
+  .login-card {
+    padding:
+      24px
+      16px;
+  }
+
+
+  .codigo-otp {
+    gap: 4px;
+  }
+
+
+  .codigo-otp input,
+  .codigo-otp-input {
+    height: 43px;
+
+    font-size: 17px;
+  }
+
 }

@@ -8,6 +8,10 @@
       "model": "Agendamento",
       "namespace": "public"
     },
+    "codigoPrimeiroAcesso": {
+      "model": "CodigoPrimeiroAcesso",
+      "namespace": "public"
+    },
     "codigoRedefinicaoSenha": {
       "model": "CodigoRedefinicaoSenha",
       "namespace": "public"
@@ -257,6 +261,103 @@
               },
               "namespaceId": "public",
               "table": "agendamento"
+            }
+          },
+          "CodigoPrimeiroAcesso": {
+            "fields": {
+              "codigoHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiraEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tentativas": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "usado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "usuario": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "codigoHash": {
+                  "column": "codigoHash"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiraEm": {
+                  "column": "expiraEm"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "tentativas": {
+                  "column": "tentativas"
+                },
+                "usado": {
+                  "column": "usado"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "codigoPrimeiroAcesso"
             }
           },
           "CodigoRedefinicaoSenha": {
@@ -860,7 +961,7 @@
                 }
               },
               "senha": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -888,6 +989,21 @@
               }
             },
             "relations": {
+              "codigosPrimeiroAcesso": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "CodigoPrimeiroAcesso",
+                  "namespace": "public"
+                }
+              },
               "codigosRedefinicao": {
                 "cardinality": "1:N",
                 "on": {
@@ -1127,6 +1243,104 @@
                   ],
                   "name": "agendamento_pacienteId_idx_8734dc3f",
                   "prefix": "agendamento_pacienteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "codigoPrimeiroAcesso": {
+              "columns": {
+                "codigoHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expiraEm": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "tentativas": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "usado": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "usuarioId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "codigoPrimeiroAcesso"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "usuarioId"
+                  ],
+                  "name": "codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6",
+                  "prefix": "codigoPrimeiroAcesso_usuarioId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId",
+                    "usado"
+                  ],
+                  "name": "codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520",
+                  "prefix": "codigoPrimeiroAcesso_usuarioId_usado_idx",
                   "unique": false
                 }
               ],
@@ -1670,7 +1884,7 @@
                 "senha": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false
+                  "nullable": true
                 },
                 "tipo": {
                   "codecId": "pg/text@1",
@@ -1740,7 +1954,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "aee25a5e6d655054e4454e4cc1959db1ef1cfa90d6cbe45132b61317b5f07902"
+    "storageHash": "6d17391f3570ac6893deff51f875e46473bec5efaa685fe102c24138a61e9411"
   },
   "execution": {
     "executionHash": "f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27",

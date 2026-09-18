@@ -1,0 +1,572 @@
+/* ========================================
+   MODAL PADRÃO DO SISTEMA
+======================================== */
+
+.modal-sistema-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    rgba(15, 23, 42, 0.58);
+
+  backdrop-filter:
+    blur(4px);
+
+  animation:
+    modalSistemaOverlayEntrada
+    0.18s ease-out;
+}
+
+
+/* ========================================
+   CAIXA PRINCIPAL
+======================================== */
+
+.modal-sistema {
+  width: 100%;
+  max-width: 460px;
+
+  overflow: hidden;
+
+  background:
+    #ffffff;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius:
+    18px;
+
+  box-shadow:
+    0 24px 70px
+    rgba(15, 23, 42, 0.28);
+
+  animation:
+    modalSistemaEntrada
+    0.2s ease-out;
+}
+
+
+/* ========================================
+   CONTEÚDO
+======================================== */
+
+.modal-sistema-conteudo {
+  display: flex;
+
+  gap: 18px;
+
+  padding:
+    26px 26px 20px;
+}
+
+
+/* ========================================
+   ÍCONE
+======================================== */
+
+.modal-sistema-icone {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+
+.modal-sistema-icone-padrao {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+
+.modal-sistema-icone-aviso {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+
+.modal-sistema-icone-sucesso {
+  color: #15803d;
+  background: #f0fdf4;
+}
+
+
+.modal-sistema-icone-erro,
+.modal-sistema-icone-perigo {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+
+/* ========================================
+   TEXTOS
+======================================== */
+
+.modal-sistema-textos {
+  min-width: 0;
+}
+
+
+.modal-sistema-textos h2 {
+  margin:
+    1px 0 8px;
+
+  color:
+    #0f172a;
+
+  font-size:
+    20px;
+
+  line-height:
+    1.3;
+
+  font-weight:
+    700;
+}
+
+
+.modal-sistema-textos p {
+  margin: 0;
+
+  color:
+    #64748b;
+
+  font-size:
+    15px;
+
+  line-height:
+    1.6;
+
+  overflow-wrap:
+    anywhere;
+}
+
+
+/* ========================================
+   AÇÕES
+======================================== */
+
+.modal-sistema-acoes {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding:
+    18px 26px 24px;
+
+  border-top:
+    1px solid #f1f5f9;
+}
+
+
+.modal-sistema-acoes button {
+  min-height: 42px;
+
+  padding:
+    10px 18px;
+
+  border-radius:
+    10px;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+
+.modal-sistema-acoes button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+}
+
+
+.modal-sistema-acoes button:disabled {
+  cursor:
+    not-allowed;
+
+  opacity:
+    0.65;
+}
+
+
+/* ========================================
+   CANCELAR
+======================================== */
+
+.modal-sistema-cancelar {
+  color:
+    #334155;
+
+  background:
+    #ffffff;
+
+  border:
+    1px solid #cbd5e1;
+}
+
+
+.modal-sistema-cancelar:hover:not(:disabled) {
+  background:
+    #f8fafc;
+
+  border-color:
+    #94a3b8;
+}
+
+
+/* ========================================
+   CONFIRMAR
+======================================== */
+
+.modal-sistema-confirmar {
+  color:
+    #ffffff;
+
+  background:
+    #2563eb;
+
+  border:
+    1px solid #2563eb;
+}
+
+
+.modal-sistema-confirmar:hover:not(:disabled) {
+  background:
+    #1d4ed8;
+
+  border-color:
+    #1d4ed8;
+}
+
+
+.modal-sistema-confirmar-sucesso {
+  background:
+    #16a34a;
+
+  border-color:
+    #16a34a;
+}
+
+
+.modal-sistema-confirmar-sucesso:hover:not(:disabled) {
+  background:
+    #15803d;
+
+  border-color:
+    #15803d;
+}
+
+
+.modal-sistema-confirmar-aviso {
+  background:
+    #d97706;
+
+  border-color:
+    #d97706;
+}
+
+
+.modal-sistema-confirmar-aviso:hover:not(:disabled) {
+  background:
+    #b45309;
+
+  border-color:
+    #b45309;
+}
+
+
+.modal-sistema-confirmar-erro,
+.modal-sistema-confirmar-perigo {
+  background:
+    #dc2626;
+
+  border-color:
+    #dc2626;
+}
+
+
+.modal-sistema-confirmar-erro:hover:not(:disabled),
+.modal-sistema-confirmar-perigo:hover:not(:disabled) {
+  background:
+    #b91c1c;
+
+  border-color:
+    #b91c1c;
+}
+
+
+/* ========================================
+   TEMA ESCURO
+======================================== */
+
+body.modo-escuro
+.modal-sistema-overlay {
+  background:
+    rgba(2, 6, 23, 0.72);
+}
+
+
+body.modo-escuro
+.modal-sistema {
+  background:
+    #111827;
+
+  border-color:
+    #334155;
+
+  box-shadow:
+    0 28px 80px
+    rgba(0, 0, 0, 0.55);
+}
+
+
+body.modo-escuro
+.modal-sistema-textos h2 {
+  color:
+    #f8fafc;
+}
+
+
+body.modo-escuro
+.modal-sistema-textos p {
+  color:
+    #cbd5e1;
+}
+
+
+body.modo-escuro
+.modal-sistema-acoes {
+  border-color:
+    #263244;
+}
+
+
+body.modo-escuro
+.modal-sistema-cancelar {
+  color:
+    #e2e8f0;
+
+  background:
+    #1e293b;
+
+  border-color:
+    #475569;
+}
+
+
+body.modo-escuro
+.modal-sistema-cancelar:hover:not(:disabled) {
+  background:
+    #334155;
+
+  border-color:
+    #64748b;
+}
+
+
+body.modo-escuro
+.modal-sistema-icone-padrao {
+  color:
+    #93c5fd;
+
+  background:
+    rgba(37, 99, 235, 0.16);
+}
+
+
+body.modo-escuro
+.modal-sistema-icone-aviso {
+  color:
+    #fbbf24;
+
+  background:
+    rgba(217, 119, 6, 0.16);
+}
+
+
+body.modo-escuro
+.modal-sistema-icone-sucesso {
+  color:
+    #86efac;
+
+  background:
+    rgba(22, 163, 74, 0.16);
+}
+
+
+body.modo-escuro
+.modal-sistema-icone-erro,
+body.modo-escuro
+.modal-sistema-icone-perigo {
+  color:
+    #fca5a5;
+
+  background:
+    rgba(220, 38, 38, 0.16);
+}
+
+
+/* ========================================
+   RESPONSIVO
+======================================== */
+
+@media (
+  max-width: 600px
+) {
+
+  .modal-sistema-overlay {
+    padding:
+      18px;
+  }
+
+
+  .modal-sistema {
+    border-radius:
+      16px;
+  }
+
+
+  .modal-sistema-conteudo {
+    padding:
+      22px 20px 18px;
+  }
+
+
+  .modal-sistema-icone {
+    width:
+      42px;
+
+    height:
+      42px;
+  }
+
+
+  .modal-sistema-textos h2 {
+    font-size:
+      18px;
+  }
+
+
+  .modal-sistema-acoes {
+    padding:
+      16px 20px 20px;
+  }
+
+}
+
+
+@media (
+  max-width: 430px
+) {
+
+  .modal-sistema-conteudo {
+    gap:
+      13px;
+  }
+
+
+  .modal-sistema-acoes {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .modal-sistema-acoes button {
+    width:
+      100%;
+  }
+
+}
+
+
+/* ========================================
+   ANIMAÇÕES
+======================================== */
+
+@keyframes modalSistemaOverlayEntrada {
+
+  from {
+    opacity:
+      0;
+  }
+
+  to {
+    opacity:
+      1;
+  }
+
+}
+
+
+@keyframes modalSistemaEntrada {
+
+  from {
+    opacity:
+      0;
+
+    transform:
+      translateY(8px)
+      scale(0.98);
+  }
+
+  to {
+    opacity:
+      1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* ========================================
+   ACESSIBILIDADE
+======================================== */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+
+  .modal-sistema-overlay,
+  .modal-sistema {
+    animation:
+      none;
+  }
+
+
+  .modal-sistema-acoes button {
+    transition:
+      none;
+  }
+
+}

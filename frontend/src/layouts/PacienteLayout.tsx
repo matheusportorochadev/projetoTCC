@@ -14,6 +14,10 @@ import {
   useState
 } from "react";
 
+import {
+  fazerLogout
+} from "../services/api";
+
 import "../styles/pacienteLayout.css";
 
 
@@ -35,8 +39,6 @@ export default function PacienteLayout() {
   // REFERÊNCIA DO MENU RESPONSIVO
   // ========================================
 
-  // Usamos essa referência para detectar
-  // quando o usuário clicar fora do menu.
   const menuResponsivoRef =
     useRef<HTMLDivElement | null>(
       null
@@ -44,9 +46,17 @@ export default function PacienteLayout() {
 
 
   // ========================================
-  // BUSCAR USUÁRIO LOGADO
+  // USUÁRIO
   // ========================================
 
+  /*
+    O usuário continua salvo localmente
+    somente para exibir informações
+    visuais como o nome.
+
+    O JWT não deve mais depender
+    desse armazenamento.
+  */
   const usuarioSalvo =
     localStorage.getItem(
       "usuario"
@@ -62,19 +72,20 @@ export default function PacienteLayout() {
 
 
   // ========================================
-  // TEMA CLARO / ESCURO
+  // TEMA
   // ========================================
 
   const [
     temaEscuro,
     setTemaEscuro
-  ] = useState(
+  ] =
+    useState(
 
-    localStorage.getItem(
-      "tema"
-    ) === "escuro"
+      localStorage.getItem(
+        "tema"
+      ) === "escuro"
 
-  );
+    );
 
 
   // ========================================
@@ -84,7 +95,8 @@ export default function PacienteLayout() {
   const [
     menuAberto,
     setMenuAberto
-  ] = useState(false);
+  ] =
+    useState(false);
 
 
   // ========================================
@@ -216,26 +228,52 @@ export default function PacienteLayout() {
   // SAIR DO SISTEMA
   // ========================================
 
-  function sair() {
+  async function sair() {
 
-    localStorage.removeItem(
-      "token"
-    );
+    try {
 
-    localStorage.removeItem(
-      "usuario"
-    );
+      /*
+        O cookie HttpOnly não pode
+        ser removido diretamente
+        pelo JavaScript.
+
+        Por isso chamamos o backend.
+      */
+      await fazerLogout();
+
+    } catch (erro) {
+
+      console.error(
+        "Erro ao realizar logout:",
+        erro
+      );
+
+    } finally {
+
+      /*
+        Limpeza dos dados antigos
+        usados durante a migração.
+      */
+      localStorage.removeItem(
+        "token"
+      );
 
 
-    setMenuAberto(
-      false
-    );
+      localStorage.removeItem(
+        "usuario"
+      );
 
 
-    navigate(
-      "/login"
-    );
+      setMenuAberto(
+        false
+      );
 
+
+      navigate(
+        "/login"
+      );
+
+    }
   }
 
 
@@ -244,147 +282,88 @@ export default function PacienteLayout() {
   // ========================================
 
   return (
-
     <div className="paciente-layout">
 
-
-      {/* ========================================
-          NAVBAR
-      ======================================== */}
-
+      {/* NAVBAR */}
       <header className="paciente-navbar">
 
-
-        {/* ========================================
-            LOGO / TÍTULO
-        ======================================== */}
-
+        {/* LOGO */}
         <div className="paciente-navbar-logo">
 
           <span className="paciente-logo-icone">
-
             +
-
           </span>
 
-
           <span>
-
             Sistema Médico
-
           </span>
 
         </div>
 
 
-        {/* ========================================
-            MENU DESKTOP
-        ======================================== */}
-
+        {/* MENU DESKTOP */}
         <nav className="paciente-navbar-menu">
 
           <NavLink
-
             to="/paciente"
-
             end
-
             className={({
               isActive
             }) =>
-
               isActive
-
                 ? "paciente-menu-link ativo"
-
                 : "paciente-menu-link"
-
             }
-
           >
-
             Início
-
           </NavLink>
 
 
           <NavLink
-
             to="/paciente/agendar"
-
             className={({
               isActive
             }) =>
-
               isActive
-
                 ? "paciente-menu-link ativo"
-
                 : "paciente-menu-link"
-
             }
-
           >
-
             Agendar consulta
-
           </NavLink>
 
 
           <NavLink
-
             to="/paciente/agendamentos"
-
             className={({
               isActive
             }) =>
-
               isActive
-
                 ? "paciente-menu-link ativo"
-
                 : "paciente-menu-link"
-
             }
-
           >
-
             Meus agendamentos
-
           </NavLink>
 
         </nav>
 
 
-        {/* ========================================
-            LADO DIREITO - DESKTOP
-        ======================================== */}
-
+        {/* LADO DIREITO */}
         <div className="paciente-navbar-direita">
 
-
           {/* TEMA */}
-
           <button
-
             type="button"
-
             className="paciente-botao-tema"
-
             onClick={
               alterarTema
             }
-
             title={
-
               temaEscuro
-
                 ? "Ativar tema claro"
-
                 : "Ativar tema escuro"
-
             }
-
           >
 
             {
@@ -397,18 +376,15 @@ export default function PacienteLayout() {
 
 
           {/* USUÁRIO */}
-
           <div className="paciente-navbar-usuario">
 
             <div className="paciente-avatar">
 
               {
                 usuario?.nome
-
                   ? usuario.nome
                       .charAt(0)
                       .toUpperCase()
-
                   : "P"
               }
 
@@ -428,9 +404,7 @@ export default function PacienteLayout() {
 
 
               <span className="paciente-usuario-tipo">
-
                 Paciente
-
               </span>
 
             </div>
@@ -439,30 +413,20 @@ export default function PacienteLayout() {
 
 
           {/* SAIR */}
-
           <button
-
             type="button"
-
             onClick={
               sair
             }
-
             className="paciente-botao-sair"
-
           >
-
             Sair
-
           </button>
 
         </div>
 
 
-        {/* ========================================
-            MENU RESPONSIVO
-        ======================================== */}
-
+        {/* MENU RESPONSIVO */}
         <div
           className="paciente-menu-responsivo"
           ref={
@@ -470,56 +434,37 @@ export default function PacienteLayout() {
           }
         >
 
-          {/* BOTÃO DOS TRÊS PONTOS */}
-
           <button
-
             type="button"
-
             className="paciente-menu-responsivo-botao"
-
             onClick={
               alternarMenu
             }
-
             aria-label="Abrir menu"
-
             aria-expanded={
               menuAberto
             }
-
           >
-
             ⋮
-
           </button>
 
 
-          {/* ========================================
-              DROPDOWN
-          ======================================== */}
-
+          {/* DROPDOWN */}
           {
             menuAberto && (
 
               <div className="paciente-menu-dropdown">
 
-
-                {/* =================================
-                    USUÁRIO
-                ================================= */}
-
+                {/* USUÁRIO */}
                 <div className="paciente-menu-dropdown-usuario">
 
                   <div className="paciente-avatar">
 
                     {
                       usuario?.nome
-
                         ? usuario.nome
                             .charAt(0)
                             .toUpperCase()
-
                         : "P"
                     }
 
@@ -539,9 +484,7 @@ export default function PacienteLayout() {
 
 
                     <span className="paciente-usuario-tipo">
-
                       Paciente
-
                     </span>
 
                   </div>
@@ -549,43 +492,27 @@ export default function PacienteLayout() {
                 </div>
 
 
-                {/* SEPARADOR */}
-
                 <div className="paciente-menu-separador" />
 
 
-                {/* =================================
-                    LINKS
-                ================================= */}
-
+                {/* INÍCIO */}
                 <NavLink
-
                   to="/paciente"
-
                   end
-
                   onClick={
                     fecharMenu
                   }
-
                   className={({
                     isActive
                   }) =>
-
                     isActive
-
                       ? "paciente-dropdown-link ativo"
-
                       : "paciente-dropdown-link"
-
                   }
-
                 >
 
                   <span className="paciente-dropdown-icone">
-
                     🏠
-
                   </span>
 
                   Início
@@ -593,32 +520,23 @@ export default function PacienteLayout() {
                 </NavLink>
 
 
+                {/* AGENDAR */}
                 <NavLink
-
                   to="/paciente/agendar"
-
                   onClick={
                     fecharMenu
                   }
-
                   className={({
                     isActive
                   }) =>
-
                     isActive
-
                       ? "paciente-dropdown-link ativo"
-
                       : "paciente-dropdown-link"
-
                   }
-
                 >
 
                   <span className="paciente-dropdown-icone">
-
                     📅
-
                   </span>
 
                   Agendar consulta
@@ -626,32 +544,23 @@ export default function PacienteLayout() {
                 </NavLink>
 
 
+                {/* AGENDAMENTOS */}
                 <NavLink
-
                   to="/paciente/agendamentos"
-
                   onClick={
                     fecharMenu
                   }
-
                   className={({
                     isActive
                   }) =>
-
                     isActive
-
                       ? "paciente-dropdown-link ativo"
-
                       : "paciente-dropdown-link"
-
                   }
-
                 >
 
                   <span className="paciente-dropdown-icone">
-
                     🕐
-
                   </span>
 
                   Meus agendamentos
@@ -659,27 +568,16 @@ export default function PacienteLayout() {
                 </NavLink>
 
 
-                {/* SEPARADOR */}
-
                 <div className="paciente-menu-separador" />
 
 
-                {/* =================================
-                    TEMA
-                ================================= */}
-
+                {/* TEMA */}
                 <button
-
                   type="button"
-
                   className="paciente-dropdown-botao"
-
-                  onClick={() => {
-
-                    alterarTema();
-
-                  }}
-
+                  onClick={
+                    alterarTema
+                  }
                 >
 
                   <span className="paciente-dropdown-icone">
@@ -702,26 +600,17 @@ export default function PacienteLayout() {
                 </button>
 
 
-                {/* =================================
-                    SAIR
-                ================================= */}
-
+                {/* SAIR */}
                 <button
-
                   type="button"
-
                   className="paciente-dropdown-botao sair"
-
                   onClick={
                     sair
                   }
-
                 >
 
                   <span className="paciente-dropdown-icone">
-
                     ↪
-
                   </span>
 
                   Sair
@@ -738,10 +627,7 @@ export default function PacienteLayout() {
       </header>
 
 
-      {/* ========================================
-          CONTEÚDO
-      ======================================== */}
-
+      {/* CONTEÚDO */}
       <main className="paciente-conteudo">
 
         <Outlet />
@@ -749,7 +635,5 @@ export default function PacienteLayout() {
       </main>
 
     </div>
-
   );
-
 }

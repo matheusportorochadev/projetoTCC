@@ -11,6 +11,13 @@ import {
 
 
 // ========================================
+// PROTEÇÃO DE ROTAS
+// ========================================
+
+import RotaProtegida from "./components/RotaProtegida";
+
+
+// ========================================
 // PÁGINAS GERAIS
 // ========================================
 
@@ -25,6 +32,8 @@ import DetalheMedico from "./pages/DetalheMedico";
 import EsqueciSenha from "./pages/EsqueciSenha";
 
 import RedefinirSenha from "./pages/RedefinirSenha";
+
+import PrimeiroAcesso from "./pages/PrimeiroAcesso";
 
 
 // ========================================
@@ -62,8 +71,14 @@ import MeusAgendamentos from "./pages/paciente/MeusAgendamentos";
 import "./styles/tema.css";
 
 
+// ========================================
+// COMPONENTE PRINCIPAL
+// ========================================
+
 function App() {
+
   return (
+
     <BrowserRouter>
 
       <Routes>
@@ -81,8 +96,52 @@ function App() {
 
 
         {/* ========================================
+            PRIMEIRO ACESSO
+        ======================================== */}
+
+        {/*
+          Esta rota é usada somente para
+          usuários que ainda não criaram
+          a própria senha.
+
+          Fluxo:
+
+          /login
+              ↓
+          Primeiro acesso
+              ↓
+          /primeiro-acesso
+              ↓
+          informa e-mail
+              ↓
+          recebe código
+              ↓
+          cria senha
+              ↓
+          volta para /login
+        */}
+
+        <Route
+          path="/primeiro-acesso"
+          element={
+            <PrimeiroAcesso />
+          }
+        />
+
+
+        {/* ========================================
             ESQUECI MINHA SENHA
         ======================================== */}
+
+        {/*
+          Esta rota pertence ao fluxo de
+          recuperação de senha.
+
+          É diferente do primeiro acesso.
+
+          Aqui o usuário já possui uma senha,
+          mas não se lembra dela.
+        */}
 
         <Route
           path="/esqueci-senha"
@@ -93,8 +152,18 @@ function App() {
 
 
         {/* ========================================
-            REDEFINIR SENHA / PRIMEIRO ACESSO
+            REDEFINIR SENHA
         ======================================== */}
+
+        {/*
+          Depois que o usuário solicita
+          a recuperação da senha em:
+
+          /esqueci-senha
+
+          ele recebe um código e é enviado
+          para esta página.
+        */}
 
         <Route
           path="/redefinir-senha"
@@ -111,23 +180,39 @@ function App() {
         <Route
           path="/admin"
           element={
-            <Admin />
+            <RotaProtegida
+              tipoPermitido="ADMIN"
+            >
+              <Admin />
+            </RotaProtegida>
           }
         />
 
+
+        {/* CADASTRAR MÉDICO */}
 
         <Route
           path="/admin/medicos/cadastrar"
           element={
-            <CadastrarMedico />
+            <RotaProtegida
+              tipoPermitido="ADMIN"
+            >
+              <CadastrarMedico />
+            </RotaProtegida>
           }
         />
 
 
+        {/* DETALHES DO MÉDICO */}
+
         <Route
           path="/admin/medicos/:id"
           element={
-            <DetalheMedico />
+            <RotaProtegida
+              tipoPermitido="ADMIN"
+            >
+              <DetalheMedico />
+            </RotaProtegida>
           }
         />
 
@@ -139,11 +224,29 @@ function App() {
         <Route
           path="/medico"
           element={
-            <MedicoLayout />
+            <RotaProtegida
+              tipoPermitido="MEDICO"
+            >
+              <MedicoLayout />
+            </RotaProtegida>
           }
         >
 
-          {/* Redireciona /medico para pacientes */}
+          {/* ========================================
+              ROTA PADRÃO DO MÉDICO
+          ======================================== */}
+
+          {/*
+            Ao acessar apenas:
+
+            /medico
+
+            o sistema redireciona automaticamente
+            para:
+
+            /medico/pacientes
+          */}
+
           <Route
             index
             element={
@@ -155,7 +258,10 @@ function App() {
           />
 
 
-          {/* PACIENTES */}
+          {/* ========================================
+              PACIENTES
+          ======================================== */}
+
           <Route
             path="pacientes"
             element={
@@ -164,7 +270,10 @@ function App() {
           />
 
 
-          {/* NOVO PACIENTE */}
+          {/* ========================================
+              NOVO PACIENTE
+          ======================================== */}
+
           <Route
             path="pacientes/novo"
             element={
@@ -173,7 +282,10 @@ function App() {
           />
 
 
-          {/* AGENDA */}
+          {/* ========================================
+              AGENDA
+          ======================================== */}
+
           <Route
             path="agenda"
             element={
@@ -182,7 +294,10 @@ function App() {
           />
 
 
-          {/* PRONTUÁRIOS */}
+          {/* ========================================
+              PRONTUÁRIOS
+          ======================================== */}
+
           <Route
             path="prontuarios"
             element={
@@ -200,11 +315,18 @@ function App() {
         <Route
           path="/paciente"
           element={
-            <PacienteLayout />
+            <RotaProtegida
+              tipoPermitido="PACIENTE"
+            >
+              <PacienteLayout />
+            </RotaProtegida>
           }
         >
 
-          {/* PÁGINA INICIAL */}
+          {/* ========================================
+              PÁGINA INICIAL DO PACIENTE
+          ======================================== */}
+
           <Route
             index
             element={
@@ -213,7 +335,10 @@ function App() {
           />
 
 
-          {/* AGENDAR CONSULTA */}
+          {/* ========================================
+              AGENDAR CONSULTA
+          ======================================== */}
+
           <Route
             path="agendar"
             element={
@@ -222,7 +347,10 @@ function App() {
           />
 
 
-          {/* MEUS AGENDAMENTOS */}
+          {/* ========================================
+              MEUS AGENDAMENTOS
+          ======================================== */}
+
           <Route
             path="agendamentos"
             element={
@@ -237,8 +365,40 @@ function App() {
             ROTA INICIAL
         ======================================== */}
 
+        {/*
+          Ao abrir diretamente:
+
+          http://localhost:5173
+
+          o usuário será enviado
+          para a tela de login.
+        */}
+
         <Route
           path="/"
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
+        />
+
+
+        {/* ========================================
+            ROTA NÃO ENCONTRADA
+        ======================================== */}
+
+        {/*
+          Caso o usuário digite uma rota
+          inexistente, volta para o login.
+
+          Isso também evita uma página
+          completamente em branco.
+        */}
+
+        <Route
+          path="*"
           element={
             <Navigate
               to="/login"
@@ -250,7 +410,9 @@ function App() {
       </Routes>
 
     </BrowserRouter>
+
   );
+
 }
 
 

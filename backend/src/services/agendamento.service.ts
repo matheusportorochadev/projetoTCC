@@ -1,3 +1,4 @@
+// Dependências do serviço de agendamento
 import { db } from "../prisma/db";
 
 
@@ -5,6 +6,14 @@ import { db } from "../prisma/db";
 // TIPOS
 // ========================================
 
+// Todos os status possíveis atualmente.
+//
+// AGENDADA permanece temporariamente
+// somente para compatibilidade com
+// registros antigos.
+//
+// Novos agendamentos criados pelo paciente
+// utilizam PENDENTE.
 export type StatusAgendamento =
   | "AGENDADA"
   | "PENDENTE"
@@ -14,16 +23,23 @@ export type StatusAgendamento =
   | "CANCELADA"
   | "FALTOU";
 
+
+// Status possíveis de uma solicitação
+// de remarcação.
 export type StatusRemarcacao =
   | "PENDENTE"
   | "ACEITA"
   | "RECUSADA";
 
+
+// Representa um horário individual.
 export type SlotDisponivel = {
   horaInicio: string;
   horaFim: string;
 };
 
+
+// Estrutura base de um agendamento.
 export type AgendamentoRegistro = {
   id: number;
   medicoId: number;
@@ -34,12 +50,17 @@ export type AgendamentoRegistro = {
   status: StatusAgendamento;
 };
 
+
+// Estrutura mostrada na agenda do médico.
 export type AgendamentoMedicoRegistro =
   AgendamentoRegistro & {
     pacienteNome: string;
     pacienteTelefone: string | null;
   };
 
+
+// Estrutura base de uma solicitação
+// de remarcação.
 export type RemarcacaoRegistro = {
   id: number;
   agendamentoId: number;
@@ -52,6 +73,8 @@ export type RemarcacaoRegistro = {
   updatedAt: string;
 };
 
+
+// Estrutura mostrada ao médico.
 export type RemarcacaoMedicoRegistro =
   RemarcacaoRegistro & {
     medicoId: number;
@@ -64,6 +87,8 @@ export type RemarcacaoMedicoRegistro =
     statusAgendamento: StatusAgendamento;
   };
 
+
+// Estrutura mostrada ao paciente.
 export type RemarcacaoPacienteRegistro =
   RemarcacaoRegistro & {
     dataAtual: string;
@@ -72,6 +97,12 @@ export type RemarcacaoPacienteRegistro =
     statusAgendamento: StatusAgendamento;
   };
 
+
+// Dados internos utilizados na criação
+// de um agendamento solicitado pelo paciente.
+//
+// medicoId, pacienteId e horaFim são
+// definidos pelo backend.
 type CriarAgendamentoDados = {
   medicoId: number;
   pacienteId: number;
@@ -80,16 +111,17 @@ type CriarAgendamentoDados = {
   horaFim: string;
 };
 
+
+// Dados enviados pelo paciente
+// para solicitar uma remarcação.
 export type SolicitarRemarcacaoDados = {
   data: string;
   horaInicio: string;
 };
 
 
-// ========================================
-// CONSULTA CRIADA PELO MÉDICO
-// ========================================
-
+// Dados utilizados quando o próprio médico
+// cadastra uma consulta diretamente.
 export type CriarAgendamentoMedicoDados = {
   pacienteId: number;
   data: string;
@@ -98,25 +130,42 @@ export type CriarAgendamentoMedicoDados = {
 };
 
 
+// Tipo da transação do Prisma ORM 8.
+//
+// O Prisma 8 não exporta diretamente
+// esse tipo, então ele é derivado do
+// próprio db.transaction().
+type Tx =
+  Parameters<
+    Parameters<typeof db.transaction>[0]
+  >[0];
+
+
 // ========================================
-// FUNÇÕES AUXILIARES
+// FUNÇÕES AUXILIARES DE HORÁRIO
 // ========================================
 
+// Converte HH:mm para minutos.
 function horarioParaMinutos(
   horario: string
 ): number {
   const [hora, minuto] =
-    horario.split(":").map(Number);
+    horario
+      .split(":")
+      .map(Number);
 
   return hora * 60 + minuto;
 }
 
 
+// Converte minutos para HH:mm.
 function minutosParaHorario(
   totalMinutos: number
 ): string {
   const hora =
-    Math.floor(totalMinutos / 60);
+    Math.floor(
+      totalMinutos / 60
+    );
 
   const minuto =
     totalMinutos % 60;
@@ -139,7 +188,9 @@ function dataPossuiFormatoValido(
   data: string
 ): boolean {
   if (
-    !/^\d{4}-\d{2}-\d{2}$/.test(data)
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      data
+    )
   ) {
     return false;
   }
@@ -148,11 +199,17 @@ function dataPossuiFormatoValido(
     anoTexto,
     mesTexto,
     diaTexto
-  ] = data.split("-");
+  ] =
+    data.split("-");
 
-  const ano = Number(anoTexto);
-  const mes = Number(mesTexto);
-  const dia = Number(diaTexto);
+  const ano =
+    Number(anoTexto);
+
+  const mes =
+    Number(mesTexto);
+
+  const dia =
+    Number(diaTexto);
 
   const dataCriada =
     new Date(
@@ -162,9 +219,12 @@ function dataPossuiFormatoValido(
     );
 
   return (
-    dataCriada.getFullYear() === ano &&
-    dataCriada.getMonth() === mes - 1 &&
-    dataCriada.getDate() === dia
+    dataCriada.getFullYear() ===
+      ano &&
+    dataCriada.getMonth() ===
+      mes - 1 &&
+    dataCriada.getDate() ===
+      dia
   );
 }
 
@@ -177,7 +237,9 @@ function horarioPossuiFormatoValido(
   horario: string
 ): boolean {
   if (
-    !/^\d{2}:\d{2}$/.test(horario)
+    !/^\d{2}:\d{2}$/.test(
+      horario
+    )
   ) {
     return false;
   }
@@ -185,10 +247,14 @@ function horarioPossuiFormatoValido(
   const [
     horaTexto,
     minutoTexto
-  ] = horario.split(":");
+  ] =
+    horario.split(":");
 
-  const hora = Number(horaTexto);
-  const minuto = Number(minutoTexto);
+  const hora =
+    Number(horaTexto);
+
+  const minuto =
+    Number(minutoTexto);
 
   return (
     Number.isInteger(hora) &&
@@ -202,8 +268,51 @@ function horarioPossuiFormatoValido(
 
 
 // ========================================
+// DATA DE HOJE
+// ========================================
+
+function obterHoje(): string {
+  const agora =
+    new Date();
+
+  const ano =
+    agora.getFullYear();
+
+  const mes =
+    String(
+      agora.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const dia =
+    String(
+      agora.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  return `${ano}-${mes}-${dia}`;
+}
+
+
+// ========================================
 // STATUS QUE OCUPAM A AGENDA
 // ========================================
+//
+// PENDENTE:
+// aguardando decisão do médico.
+//
+// AGENDADA:
+// mantido para compatibilidade.
+//
+// CONFIRMADA:
+// consulta aprovada.
+//
+// Os demais status não bloqueiam
+// novos horários.
 
 function statusOcupaHorario(
   status: StatusAgendamento
@@ -247,20 +356,161 @@ function horariosSeSobrepoem(
   fimB: string
 ): boolean {
   const inicioAMinutos =
-    horarioParaMinutos(inicioA);
+    horarioParaMinutos(
+      inicioA
+    );
 
   const fimAMinutos =
-    horarioParaMinutos(fimA);
+    horarioParaMinutos(
+      fimA
+    );
 
   const inicioBMinutos =
-    horarioParaMinutos(inicioB);
+    horarioParaMinutos(
+      inicioB
+    );
 
   const fimBMinutos =
-    horarioParaMinutos(fimB);
+    horarioParaMinutos(
+      fimB
+    );
 
   return (
-    inicioAMinutos < fimBMinutos &&
-    fimAMinutos > inicioBMinutos
+    inicioAMinutos <
+      fimBMinutos &&
+    fimAMinutos >
+      inicioBMinutos
+  );
+}
+
+
+// ========================================
+// TRANSAÇÃO SERIALIZABLE COM RETRY
+// ========================================
+//
+// Problema que estamos resolvendo:
+//
+// Requisição A verifica o horário.
+// Requisição B verifica o mesmo horário.
+// As duas enxergam "livre".
+// As duas tentam gravar.
+//
+// Com SERIALIZABLE, o PostgreSQL trata
+// as transações como se acontecessem
+// em sequência.
+//
+// Se houver conflito de serialização
+// (40001) ou deadlock (40P01),
+// tentamos novamente até 3 vezes.
+
+function obterSqlState(
+  erro: unknown
+): string | null {
+  if (
+    typeof erro !== "object" ||
+    erro === null
+  ) {
+    return null;
+  }
+
+  const erroObj =
+    erro as {
+      sqlState?: unknown;
+      cause?: unknown;
+    };
+
+  if (
+    typeof erroObj.sqlState ===
+    "string"
+  ) {
+    return erroObj.sqlState;
+  }
+
+  if (
+    typeof erroObj.cause ===
+      "object" &&
+    erroObj.cause !== null
+  ) {
+    const causa =
+      erroObj.cause as {
+        sqlState?: unknown;
+      };
+
+    if (
+      typeof causa.sqlState ===
+      "string"
+    ) {
+      return causa.sqlState;
+    }
+  }
+
+  return null;
+}
+
+
+async function executarTransacaoSerializavel<
+  T
+>(
+  operacao:
+    (tx: Tx) => Promise<T>
+): Promise<T> {
+  const maxTentativas = 3;
+
+  for (
+    let tentativa = 1;
+    tentativa <= maxTentativas;
+    tentativa++
+  ) {
+    try {
+      return await db.transaction(
+        async (tx) => {
+
+          // O Prisma ORM 8 executa
+          // transações PostgreSQL usando
+          // o nível padrão do banco.
+          //
+          // Para este bloco de agenda,
+          // elevamos explicitamente para
+          // SERIALIZABLE.
+          await tx.execute(
+            db.raw.sql`
+              SET TRANSACTION
+              ISOLATION LEVEL SERIALIZABLE
+            `
+              .affectedCount()
+              .build()
+          );
+
+          return operacao(
+            tx
+          );
+        }
+      );
+    } catch (erro) {
+      const sqlState =
+        obterSqlState(
+          erro
+        );
+
+      const conflitoTransacao =
+        sqlState === "40001" ||
+        sqlState === "40P01";
+
+      if (
+        !conflitoTransacao ||
+        tentativa ===
+          maxTentativas
+      ) {
+        throw erro;
+      }
+    }
+  }
+
+  // Proteção para o TypeScript.
+  //
+  // O fluxo normal nunca chega aqui.
+  throw new Error(
+    "Não foi possível concluir a operação concorrente."
   );
 }
 
@@ -284,7 +534,7 @@ export async function buscarPacientePorUsuarioId(
 
 
 // ========================================
-// BUSCAR DISPONIBILIDADES
+// BUSCAR DISPONIBILIDADES DO MÉDICO
 // ========================================
 
 export async function buscarDisponibilidadesDoMedico(
@@ -296,7 +546,8 @@ export async function buscarDisponibilidadesDoMedico(
       .where({
         medicoId,
         data,
-        ativo: true
+        ativo:
+          true
       })
       .all();
 
@@ -330,18 +581,24 @@ export async function buscarAgendamentosAtivosDoMedico(
 
 
 // ========================================
-// REMARCAÇÕES QUE RESERVAM HORÁRIO
+// BUSCAR REMARCAÇÕES PENDENTES DA DATA
 // ========================================
+//
+// Retorna as remarcações PENDENTES
+// relacionadas a consultas do médico.
 
-async function buscarHorariosReservadosPorRemarcacao(
+async function buscarRemarcacoesPendentesDoMedicoNaData(
   medicoId: number,
   data: string
-): Promise<string[]> {
+) {
   const remarcacoes =
     await db.orm.public.RemarcacaoAgendamento
       .where({
-        novaData: data,
-        status: "PENDENTE"
+        novaData:
+          data,
+
+        status:
+          "PENDENTE"
       })
       .all();
 
@@ -358,7 +615,7 @@ async function buscarHorariosReservadosPorRemarcacao(
       })
       .all();
 
-  const idsAgendamentosDoMedico =
+  const ids =
     new Set<number>(
       agendamentos.map(
         (agendamento) =>
@@ -366,17 +623,12 @@ async function buscarHorariosReservadosPorRemarcacao(
       )
     );
 
-  return remarcacoes
-    .filter(
-      (remarcacao) =>
-        idsAgendamentosDoMedico.has(
-          remarcacao.agendamentoId
-        )
-    )
-    .map(
-      (remarcacao) =>
-        remarcacao.novaHoraInicio
-    );
+  return remarcacoes.filter(
+    (remarcacao) =>
+      ids.has(
+        remarcacao.agendamentoId
+      )
+  );
 }
 
 
@@ -385,13 +637,15 @@ async function buscarHorariosReservadosPorRemarcacao(
 // ========================================
 
 export function gerarSlotsDasDisponibilidades(
-  disponibilidades: Array<{
-    horaInicio: string;
-    horaFim: string;
-    duracaoConsulta: number;
-  }>
+  disponibilidades:
+    Array<{
+      horaInicio: string;
+      horaFim: string;
+      duracaoConsulta: number;
+    }>
 ): SlotDisponivel[] {
-  const slots: SlotDisponivel[] = [];
+  const slots:
+    SlotDisponivel[] = [];
 
   for (
     const disponibilidade
@@ -410,16 +664,21 @@ export function gerarSlotsDasDisponibilidades(
     const duracao =
       disponibilidade.duracaoConsulta;
 
+    // Evita loop infinito caso exista
+    // dado inválido no banco.
     if (
       duracao <= 0
     ) {
       continue;
     }
 
-    let horarioAtual = inicio;
+    let horarioAtual =
+      inicio;
 
     while (
-      horarioAtual + duracao <= fim
+      horarioAtual +
+        duracao <=
+      fim
     ) {
       slots.push({
         horaInicio:
@@ -429,11 +688,13 @@ export function gerarSlotsDasDisponibilidades(
 
         horaFim:
           minutosParaHorario(
-            horarioAtual + duracao
+            horarioAtual +
+              duracao
           )
       });
 
-      horarioAtual += duracao;
+      horarioAtual +=
+        duracao;
     }
   }
 
@@ -447,10 +708,20 @@ export function gerarSlotsDasDisponibilidades(
 //
 // Utilizado pelo PACIENTE.
 //
-// Aqui a DisponibilidadeAgenda continua
-// sendo obrigatória porque representa
-// aquilo que o médico liberou para
-// autoagendamento do paciente.
+// O paciente só vê slots que:
+//
+// 1. foram publicados pelo médico;
+// 2. não colidem com consulta ativa;
+// 3. não colidem com remarcação pendente.
+//
+// IMPORTANTE:
+//
+// A verificação agora usa SOBREPOSIÇÃO,
+// e não apenas igualdade de horaInicio.
+//
+// Isso também protege contra consultas
+// criadas diretamente pelo médico com
+// duração diferente dos slots publicados.
 
 export async function listarHorariosDisponiveis(
   medicoId: number,
@@ -473,39 +744,45 @@ export async function listarHorariosDisponiveis(
       data
     );
 
-  const horariosRemarcacao =
-    await buscarHorariosReservadosPorRemarcacao(
+  const remarcacoes =
+    await buscarRemarcacoesPendentesDoMedicoNaData(
       medicoId,
       data
     );
 
-  const horariosOcupados =
-    new Set<string>();
-
-  for (
-    const agendamento
-    of agendamentos
-  ) {
-    horariosOcupados.add(
-      agendamento.horaInicio
-    );
-  }
-
-  for (
-    const horario
-    of horariosRemarcacao
-  ) {
-    horariosOcupados.add(
-      horario
-    );
-  }
-
   const horariosDisponiveis =
     slots.filter(
-      (slot) =>
-        !horariosOcupados.has(
-          slot.horaInicio
-        )
+      (slot) => {
+        const conflitoAgendamento =
+          agendamentos.some(
+            (agendamento) =>
+              horariosSeSobrepoem(
+                slot.horaInicio,
+                slot.horaFim,
+                agendamento.horaInicio,
+                agendamento.horaFim
+              )
+          );
+
+        if (
+          conflitoAgendamento
+        ) {
+          return false;
+        }
+
+        const conflitoRemarcacao =
+          remarcacoes.some(
+            (remarcacao) =>
+              horariosSeSobrepoem(
+                slot.horaInicio,
+                slot.horaFim,
+                remarcacao.novaHoraInicio,
+                remarcacao.novaHoraFim
+              )
+          );
+
+        return !conflitoRemarcacao;
+      }
     );
 
   horariosDisponiveis.sort(
@@ -527,7 +804,9 @@ export async function horarioEstaDisponivel(
   medicoId: number,
   data: string,
   horaInicio: string
-): Promise<SlotDisponivel | undefined> {
+): Promise<
+  SlotDisponivel | undefined
+> {
   const horarios =
     await listarHorariosDisponiveis(
       medicoId,
@@ -536,7 +815,8 @@ export async function horarioEstaDisponivel(
 
   return horarios.find(
     (slot) =>
-      slot.horaInicio === horaInicio
+      slot.horaInicio ===
+        horaInicio
   );
 }
 
@@ -545,91 +825,23 @@ export async function horarioEstaDisponivel(
 // CRIAR AGENDAMENTO PELO PACIENTE
 // ========================================
 //
-// O paciente solicita.
+// Todo novo agendamento solicitado
+// pelo paciente nasce PENDENTE.
 //
-// Portanto:
+// A validação do slot é refeita DENTRO
+// da transação SERIALIZABLE.
 //
-// status = PENDENTE
+// Isso fecha a janela de corrida entre:
+//
+// "ver horário livre"
+//
+// e
+//
+// "gravar agendamento".
 
 export async function criarAgendamento(
   dados: CriarAgendamentoDados
 ): Promise<AgendamentoRegistro> {
-  const agendamento =
-    await db.orm.public.Agendamento
-      .create({
-        medicoId:
-          dados.medicoId,
-
-        pacienteId:
-          dados.pacienteId,
-
-        data:
-          dados.data,
-
-        horaInicio:
-          dados.horaInicio,
-
-        horaFim:
-          dados.horaFim,
-
-        status:
-          "PENDENTE"
-      });
-
-  return agendamento;
-}
-
-
-// ========================================
-// CRIAR AGENDAMENTO DIRETAMENTE PELO MÉDICO
-// ========================================
-//
-// NOVO FLUXO:
-//
-// A médica escolhe:
-//
-// - paciente;
-// - data;
-// - horário;
-// - duração.
-//
-// NÃO depende de DisponibilidadeAgenda.
-//
-// Como a própria médica está criando,
-// a consulta já nasce CONFIRMADA.
-
-export async function criarAgendamentoPeloMedico(
-  medicoId: number,
-  dados: CriarAgendamentoMedicoDados
-): Promise<AgendamentoRegistro> {
-
-  // ========================================
-  // VALIDAR PACIENTE
-  // ========================================
-
-  const paciente =
-    await db.orm.public.Paciente
-      .where({
-        id:
-          dados.pacienteId,
-
-        medicoId,
-
-        ativo:
-          true
-      })
-      .first();
-
-  if (!paciente) {
-    throw new Error(
-      "Paciente não encontrado ou não pertence a este médico."
-    );
-  }
-
-
-  // ========================================
-  // VALIDAR DATA
-  // ========================================
 
   if (
     !dataPossuiFormatoValido(
@@ -641,41 +853,243 @@ export async function criarAgendamentoPeloMedico(
     );
   }
 
-
-  // ========================================
-  // NÃO PERMITIR DATA PASSADA
-  // ========================================
-
-  const agora = new Date();
-
-  const anoAtual =
-    agora.getFullYear();
-
-  const mesAtual =
-    String(
-      agora.getMonth() + 1
-    ).padStart(2, "0");
-
-  const diaAtual =
-    String(
-      agora.getDate()
-    ).padStart(2, "0");
-
-  const hoje =
-    `${anoAtual}-${mesAtual}-${diaAtual}`;
+  if (
+    !horarioPossuiFormatoValido(
+      dados.horaInicio
+    ) ||
+    !horarioPossuiFormatoValido(
+      dados.horaFim
+    )
+  ) {
+    throw new Error(
+      "Horário inválido."
+    );
+  }
 
   if (
-    dados.data < hoje
+    horarioParaMinutos(
+      dados.horaInicio
+    ) >=
+    horarioParaMinutos(
+      dados.horaFim
+    )
+  ) {
+    throw new Error(
+      "Horário inválido."
+    );
+  }
+
+  return executarTransacaoSerializavel(
+    async (tx) => {
+
+      // ========================================
+      // CONFIRMAR QUE O SLOT FOI PUBLICADO
+      // ========================================
+
+      const disponibilidades =
+        await tx.orm.public.DisponibilidadeAgenda
+          .where({
+            medicoId:
+              dados.medicoId,
+
+            data:
+              dados.data,
+
+            ativo:
+              true
+          })
+          .all();
+
+      const slots =
+        gerarSlotsDasDisponibilidades(
+          disponibilidades
+        );
+
+      const slot =
+        slots.find(
+          (item) =>
+            item.horaInicio ===
+              dados.horaInicio &&
+            item.horaFim ===
+              dados.horaFim
+        );
+
+      if (!slot) {
+        throw new Error(
+          "O horário selecionado não está mais disponível."
+        );
+      }
+
+
+      // ========================================
+      // VERIFICAR CONSULTAS
+      // ========================================
+
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId:
+              dados.medicoId,
+
+            data:
+              dados.data
+          })
+          .all();
+
+      const conflitoAgendamento =
+        agendamentos.find(
+          (agendamento) => {
+            if (
+              !statusOcupaHorario(
+                agendamento.status
+              )
+            ) {
+              return false;
+            }
+
+            return horariosSeSobrepoem(
+              dados.horaInicio,
+              dados.horaFim,
+              agendamento.horaInicio,
+              agendamento.horaFim
+            );
+          }
+        );
+
+      if (
+        conflitoAgendamento
+      ) {
+        throw new Error(
+          "O horário selecionado não está mais disponível."
+        );
+      }
+
+
+      // ========================================
+      // VERIFICAR REMARCAÇÕES PENDENTES
+      // ========================================
+
+      const remarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            novaData:
+              dados.data,
+
+            status:
+              "PENDENTE"
+          })
+          .all();
+
+      if (
+        remarcacoes.length > 0
+      ) {
+        const agendamentosDoMedico =
+          await tx.orm.public.Agendamento
+            .where({
+              medicoId:
+                dados.medicoId
+            })
+            .all();
+
+        const ids =
+          new Set<number>(
+            agendamentosDoMedico.map(
+              (agendamento) =>
+                agendamento.id
+            )
+          );
+
+        const conflitoRemarcacao =
+          remarcacoes.find(
+            (remarcacao) =>
+              ids.has(
+                remarcacao.agendamentoId
+              ) &&
+              horariosSeSobrepoem(
+                dados.horaInicio,
+                dados.horaFim,
+                remarcacao.novaHoraInicio,
+                remarcacao.novaHoraFim
+              )
+          );
+
+        if (
+          conflitoRemarcacao
+        ) {
+          throw new Error(
+            "O horário selecionado não está mais disponível."
+          );
+        }
+      }
+
+
+      // ========================================
+      // CRIAR
+      // ========================================
+
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .create({
+            medicoId:
+              dados.medicoId,
+
+            pacienteId:
+              dados.pacienteId,
+
+            data:
+              dados.data,
+
+            horaInicio:
+              dados.horaInicio,
+
+            horaFim:
+              dados.horaFim,
+
+            status:
+              "PENDENTE"
+          });
+
+      return agendamento;
+    }
+  );
+}
+
+
+// ========================================
+// CRIAR CONSULTA DIRETAMENTE PELO MÉDICO
+// ========================================
+//
+// Não depende de DisponibilidadeAgenda.
+//
+// A consulta criada pelo próprio médico
+// já nasce CONFIRMADA.
+//
+// A checagem e a criação acontecem em
+// uma única transação SERIALIZABLE.
+
+export async function criarAgendamentoPeloMedico(
+  medicoId: number,
+  dados: CriarAgendamentoMedicoDados
+): Promise<AgendamentoRegistro> {
+
+  if (
+    !dataPossuiFormatoValido(
+      dados.data
+    )
+  ) {
+    throw new Error(
+      "Data inválida."
+    );
+  }
+
+  if (
+    dados.data <
+      obterHoje()
   ) {
     throw new Error(
       "Não é possível cadastrar uma consulta em uma data passada."
     );
   }
-
-
-  // ========================================
-  // VALIDAR HORÁRIO
-  // ========================================
 
   if (
     !horarioPossuiFormatoValido(
@@ -687,27 +1101,19 @@ export async function criarAgendamentoPeloMedico(
     );
   }
 
-
-  // ========================================
-  // VALIDAR DURAÇÃO
-  // ========================================
-
   if (
     !Number.isInteger(
       dados.duracaoConsulta
     ) ||
-    dados.duracaoConsulta <= 0 ||
-    dados.duracaoConsulta > 1440
+    dados.duracaoConsulta <=
+      0 ||
+    dados.duracaoConsulta >
+      1440
   ) {
     throw new Error(
       "Duração da consulta inválida."
     );
   }
-
-
-  // ========================================
-  // CALCULAR HORA FINAL
-  // ========================================
 
   const inicioMinutos =
     horarioParaMinutos(
@@ -719,7 +1125,8 @@ export async function criarAgendamentoPeloMedico(
     dados.duracaoConsulta;
 
   if (
-    fimMinutos > 24 * 60
+    fimMinutos >
+      24 * 60
   ) {
     throw new Error(
       "O horário final da consulta ultrapassa o fim do dia."
@@ -731,137 +1138,157 @@ export async function criarAgendamentoPeloMedico(
       fimMinutos
     );
 
+  return executarTransacaoSerializavel(
+    async (tx) => {
 
-  // ========================================
-  // VERIFICAR CONFLITO COM AGENDAMENTOS
-  // ========================================
+      // ========================================
+      // VALIDAR PACIENTE
+      // ========================================
 
-  const agendamentosDaData =
-    await db.orm.public.Agendamento
-      .where({
-        medicoId,
-        data:
-          dados.data
-      })
-      .all();
+      const paciente =
+        await tx.orm.public.Paciente
+          .where({
+            id:
+              dados.pacienteId,
 
-  const conflitoAgendamento =
-    agendamentosDaData.find(
-      (agendamento) => {
-        if (
-          !statusOcupaHorario(
-            agendamento.status
-          )
-        ) {
-          return false;
-        }
+            medicoId,
 
-        return horariosSeSobrepoem(
-          dados.horaInicio,
-          horaFim,
-          agendamento.horaInicio,
-          agendamento.horaFim
+            ativo:
+              true
+          })
+          .first();
+
+      if (!paciente) {
+        throw new Error(
+          "Paciente não encontrado ou não pertence a este médico."
         );
       }
-    );
-
-  if (
-    conflitoAgendamento
-  ) {
-    throw new Error(
-      "Já existe uma consulta ocupando este período."
-    );
-  }
 
 
-  // ========================================
-  // VERIFICAR REMARCAÇÕES PENDENTES
-  // ========================================
+      // ========================================
+      // CONFLITO COM CONSULTAS
+      // ========================================
 
-  const remarcacoesDaData =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        novaData:
-          dados.data,
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId,
 
-        status:
-          "PENDENTE"
-      })
-      .all();
+            data:
+              dados.data
+          })
+          .all();
 
-  if (
-    remarcacoesDaData.length > 0
-  ) {
-    const agendamentosDoMedico =
-      await db.orm.public.Agendamento
-        .where({
-          medicoId
-        })
-        .all();
+      const conflitoAgendamento =
+        agendamentos.find(
+          (agendamento) => {
+            if (
+              !statusOcupaHorario(
+                agendamento.status
+              )
+            ) {
+              return false;
+            }
 
-    const idsAgendamentosDoMedico =
-      new Set<number>(
-        agendamentosDoMedico.map(
-          (agendamento) =>
-            agendamento.id
-        )
-      );
-
-    const conflitoRemarcacao =
-      remarcacoesDaData.find(
-        (remarcacao) => {
-          if (
-            !idsAgendamentosDoMedico.has(
-              remarcacao.agendamentoId
-            )
-          ) {
-            return false;
+            return horariosSeSobrepoem(
+              dados.horaInicio,
+              horaFim,
+              agendamento.horaInicio,
+              agendamento.horaFim
+            );
           }
+        );
 
-          return horariosSeSobrepoem(
-            dados.horaInicio,
-            horaFim,
-            remarcacao.novaHoraInicio,
-            remarcacao.novaHoraFim
+      if (
+        conflitoAgendamento
+      ) {
+        throw new Error(
+          "Já existe uma consulta ocupando este período."
+        );
+      }
+
+
+      // ========================================
+      // CONFLITO COM REMARCAÇÕES PENDENTES
+      // ========================================
+
+      const remarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            novaData:
+              dados.data,
+
+            status:
+              "PENDENTE"
+          })
+          .all();
+
+      if (
+        remarcacoes.length > 0
+      ) {
+        const agendamentosDoMedico =
+          await tx.orm.public.Agendamento
+            .where({
+              medicoId
+            })
+            .all();
+
+        const ids =
+          new Set<number>(
+            agendamentosDoMedico.map(
+              (agendamento) =>
+                agendamento.id
+            )
+          );
+
+        const conflitoRemarcacao =
+          remarcacoes.find(
+            (remarcacao) =>
+              ids.has(
+                remarcacao.agendamentoId
+              ) &&
+              horariosSeSobrepoem(
+                dados.horaInicio,
+                horaFim,
+                remarcacao.novaHoraInicio,
+                remarcacao.novaHoraFim
+              )
+          );
+
+        if (
+          conflitoRemarcacao
+        ) {
+          throw new Error(
+            "Este período está reservado por uma solicitação de remarcação pendente."
           );
         }
-      );
+      }
 
-    if (
-      conflitoRemarcacao
-    ) {
-      throw new Error(
-        "Este período está reservado por uma solicitação de remarcação pendente."
-      );
+
+      // ========================================
+      // CRIAR CONSULTA
+      // ========================================
+
+      return tx.orm.public.Agendamento
+        .create({
+          medicoId,
+
+          pacienteId:
+            paciente.id,
+
+          data:
+            dados.data,
+
+          horaInicio:
+            dados.horaInicio,
+
+          horaFim,
+
+          status:
+            "CONFIRMADA"
+        });
     }
-  }
-
-
-  // ========================================
-  // CRIAR CONSULTA
-  // ========================================
-
-  const agendamento =
-    await db.orm.public.Agendamento
-      .create({
-        medicoId,
-
-        pacienteId:
-          paciente.id,
-
-        data:
-          dados.data,
-
-        horaInicio:
-          dados.horaInicio,
-
-        horaFim,
-
-        status:
-          "CONFIRMADA"
-      });
-
-  return agendamento;
+  );
 }
 
 
@@ -908,7 +1335,9 @@ export async function listarAgendamentosDoPaciente(
 
 export async function listarAgendamentosDoMedico(
   medicoId: number
-): Promise<AgendamentoMedicoRegistro[]> {
+): Promise<
+  AgendamentoMedicoRegistro[]
+> {
   const agendamentos =
     await db.orm.public.Agendamento
       .where({
@@ -933,7 +1362,7 @@ export async function listarAgendamentosDoMedico(
       )
     );
 
-  const agendamentosComPaciente:
+  const resultado:
     AgendamentoMedicoRegistro[] =
       agendamentos.map(
         (agendamento) => {
@@ -975,7 +1404,7 @@ export async function listarAgendamentosDoMedico(
         }
       );
 
-  agendamentosComPaciente.sort(
+  resultado.sort(
     (a, b) => {
       const compararData =
         a.data.localeCompare(
@@ -994,7 +1423,7 @@ export async function listarAgendamentosDoMedico(
     }
   );
 
-  return agendamentosComPaciente;
+  return resultado;
 }
 
 
@@ -1065,15 +1494,17 @@ export async function confirmarAgendamento(
     );
 
   if (
-    agendamento.status !== "PENDENTE" &&
-    agendamento.status !== "AGENDADA"
+    agendamento.status !==
+      "PENDENTE" &&
+    agendamento.status !==
+      "AGENDADA"
   ) {
     throw new Error(
       "Somente agendamentos pendentes podem ser confirmados."
     );
   }
 
-  const agendamentoAtualizado =
+  const atualizado =
     await db.orm.public.Agendamento
       .where({
         id,
@@ -1084,15 +1515,13 @@ export async function confirmarAgendamento(
           "CONFIRMADA"
       });
 
-  if (
-    !agendamentoAtualizado
-  ) {
+  if (!atualizado) {
     throw new Error(
       "Não foi possível confirmar o agendamento."
     );
   }
 
-  return agendamentoAtualizado;
+  return atualizado;
 }
 
 
@@ -1111,15 +1540,17 @@ export async function recusarAgendamento(
     );
 
   if (
-    agendamento.status !== "PENDENTE" &&
-    agendamento.status !== "AGENDADA"
+    agendamento.status !==
+      "PENDENTE" &&
+    agendamento.status !==
+      "AGENDADA"
   ) {
     throw new Error(
       "Somente agendamentos pendentes podem ser recusados."
     );
   }
 
-  const agendamentoAtualizado =
+  const atualizado =
     await db.orm.public.Agendamento
       .where({
         id,
@@ -1130,20 +1561,18 @@ export async function recusarAgendamento(
           "RECUSADA"
       });
 
-  if (
-    !agendamentoAtualizado
-  ) {
+  if (!atualizado) {
     throw new Error(
       "Não foi possível recusar o agendamento."
     );
   }
 
-  return agendamentoAtualizado;
+  return atualizado;
 }
 
 
 // ========================================
-// CANCELAR PELO MÉDICO
+// CANCELAR AGENDAMENTO PELO MÉDICO
 // ========================================
 
 export async function cancelarAgendamento(
@@ -1157,15 +1586,17 @@ export async function cancelarAgendamento(
     );
 
   if (
-    agendamento.status !== "CONFIRMADA" &&
-    agendamento.status !== "AGENDADA"
+    agendamento.status !==
+      "CONFIRMADA" &&
+    agendamento.status !==
+      "AGENDADA"
   ) {
     throw new Error(
       "Somente consultas confirmadas podem ser canceladas."
     );
   }
 
-  const agendamentoAtualizado =
+  const atualizado =
     await db.orm.public.Agendamento
       .where({
         id,
@@ -1176,198 +1607,402 @@ export async function cancelarAgendamento(
           "CANCELADA"
       });
 
-  if (
-    !agendamentoAtualizado
-  ) {
+  if (!atualizado) {
     throw new Error(
       "Não foi possível cancelar o agendamento."
     );
   }
 
-  return agendamentoAtualizado;
+  return atualizado;
 }
 
 
 // ========================================
-// CANCELAR PELO PACIENTE
+// CANCELAR AGENDAMENTO PELO PACIENTE
 // ========================================
+//
+// Esta operação altera:
+// - eventual remarcação pendente;
+// - agendamento.
+//
+// Por isso também utiliza transação.
 
 export async function cancelarAgendamentoPaciente(
   id: number,
   pacienteId: number
 ): Promise<AgendamentoRegistro> {
-  const agendamento =
-    await buscarAgendamentoDoPacientePorId(
-      id,
-      pacienteId
-    );
+  return db.transaction(
+    async (tx) => {
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            pacienteId
+          })
+          .first();
 
-  if (
-    agendamento.status !== "PENDENTE" &&
-    agendamento.status !== "CONFIRMADA" &&
-    agendamento.status !== "AGENDADA"
-  ) {
-    throw new Error(
-      "Este agendamento não pode ser cancelado."
-    );
-  }
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
 
-  const remarcacaoPendente =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        agendamentoId:
-          id,
+      if (
+        agendamento.status !==
+          "PENDENTE" &&
+        agendamento.status !==
+          "CONFIRMADA" &&
+        agendamento.status !==
+          "AGENDADA"
+      ) {
+        throw new Error(
+          "Este agendamento não pode ser cancelado."
+        );
+      }
 
-        status:
-          "PENDENTE"
-      })
-      .first();
+      const remarcacaoPendente =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            agendamentoId:
+              id,
 
-  if (
-    remarcacaoPendente
-  ) {
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacaoPendente.id
-      })
-      .update({
-        status:
-          "RECUSADA"
-      });
-  }
+            status:
+              "PENDENTE"
+          })
+          .first();
 
-  const agendamentoAtualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id,
-        pacienteId
-      })
-      .update({
-        status:
-          "CANCELADA"
-      });
+      if (
+        remarcacaoPendente
+      ) {
+        const remarcacaoAtualizada =
+          await tx.orm.public.RemarcacaoAgendamento
+            .where({
+              id:
+                remarcacaoPendente.id
+            })
+            .update({
+              status:
+                "RECUSADA",
 
-  if (
-    !agendamentoAtualizado
-  ) {
-    throw new Error(
-      "Não foi possível cancelar o agendamento."
-    );
-  }
+              visualizadoPaciente:
+                false
+            });
 
-  return agendamentoAtualizado;
+        if (
+          !remarcacaoAtualizada
+        ) {
+          throw new Error(
+            "Não foi possível encerrar a solicitação de remarcação."
+          );
+        }
+      }
+
+      const atualizado =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            pacienteId
+          })
+          .update({
+            status:
+              "CANCELADA"
+          });
+
+      if (!atualizado) {
+        throw new Error(
+          "Não foi possível cancelar o agendamento."
+        );
+      }
+
+      return atualizado;
+    }
+  );
 }
 
 
 // ========================================
 // SOLICITAR REMARCAÇÃO
 // ========================================
+//
+// A consulta original continua intacta
+// enquanto a solicitação fica PENDENTE.
+//
+// A criação da reserva do novo horário
+// também acontece em SERIALIZABLE para
+// impedir duas solicitações concorrentes
+// de reservarem o mesmo período.
 
 export async function solicitarRemarcacao(
   agendamentoId: number,
   pacienteId: number,
   dados: SolicitarRemarcacaoDados
 ): Promise<RemarcacaoRegistro> {
-  const agendamento =
-    await buscarAgendamentoDoPacientePorId(
-      agendamentoId,
-      pacienteId
-    );
 
   if (
-    agendamento.status !== "PENDENTE" &&
-    agendamento.status !== "CONFIRMADA" &&
-    agendamento.status !== "AGENDADA"
+    !dataPossuiFormatoValido(
+      dados.data
+    )
   ) {
     throw new Error(
-      "Este agendamento não pode ser remarcado."
+      "Data inválida."
     );
   }
 
-
-  // ========================================
-  // NÃO PERMITIR MESMO HORÁRIO
-  // ========================================
-
   if (
-    agendamento.data ===
-      dados.data &&
-    agendamento.horaInicio ===
+    !horarioPossuiFormatoValido(
       dados.horaInicio
+    )
   ) {
     throw new Error(
-      "Escolha um horário diferente do atual."
+      "Horário inválido."
     );
   }
 
+  return executarTransacaoSerializavel(
+    async (tx) => {
 
-  // ========================================
-  // IMPEDIR SOLICITAÇÕES DUPLICADAS
-  // ========================================
+      // ========================================
+      // BUSCAR AGENDAMENTO DO PACIENTE
+      // ========================================
 
-  const remarcacaoExistente =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        agendamentoId,
-        status:
-          "PENDENTE"
-      })
-      .first();
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id:
+              agendamentoId,
 
-  if (
-    remarcacaoExistente
-  ) {
-    throw new Error(
-      "Já existe uma solicitação de remarcação aguardando resposta do médico."
-    );
-  }
+            pacienteId
+          })
+          .first();
+
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
+
+      if (
+        agendamento.status !==
+          "PENDENTE" &&
+        agendamento.status !==
+          "CONFIRMADA" &&
+        agendamento.status !==
+          "AGENDADA"
+      ) {
+        throw new Error(
+          "Este agendamento não pode ser remarcado."
+        );
+      }
+
+      if (
+        agendamento.data ===
+          dados.data &&
+        agendamento.horaInicio ===
+          dados.horaInicio
+      ) {
+        throw new Error(
+          "Escolha um horário diferente do atual."
+        );
+      }
 
 
-  // ========================================
-  // VALIDAR NOVO SLOT
-  // ========================================
+      // ========================================
+      // IMPEDIR DUAS SOLICITAÇÕES DA MESMA CONSULTA
+      // ========================================
 
-  const novoHorario =
-    await horarioEstaDisponivel(
-      agendamento.medicoId,
-      dados.data,
-      dados.horaInicio
-    );
+      const remarcacaoExistente =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            agendamentoId,
 
-  if (!novoHorario) {
-    throw new Error(
-      "O horário selecionado não está mais disponível."
-    );
-  }
+            status:
+              "PENDENTE"
+          })
+          .first();
+
+      if (
+        remarcacaoExistente
+      ) {
+        throw new Error(
+          "Já existe uma solicitação de remarcação aguardando resposta do médico."
+        );
+      }
 
 
-  // ========================================
-  // CRIAR SOLICITAÇÃO
-  // ========================================
+      // ========================================
+      // VALIDAR SLOT PUBLICADO
+      // ========================================
 
-  const remarcacao =
-    await db.orm.public.RemarcacaoAgendamento
-      .create({
-        agendamentoId,
+      const disponibilidades =
+        await tx.orm.public.DisponibilidadeAgenda
+          .where({
+            medicoId:
+              agendamento.medicoId,
 
-        novaData:
-          dados.data,
+            data:
+              dados.data,
 
-        novaHoraInicio:
-          novoHorario.horaInicio,
+            ativo:
+              true
+          })
+          .all();
 
-        novaHoraFim:
-          novoHorario.horaFim,
+      const slots =
+        gerarSlotsDasDisponibilidades(
+          disponibilidades
+        );
 
-        status:
-          "PENDENTE",
+      const novoHorario =
+        slots.find(
+          (slot) =>
+            slot.horaInicio ===
+              dados.horaInicio
+        );
 
-        visualizadoPaciente:
-          false
-      });
+      if (!novoHorario) {
+        throw new Error(
+          "O horário selecionado não está mais disponível."
+        );
+      }
 
-  return remarcacao;
+
+      // ========================================
+      // VERIFICAR CONSULTAS
+      // ========================================
+
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId:
+              agendamento.medicoId,
+
+            data:
+              dados.data
+          })
+          .all();
+
+      const conflitoAgendamento =
+        agendamentos.find(
+          (item) => {
+            // Ignora a própria consulta,
+            // pois ela será movida se a
+            // remarcação for aceita.
+            if (
+              item.id ===
+                agendamento.id
+            ) {
+              return false;
+            }
+
+            if (
+              !statusOcupaHorario(
+                item.status
+              )
+            ) {
+              return false;
+            }
+
+            return horariosSeSobrepoem(
+              novoHorario.horaInicio,
+              novoHorario.horaFim,
+              item.horaInicio,
+              item.horaFim
+            );
+          }
+        );
+
+      if (
+        conflitoAgendamento
+      ) {
+        throw new Error(
+          "O horário selecionado não está mais disponível."
+        );
+      }
+
+
+      // ========================================
+      // VERIFICAR OUTRAS REMARCAÇÕES
+      // ========================================
+
+      const remarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            novaData:
+              dados.data,
+
+            status:
+              "PENDENTE"
+          })
+          .all();
+
+      if (
+        remarcacoes.length > 0
+      ) {
+        const agendamentosDoMedico =
+          await tx.orm.public.Agendamento
+            .where({
+              medicoId:
+                agendamento.medicoId
+            })
+            .all();
+
+        const ids =
+          new Set<number>(
+            agendamentosDoMedico.map(
+              (item) =>
+                item.id
+            )
+          );
+
+        const conflitoRemarcacao =
+          remarcacoes.find(
+            (remarcacao) =>
+              ids.has(
+                remarcacao.agendamentoId
+              ) &&
+              horariosSeSobrepoem(
+                novoHorario.horaInicio,
+                novoHorario.horaFim,
+                remarcacao.novaHoraInicio,
+                remarcacao.novaHoraFim
+              )
+          );
+
+        if (
+          conflitoRemarcacao
+        ) {
+          throw new Error(
+            "O horário selecionado não está mais disponível."
+          );
+        }
+      }
+
+
+      // ========================================
+      // CRIAR SOLICITAÇÃO
+      // ========================================
+
+      return tx.orm.public.RemarcacaoAgendamento
+        .create({
+          agendamentoId,
+
+          novaData:
+            dados.data,
+
+          novaHoraInicio:
+            novoHorario.horaInicio,
+
+          novaHoraFim:
+            novoHorario.horaFim,
+
+          status:
+            "PENDENTE",
+
+          visualizadoPaciente:
+            false
+        });
+    }
+  );
 }
 
 
@@ -1377,7 +2012,9 @@ export async function solicitarRemarcacao(
 
 export async function listarRemarcacoesDoPaciente(
   pacienteId: number
-): Promise<RemarcacaoPacienteRegistro[]> {
+): Promise<
+  RemarcacaoPacienteRegistro[]
+> {
   const agendamentos =
     await db.orm.public.Agendamento
       .where({
@@ -1407,7 +2044,8 @@ export async function listarRemarcacoesDoPaciente(
       .all();
 
   const resultado:
-    RemarcacaoPacienteRegistro[] = [];
+    RemarcacaoPacienteRegistro[] =
+      [];
 
   for (
     const remarcacao
@@ -1481,7 +2119,9 @@ export async function listarRemarcacoesDoPaciente(
 
 export async function listarRemarcacoesPendentesDoMedico(
   medicoId: number
-): Promise<RemarcacaoMedicoRegistro[]> {
+): Promise<
+  RemarcacaoMedicoRegistro[]
+> {
   const agendamentos =
     await db.orm.public.Agendamento
       .where({
@@ -1531,7 +2171,8 @@ export async function listarRemarcacoesPendentesDoMedico(
       .all();
 
   const resultado:
-    RemarcacaoMedicoRegistro[] = [];
+    RemarcacaoMedicoRegistro[] =
+      [];
 
   for (
     const remarcacao
@@ -1656,221 +2297,273 @@ async function buscarRemarcacaoDoMedico(
 // ========================================
 // ACEITAR REMARCAÇÃO
 // ========================================
+//
+// Agora a operação inteira acontece em
+// uma transação SERIALIZABLE:
+//
+// 1. busca remarcação;
+// 2. valida propriedade;
+// 3. revalida conflitos;
+// 4. altera Agendamento;
+// 5. altera RemarcacaoAgendamento.
+//
+// Se qualquer etapa falhar, nenhuma
+// alteração fica parcialmente salva.
 
 export async function aceitarRemarcacao(
   remarcacaoId: number,
   medicoId: number
 ): Promise<RemarcacaoRegistro> {
-  const {
-    remarcacao,
-    agendamento
-  } =
-    await buscarRemarcacaoDoMedico(
-      remarcacaoId,
-      medicoId
-    );
+  return executarTransacaoSerializavel(
+    async (tx) => {
 
-  if (
-    remarcacao.status !==
-    "PENDENTE"
-  ) {
-    throw new Error(
-      "Esta solicitação de remarcação já foi respondida."
-    );
-  }
+      // ========================================
+      // BUSCAR REMARCAÇÃO
+      // ========================================
 
-  if (
-    agendamento.status === "CANCELADA" ||
-    agendamento.status === "RECUSADA" ||
-    agendamento.status === "REALIZADA" ||
-    agendamento.status === "FALTOU"
-  ) {
-    throw new Error(
-      "O agendamento não pode mais ser remarcado."
-    );
-  }
+      const remarcacao =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            id:
+              remarcacaoId
+          })
+          .first();
 
-
-  // ========================================
-  // VERIFICAR CONFLITO COM CONSULTAS
-  // ========================================
-
-  const agendamentosNoNovoHorario =
-    await db.orm.public.Agendamento
-      .where({
-        medicoId,
-
-        data:
-          remarcacao.novaData
-      })
-      .all();
-
-  const conflito =
-    agendamentosNoNovoHorario.find(
-      (item) => {
-        // Ignora a própria consulta que
-        // está sendo remarcada.
-        if (
-          item.id ===
-          agendamento.id
-        ) {
-          return false;
-        }
-
-        if (
-          !statusOcupaHorario(
-            item.status
-          )
-        ) {
-          return false;
-        }
-
-        return horariosSeSobrepoem(
-          remarcacao.novaHoraInicio,
-          remarcacao.novaHoraFim,
-          item.horaInicio,
-          item.horaFim
+      if (!remarcacao) {
+        throw new Error(
+          "Solicitação de remarcação não encontrada."
         );
       }
-    );
-
-  if (
-    conflito
-  ) {
-    throw new Error(
-      "O novo horário não está mais disponível."
-    );
-  }
 
 
-  // ========================================
-  // VERIFICAR OUTRAS REMARCAÇÕES
-  // ========================================
+      // ========================================
+      // BUSCAR AGENDAMENTO DO MÉDICO
+      // ========================================
 
-  const outrasRemarcacoes =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        novaData:
-          remarcacao.novaData,
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id:
+              remarcacao.agendamentoId,
 
-        status:
+            medicoId
+          })
+          .first();
+
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
+
+
+      // ========================================
+      // VALIDAR STATUS
+      // ========================================
+
+      if (
+        remarcacao.status !==
           "PENDENTE"
-      })
-      .all();
-
-  const agendamentosDoMedico =
-    await db.orm.public.Agendamento
-      .where({
-        medicoId
-      })
-      .all();
-
-  const idsAgendamentosDoMedico =
-    new Set<number>(
-      agendamentosDoMedico.map(
-        (item) =>
-          item.id
-      )
-    );
-
-  const conflitoOutraRemarcacao =
-    outrasRemarcacoes.find(
-      (outra) => {
-        if (
-          outra.id ===
-          remarcacao.id
-        ) {
-          return false;
-        }
-
-        if (
-          !idsAgendamentosDoMedico.has(
-            outra.agendamentoId
-          )
-        ) {
-          return false;
-        }
-
-        return horariosSeSobrepoem(
-          remarcacao.novaHoraInicio,
-          remarcacao.novaHoraFim,
-          outra.novaHoraInicio,
-          outra.novaHoraFim
+      ) {
+        throw new Error(
+          "Esta solicitação de remarcação já foi respondida."
         );
       }
-    );
 
-  if (
-    conflitoOutraRemarcacao
-  ) {
-    throw new Error(
-      "O novo horário está reservado por outra solicitação de remarcação."
-    );
-  }
-
-
-  // ========================================
-  // ATUALIZAR AGENDAMENTO
-  // ========================================
-
-  const agendamentoAtualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id:
-          agendamento.id,
-
-        medicoId
-      })
-      .update({
-        data:
-          remarcacao.novaData,
-
-        horaInicio:
-          remarcacao.novaHoraInicio,
-
-        horaFim:
-          remarcacao.novaHoraFim,
-
-        status:
-          "CONFIRMADA"
-      });
-
-  if (
-    !agendamentoAtualizado
-  ) {
-    throw new Error(
-      "Não foi possível atualizar o agendamento."
-    );
-  }
+      if (
+        agendamento.status ===
+          "CANCELADA" ||
+        agendamento.status ===
+          "RECUSADA" ||
+        agendamento.status ===
+          "REALIZADA" ||
+        agendamento.status ===
+          "FALTOU"
+      ) {
+        throw new Error(
+          "O agendamento não pode mais ser remarcado."
+        );
+      }
 
 
-  // ========================================
-  // MARCAR COMO ACEITA
-  // ========================================
+      // ========================================
+      // VERIFICAR CONFLITO COM CONSULTAS
+      // ========================================
 
-  const remarcacaoAtualizada =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacaoId
-      })
-      .update({
-        status:
-          "ACEITA",
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId,
 
-        visualizadoPaciente:
-          false
-      });
+            data:
+              remarcacao.novaData
+          })
+          .all();
 
-  if (
-    !remarcacaoAtualizada
-  ) {
-    throw new Error(
-      "Não foi possível concluir a remarcação."
-    );
-  }
+      const conflito =
+        agendamentos.find(
+          (item) => {
+            if (
+              item.id ===
+                agendamento.id
+            ) {
+              return false;
+            }
 
-  return remarcacaoAtualizada;
+            if (
+              !statusOcupaHorario(
+                item.status
+              )
+            ) {
+              return false;
+            }
+
+            return horariosSeSobrepoem(
+              remarcacao.novaHoraInicio,
+              remarcacao.novaHoraFim,
+              item.horaInicio,
+              item.horaFim
+            );
+          }
+        );
+
+      if (conflito) {
+        throw new Error(
+          "O novo horário não está mais disponível."
+        );
+      }
+
+
+      // ========================================
+      // VERIFICAR OUTRAS REMARCAÇÕES
+      // ========================================
+
+      const outrasRemarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            novaData:
+              remarcacao.novaData,
+
+            status:
+              "PENDENTE"
+          })
+          .all();
+
+      const agendamentosDoMedico =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId
+          })
+          .all();
+
+      const ids =
+        new Set<number>(
+          agendamentosDoMedico.map(
+            (item) =>
+              item.id
+          )
+        );
+
+      const conflitoOutraRemarcacao =
+        outrasRemarcacoes.find(
+          (outra) => {
+            if (
+              outra.id ===
+                remarcacao.id
+            ) {
+              return false;
+            }
+
+            if (
+              !ids.has(
+                outra.agendamentoId
+              )
+            ) {
+              return false;
+            }
+
+            return horariosSeSobrepoem(
+              remarcacao.novaHoraInicio,
+              remarcacao.novaHoraFim,
+              outra.novaHoraInicio,
+              outra.novaHoraFim
+            );
+          }
+        );
+
+      if (
+        conflitoOutraRemarcacao
+      ) {
+        throw new Error(
+          "O novo horário está reservado por outra solicitação de remarcação."
+        );
+      }
+
+
+      // ========================================
+      // ATUALIZAR AGENDAMENTO
+      // ========================================
+
+      const agendamentoAtualizado =
+        await tx.orm.public.Agendamento
+          .where({
+            id:
+              agendamento.id,
+
+            medicoId
+          })
+          .update({
+            data:
+              remarcacao.novaData,
+
+            horaInicio:
+              remarcacao.novaHoraInicio,
+
+            horaFim:
+              remarcacao.novaHoraFim,
+
+            status:
+              "CONFIRMADA"
+          });
+
+      if (
+        !agendamentoAtualizado
+      ) {
+        throw new Error(
+          "Não foi possível atualizar o agendamento."
+        );
+      }
+
+
+      // ========================================
+      // MARCAR REMARCAÇÃO COMO ACEITA
+      // ========================================
+
+      const remarcacaoAtualizada =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            id:
+              remarcacaoId
+          })
+          .update({
+            status:
+              "ACEITA",
+
+            visualizadoPaciente:
+              false
+          });
+
+      if (
+        !remarcacaoAtualizada
+      ) {
+        throw new Error(
+          "Não foi possível concluir a remarcação."
+        );
+      }
+
+      return remarcacaoAtualizada;
+    }
+  );
 }
 
 
@@ -1892,14 +2585,14 @@ export async function recusarRemarcacao(
 
   if (
     remarcacao.status !==
-    "PENDENTE"
+      "PENDENTE"
   ) {
     throw new Error(
       "Esta solicitação de remarcação já foi respondida."
     );
   }
 
-  const remarcacaoAtualizada =
+  const atualizada =
     await db.orm.public.RemarcacaoAgendamento
       .where({
         id:
@@ -1913,15 +2606,13 @@ export async function recusarRemarcacao(
           false
       });
 
-  if (
-    !remarcacaoAtualizada
-  ) {
+  if (!atualizada) {
     throw new Error(
       "Não foi possível recusar a remarcação."
     );
   }
 
-  return remarcacaoAtualizada;
+  return atualizada;
 }
 
 
@@ -1954,14 +2645,14 @@ export async function marcarRemarcacaoComoVisualizada(
 
   if (
     remarcacao.status ===
-    "PENDENTE"
+      "PENDENTE"
   ) {
     throw new Error(
       "Esta solicitação ainda não foi respondida."
     );
   }
 
-  const remarcacaoAtualizada =
+  const atualizada =
     await db.orm.public.RemarcacaoAgendamento
       .where({
         id:
@@ -1972,15 +2663,13 @@ export async function marcarRemarcacaoComoVisualizada(
           true
       });
 
-  if (
-    !remarcacaoAtualizada
-  ) {
+  if (!atualizada) {
     throw new Error(
       "Não foi possível atualizar a visualização."
     );
   }
 
-  return remarcacaoAtualizada;
+  return atualizada;
 }
 
 
@@ -1988,92 +2677,99 @@ export async function marcarRemarcacaoComoVisualizada(
 // EXCLUIR CONSULTA DEFINITIVAMENTE
 // ========================================
 //
-// CANCELAR:
-// mantém no banco com CANCELADA.
+// A exclusão agora é transacional.
 //
-// EXCLUIR:
-// remove definitivamente.
+// Primeiro remove todas as remarcações,
+// depois remove o agendamento.
 //
-// Como RemarcacaoAgendamento possui
-// referência ao Agendamento, primeiro
-// removemos as remarcações relacionadas.
+// Se a exclusão final falhar, as
+// remarcações também são restauradas
+// pelo rollback.
 
 export async function excluirAgendamento(
   id: number,
   medicoId: number
 ): Promise<void> {
+  await db.transaction(
+    async (tx) => {
 
-  // Garante que existe e pertence
-  // ao médico autenticado.
-  await buscarAgendamentoDoMedicoPorId(
-    id,
-    medicoId
+      // ========================================
+      // VALIDAR PROPRIEDADE
+      // ========================================
+
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .first();
+
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
+
+
+      // ========================================
+      // EXCLUIR REMARCAÇÕES
+      // ========================================
+
+      const remarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            agendamentoId:
+              id
+          })
+          .all();
+
+      for (
+        const remarcacao
+        of remarcacoes
+      ) {
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            id:
+              remarcacao.id
+          })
+          .delete();
+      }
+
+
+      // ========================================
+      // EXCLUIR AGENDAMENTO
+      // ========================================
+
+      const excluido =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .delete();
+
+      if (!excluido) {
+        throw new Error(
+          "Não foi possível excluir o agendamento."
+        );
+      }
+    }
   );
-
-  const remarcacoes =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        agendamentoId:
-          id
-      })
-      .all();
-
-  for (
-    const remarcacao
-    of remarcacoes
-  ) {
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacao.id
-      })
-      .delete();
-  }
-
-  const agendamentoExcluido =
-    await db.orm.public.Agendamento
-      .where({
-        id,
-        medicoId
-      })
-      .delete();
-
-  if (
-    !agendamentoExcluido
-  ) {
-    throw new Error(
-      "Não foi possível excluir o agendamento."
-    );
-  }
 }
+
+
 // ========================================
 // REMARCAR CONSULTA DIRETAMENTE PELO MÉDICO
 // ========================================
 //
-// Este fluxo é diferente da solicitação
-// de remarcação feita pelo paciente.
+// O médico escolhe um slot publicado
+// em DisponibilidadeAgenda.
 //
-// PACIENTE:
-//
-// solicita novo horário
-//        ↓
-// RemarcacaoAgendamento = PENDENTE
-//        ↓
-// médico aceita ou recusa
-//
-//
-// MÉDICO:
-//
-// escolhe diretamente um novo horário
-//        ↓
-// Agendamento é alterado imediatamente
-//        ↓
-// continua CONFIRMADA
-//
-// A remarcação direta do médico utiliza
-// as disponibilidades configuradas na
-// agenda, mantendo o comportamento que
-// já existia no frontend.
+// A operação agora utiliza
+// SERIALIZABLE para impedir que outro
+// agendamento ocupe o mesmo horário
+// entre a validação e o update.
 
 export async function remarcarAgendamento(
   id: number,
@@ -2083,42 +2779,7 @@ export async function remarcarAgendamento(
 ): Promise<AgendamentoRegistro> {
 
   // ========================================
-  // BUSCAR AGENDAMENTO
-  // ========================================
-
-  const agendamento =
-    await buscarAgendamentoDoMedicoPorId(
-      id,
-      medicoId
-    );
-
-
-  // ========================================
-  // VALIDAR STATUS
-  // ========================================
-  //
-  // Permitimos remarcar consultas:
-  //
-  // PENDENTE
-  // AGENDADA
-  // CONFIRMADA
-  //
-  // Consultas finalizadas, canceladas
-  // ou recusadas não podem ser remarcadas.
-
-  if (
-    agendamento.status !== "PENDENTE" &&
-    agendamento.status !== "AGENDADA" &&
-    agendamento.status !== "CONFIRMADA"
-  ) {
-    throw new Error(
-      "Este agendamento não pode ser remarcado."
-    );
-  }
-
-
-  // ========================================
-  // VALIDAR DATA
+  // VALIDAÇÕES SEM ACESSO AO BANCO
   // ========================================
 
   if (
@@ -2131,48 +2792,13 @@ export async function remarcarAgendamento(
     );
   }
 
-
-  // ========================================
-  // NÃO PERMITIR DATA PASSADA
-  // ========================================
-
-  const agora =
-    new Date();
-
-  const anoAtual =
-    agora.getFullYear();
-
-  const mesAtual =
-    String(
-      agora.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
-
-  const diaAtual =
-    String(
-      agora.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
-
-  const hoje =
-    `${anoAtual}-${mesAtual}-${diaAtual}`;
-
   if (
-    data < hoje
+    data < obterHoje()
   ) {
     throw new Error(
       "Não é possível remarcar uma consulta para uma data passada."
     );
   }
-
-
-  // ========================================
-  // VALIDAR HORÁRIO
-  // ========================================
 
   if (
     !horarioPossuiFormatoValido(
@@ -2185,285 +2811,258 @@ export async function remarcarAgendamento(
   }
 
 
-  // ========================================
-  // NÃO PERMITIR O MESMO HORÁRIO
-  // ========================================
+  return executarTransacaoSerializavel(
+    async (tx) => {
 
-  if (
-    agendamento.data === data &&
-    agendamento.horaInicio ===
-      horaInicio
-  ) {
-    throw new Error(
-      "Escolha um horário diferente do atual."
-    );
-  }
+      // ========================================
+      // BUSCAR AGENDAMENTO
+      // ========================================
 
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .first();
 
-  // ========================================
-  // BUSCAR DISPONIBILIDADES DA DATA
-  // ========================================
-  //
-  // Aqui mantemos exatamente a dinâmica
-  // que já existia no frontend:
-  //
-  // para REMARCAR uma consulta existente,
-  // o médico escolhe um slot configurado
-  // em DisponibilidadeAgenda.
-
-  const disponibilidades =
-    await buscarDisponibilidadesDoMedico(
-      medicoId,
-      data
-    );
-
-  const slots =
-    gerarSlotsDasDisponibilidades(
-      disponibilidades
-    );
-
-  const slotSelecionado =
-    slots.find(
-      (slot) =>
-        slot.horaInicio ===
-        horaInicio
-    );
-
-  if (
-    !slotSelecionado
-  ) {
-    throw new Error(
-      "O horário selecionado não pertence às disponibilidades configuradas."
-    );
-  }
-
-
-  // ========================================
-  // VERIFICAR CONFLITO COM CONSULTAS
-  // ========================================
-  //
-  // A própria consulta que estamos
-  // remarcando é ignorada.
-  //
-  // Isso é importante principalmente
-  // quando a nova data é igual à atual.
-
-  const agendamentosDaData =
-    await db.orm.public.Agendamento
-      .where({
-        medicoId,
-        data
-      })
-      .all();
-
-  const conflitoAgendamento =
-    agendamentosDaData.find(
-      (item) => {
-
-        // Ignora a própria consulta.
-        if (
-          item.id ===
-          agendamento.id
-        ) {
-          return false;
-        }
-
-        // Consultas canceladas, recusadas,
-        // realizadas etc. não bloqueiam
-        // o horário.
-        if (
-          !statusOcupaHorario(
-            item.status
-          )
-        ) {
-          return false;
-        }
-
-        return horariosSeSobrepoem(
-          slotSelecionado.horaInicio,
-          slotSelecionado.horaFim,
-          item.horaInicio,
-          item.horaFim
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
         );
       }
-    );
-
-  if (
-    conflitoAgendamento
-  ) {
-    throw new Error(
-      "Já existe uma consulta ocupando este período."
-    );
-  }
 
 
-  // ========================================
-  // VERIFICAR REMARCAÇÕES PENDENTES
-  // ========================================
-  //
-  // Uma solicitação de remarcação feita
-  // por outro paciente também reserva
-  // temporariamente aquele horário.
+      // ========================================
+      // VALIDAR STATUS
+      // ========================================
 
-  const remarcacoesDaData =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        novaData:
-          data,
+      if (
+        agendamento.status !==
+          "PENDENTE" &&
+        agendamento.status !==
+          "AGENDADA" &&
+        agendamento.status !==
+          "CONFIRMADA"
+      ) {
+        throw new Error(
+          "Este agendamento não pode ser remarcado."
+        );
+      }
 
-        status:
-          "PENDENTE"
-      })
-      .all();
 
-  if (
-    remarcacoesDaData.length >
-    0
-  ) {
+      // ========================================
+      // NÃO PERMITIR MESMO HORÁRIO
+      // ========================================
 
-    const agendamentosDoMedico =
-      await db.orm.public.Agendamento
-        .where({
-          medicoId
-        })
-        .all();
+      if (
+        agendamento.data ===
+          data &&
+        agendamento.horaInicio ===
+          horaInicio
+      ) {
+        throw new Error(
+          "Escolha um horário diferente do atual."
+        );
+      }
 
-    const idsAgendamentosDoMedico =
-      new Set<number>(
-        agendamentosDoMedico.map(
-          (item) =>
-            item.id
-        )
-      );
 
-    const conflitoRemarcacao =
-      remarcacoesDaData.find(
-        (remarcacao) => {
+      // ========================================
+      // BUSCAR SLOT CONFIGURADO
+      // ========================================
 
-          // Só consideramos remarcações
-          // pertencentes a consultas
-          // deste médico.
-          if (
-            !idsAgendamentosDoMedico.has(
-              remarcacao.agendamentoId
-            )
-          ) {
-            return false;
+      const disponibilidades =
+        await tx.orm.public.DisponibilidadeAgenda
+          .where({
+            medicoId,
+            data,
+            ativo:
+              true
+          })
+          .all();
+
+      const slots =
+        gerarSlotsDasDisponibilidades(
+          disponibilidades
+        );
+
+      const slotSelecionado =
+        slots.find(
+          (slot) =>
+            slot.horaInicio ===
+              horaInicio
+        );
+
+      if (
+        !slotSelecionado
+      ) {
+        throw new Error(
+          "O horário selecionado não pertence às disponibilidades configuradas."
+        );
+      }
+
+
+      // ========================================
+      // REMARCAÇÃO PENDENTE DA PRÓPRIA CONSULTA
+      // ========================================
+
+      const remarcacaoPendenteDaConsulta =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            agendamentoId:
+              agendamento.id,
+
+            status:
+              "PENDENTE"
+          })
+          .first();
+
+      if (
+        remarcacaoPendenteDaConsulta
+      ) {
+        throw new Error(
+          "Existe uma solicitação de remarcação pendente para esta consulta. Aceite ou recuse a solicitação antes de remarcar diretamente."
+        );
+      }
+
+
+      // ========================================
+      // CONFLITO COM CONSULTAS
+      // ========================================
+
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            medicoId,
+            data
+          })
+          .all();
+
+      const conflitoAgendamento =
+        agendamentos.find(
+          (item) => {
+            if (
+              item.id ===
+                agendamento.id
+            ) {
+              return false;
+            }
+
+            if (
+              !statusOcupaHorario(
+                item.status
+              )
+            ) {
+              return false;
+            }
+
+            return horariosSeSobrepoem(
+              slotSelecionado.horaInicio,
+              slotSelecionado.horaFim,
+              item.horaInicio,
+              item.horaFim
+            );
           }
+        );
 
-          // Se existir uma solicitação
-          // pendente da própria consulta,
-          // também não permitimos a
-          // remarcação direta.
-          //
-          // Isso evita que o médico altere
-          // a consulta enquanto existe uma
-          // solicitação do paciente sem
-          // resposta.
+      if (
+        conflitoAgendamento
+      ) {
+        throw new Error(
+          "Já existe uma consulta ocupando este período."
+        );
+      }
 
-          return horariosSeSobrepoem(
-            slotSelecionado.horaInicio,
-            slotSelecionado.horaFim,
-            remarcacao.novaHoraInicio,
-            remarcacao.novaHoraFim
+
+      // ========================================
+      // CONFLITO COM REMARCAÇÕES PENDENTES
+      // ========================================
+
+      const remarcacoes =
+        await tx.orm.public.RemarcacaoAgendamento
+          .where({
+            novaData:
+              data,
+
+            status:
+              "PENDENTE"
+          })
+          .all();
+
+      if (
+        remarcacoes.length > 0
+      ) {
+        const agendamentosDoMedico =
+          await tx.orm.public.Agendamento
+            .where({
+              medicoId
+            })
+            .all();
+
+        const ids =
+          new Set<number>(
+            agendamentosDoMedico.map(
+              (item) =>
+                item.id
+            )
+          );
+
+        const conflitoRemarcacao =
+          remarcacoes.find(
+            (remarcacao) =>
+              ids.has(
+                remarcacao.agendamentoId
+              ) &&
+              horariosSeSobrepoem(
+                slotSelecionado.horaInicio,
+                slotSelecionado.horaFim,
+                remarcacao.novaHoraInicio,
+                remarcacao.novaHoraFim
+              )
+          );
+
+        if (
+          conflitoRemarcacao
+        ) {
+          throw new Error(
+            "Este horário está reservado por uma solicitação de remarcação pendente."
           );
         }
-      );
+      }
 
-    if (
-      conflitoRemarcacao
-    ) {
-      throw new Error(
-        "Este horário está reservado por uma solicitação de remarcação pendente."
-      );
+
+      // ========================================
+      // ATUALIZAR
+      // ========================================
+
+      const atualizado =
+        await tx.orm.public.Agendamento
+          .where({
+            id:
+              agendamento.id,
+
+            medicoId
+          })
+          .update({
+            data,
+
+            horaInicio:
+              slotSelecionado.horaInicio,
+
+            horaFim:
+              slotSelecionado.horaFim,
+
+            status:
+              "CONFIRMADA"
+          });
+
+      if (!atualizado) {
+        throw new Error(
+          "Não foi possível remarcar o agendamento."
+        );
+      }
+
+      return atualizado;
     }
-  }
-
-
-  // ========================================
-  // TRATAR REMARCAÇÃO PENDENTE DA
-  // PRÓPRIA CONSULTA
-  // ========================================
-  //
-  // Mesmo que a solicitação pendente seja
-  // para outro horário, não queremos que
-  // existam dois fluxos concorrentes:
-  //
-  // paciente esperando resposta
-  //
-  // +
-  //
-  // médico alterando diretamente.
-  //
-  // Portanto, se existir uma solicitação
-  // pendente para esta consulta, o médico
-  // deve primeiro aceitar ou recusá-la.
-
-  const remarcacaoPendenteDaConsulta =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        agendamentoId:
-          agendamento.id,
-
-        status:
-          "PENDENTE"
-      })
-      .first();
-
-  if (
-    remarcacaoPendenteDaConsulta
-  ) {
-    throw new Error(
-      "Existe uma solicitação de remarcação pendente para esta consulta. Aceite ou recuse a solicitação antes de remarcar diretamente."
-    );
-  }
-
-
-  // ========================================
-  // ATUALIZAR AGENDAMENTO
-  // ========================================
-
-  const agendamentoAtualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id:
-          agendamento.id,
-
-        medicoId
-      })
-      .update({
-        data,
-
-        horaInicio:
-          slotSelecionado.horaInicio,
-
-        horaFim:
-          slotSelecionado.horaFim,
-
-        // Quando a própria médica realiza
-        // a remarcação, a consulta fica
-        // confirmada.
-        status:
-          "CONFIRMADA"
-      });
-
-
-  // ========================================
-  // GARANTIR ATUALIZAÇÃO
-  // ========================================
-
-  if (
-    !agendamentoAtualizado
-  ) {
-    throw new Error(
-      "Não foi possível remarcar o agendamento."
-    );
-  }
-
-
-  // ========================================
-  // RETORNO
-  // ========================================
-
-  return agendamentoAtualizado;
+  );
 }

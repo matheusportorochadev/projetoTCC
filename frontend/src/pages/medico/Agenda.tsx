@@ -158,8 +158,6 @@ function Agenda() {
   const hoje =
     new Date();
 
-  const token =
-    localStorage.getItem("token");
 
 
   // ========================================
@@ -535,22 +533,12 @@ const [
           setCarregando(true);
           setErro("");
 
-          if (!token) {
-            setErro(
-              "Sessão não encontrada. Faça login novamente."
-            );
-
-            return [];
-          }
 
           const resposta =
             await fetch(
               `${API_URL}/agenda/disponibilidades`,
               {
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`
-                }
+                credentials: "include"
               }
             );
 
@@ -588,7 +576,7 @@ const [
           setCarregando(false);
         }
       },
-      [token]
+      []
     );
 
 
@@ -606,13 +594,6 @@ const [
 
           setErroAgendamentos("");
 
-          if (!token) {
-            setErroAgendamentos(
-              "Sessão não encontrada. Faça login novamente."
-            );
-
-            return;
-          }
 
           const resposta =
             await fetch(
@@ -620,10 +601,7 @@ const [
               {
                 method: "GET",
 
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`
-                }
+                credentials: "include"
               }
             );
 
@@ -658,7 +636,7 @@ const [
           );
         }
       },
-      [token]
+      []
     );
 
 
@@ -674,20 +652,12 @@ const [
             true
           );
 
-          if (!token) {
-            throw new Error(
-              "Sessão não encontrada. Faça login novamente."
-            );
-          }
 
           const resposta =
             await fetch(
               `${API_URL}/pacientes`,
               {
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`
-                }
+                credentials: "include"
               }
             );
 
@@ -720,7 +690,7 @@ const [
           );
         }
       },
-      [token]
+      []
     );
 
 
@@ -736,18 +706,12 @@ const [
             true
           );
 
-          if (!token) {
-            return;
-          }
 
           const resposta =
             await fetch(
               `${API_URL}/agendamentos/remarcacoes/pendentes`,
               {
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`
-                }
+                credentials: "include"
               }
             );
 
@@ -782,7 +746,7 @@ const [
           );
         }
       },
-      [token]
+      []
     );
 
 
@@ -1519,13 +1483,6 @@ const [
       return;
     }
 
-    if (!token) {
-      setErroModal(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
-      return;
-    }
 
     try {
       setSalvandoModal(
@@ -1538,12 +1495,11 @@ const [
           {
             method: "POST",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:
@@ -1699,13 +1655,6 @@ const [
       return;
     }
 
-    if (!token) {
-      setErro(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
-      return;
-    }
 
     try {
       setSalvando(true);
@@ -1716,12 +1665,11 @@ const [
           {
             method: "POST",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:
@@ -1791,13 +1739,6 @@ const [
       return;
     }
 
-    if (!token) {
-      setErro(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
-      return;
-    }
 
     try {
       setExcluindo(true);
@@ -1808,10 +1749,7 @@ const [
           {
             method: "DELETE",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -1899,10 +1837,7 @@ const [
 
 
   async function executarAcaoAgendamento() {
-    if (
-      !confirmacaoAcao ||
-      !token
-    ) {
+    if (!confirmacaoAcao) {
       return;
     }
 
@@ -1921,10 +1856,7 @@ const [
           {
             method: "PATCH",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -2024,9 +1956,6 @@ const [
       return;
     }
 
-    if (!token) {
-      return;
-    }
 
     try {
       setSalvandoRemarcacao(
@@ -2039,12 +1968,11 @@ const [
           {
             method: "PATCH",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:
@@ -2175,13 +2103,6 @@ const [
       return;
     }
 
-    if (!token) {
-      setErroNovaConsulta(
-        "Sessão não encontrada. Faça login novamente."
-      );
-
-      return;
-    }
 
     try {
       setSalvandoNovaConsulta(
@@ -2194,12 +2115,11 @@ const [
           {
             method: "POST",
 
+            credentials: "include",
             headers: {
               "Content-Type":
                 "application/json",
 
-              Authorization:
-                `Bearer ${token}`
             },
 
             body:
@@ -2260,10 +2180,7 @@ const [
   // ========================================
 
   async function excluirConsulta() {
-    if (
-      !agendamentoParaExcluir ||
-      !token
-    ) {
+    if (!agendamentoParaExcluir) {
       return;
     }
 
@@ -2278,10 +2195,7 @@ const [
           {
             method: "DELETE",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 
@@ -2327,10 +2241,7 @@ const [
   // ========================================
 
   async function executarAcaoRemarcacao() {
-    if (
-      !confirmacaoRemarcacao ||
-      !token
-    ) {
+    if (!confirmacaoRemarcacao) {
       return;
     }
 
@@ -2351,10 +2262,7 @@ const [
           {
             method: "PATCH",
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+            credentials: "include"
           }
         );
 

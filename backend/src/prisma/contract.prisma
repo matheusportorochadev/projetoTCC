@@ -21,17 +21,17 @@ enum StatusAgendamento {
 }
 
 // Status possíveis de uma solicitação
-// de remarcação.
+// de remarcação de consulta.
 //
 // PENDENTE:
-// o paciente solicitou um novo horário
+// paciente solicitou um novo horário
 // e aguarda a decisão do médico.
 //
 // ACEITA:
-// o médico aprovou o novo horário.
+// médico aprovou o novo horário.
 //
 // RECUSADA:
-// o médico recusou o novo horário.
+// médico recusou o novo horário.
 enum StatusRemarcacao {
   PENDENTE
   ACEITA
@@ -48,18 +48,59 @@ model Usuario {
   id             Int               @id @default(autoincrement())
   nome           String
   email          String            @unique
-  senha          String
+
+  // A senha agora é opcional.
+  //
+  // Isso permite que um usuário recém-criado,
+  // principalmente o PACIENTE, ainda não possua
+  // uma senha antes de concluir o primeiro acesso.
+  //
+  // Exemplo:
+  //
+  // Médico libera acesso do paciente
+  //        ↓
+  // Usuario é criado
+  //        ↓
+  // senha = null
+  // primeiroAcesso = true
+  //
+  // Depois que o paciente validar o código
+  // recebido por email e criar sua senha:
+  //
+  // senha = hash bcrypt
+  // primeiroAcesso = false
+  senha          String?
+
   tipo           TipoUsuario
   ativo          Boolean           @default(true)
+
+  // Indica se o usuário ainda precisa
+  // concluir o processo de primeiro acesso.
   primeiroAcesso Boolean           @default(true)
 
   createdAt      TimestamptzString @default(now())
   updatedAt      temporal.updatedAtString()
 
-  // Relacionamentos
-  medico            Medico?
-  paciente           Paciente?
+  // ========================================
+  // RELACIONAMENTOS
+  // ========================================
+
+  medico   Medico?
+  paciente Paciente?
+
+  // Códigos utilizados exclusivamente
+  // na recuperação de senha.
+  //
+  // Fluxo:
+  // "Esqueci minha senha"
   codigosRedefinicao CodigoRedefinicaoSenha[]
+
+  // Códigos utilizados exclusivamente
+  // para a criação da primeira senha.
+  //
+  // Fluxo:
+  // "Primeiro acesso"
+  codigosPrimeiroAcesso CodigoPrimeiroAcesso[]
 }
 
 
@@ -99,21 +140,21 @@ model Medico {
 // Dados dos pacientes cadastrados
 // pelo médico
 model Paciente {
-  id             Int     @id @default(autoincrement())
-  medicoId       Int
-  usuarioId      Int?    @unique
+  id        Int  @id @default(autoincrement())
+  medicoId  Int
+  usuarioId Int? @unique
 
-  nome           String
-  email          String?
-  telefone       String?
-  cpf            String? @unique
+  nome     String
+  email    String?
+  telefone String?
+  cpf      String? @unique
 
   // Indica se o médico liberou
   // o acesso do paciente ao sistema
   acessoLiberado Boolean @default(false)
 
   // Exclusão/bloqueio lógico
-  ativo          Boolean @default(true)
+  ativo Boolean @default(true)
 
   // Médico responsável
   medico Medico @relation(
@@ -121,7 +162,10 @@ model Paciente {
     references: [id]
   )
 
-  // Usuário utilizado para login
+  // Usuário utilizado para login.
+  //
+  // Pode ser null enquanto o médico ainda
+  // não tiver liberado o acesso do paciente.
   usuario Usuario? @relation(
     fields: [usuarioId],
     references: [id]
@@ -145,13 +189,13 @@ model Paciente {
 // 08:00 até 12:00
 // duração de consulta: 30 minutos
 model DisponibilidadeAgenda {
-  id              Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  medicoId        Int
-  data            DateString
+  medicoId Int
+  data     DateString
 
-  horaInicio      String
-  horaFim         String
+  horaInicio String
+  horaFim    String
 
   duracaoConsulta Int @default(30)
 
@@ -222,10 +266,10 @@ model Agendamento {
     references: [id]
   )
 
-  // Histórico de solicitações de
+  // Histórico das solicitações de
   // remarcação desta consulta.
   //
-  // Uma consulta pode ter várias
+  // Uma consulta pode possuir várias
   // solicitações ao longo do tempo.
   remarcacoes RemarcacaoAgendamento[]
 
@@ -251,38 +295,38 @@ model Agendamento {
 // REMARCAÇÃO DE AGENDAMENTO
 // ========================================
 
-// Representa uma solicitação feita pelo
-// paciente para alterar a data e/ou
-// horário de uma consulta.
+// Representa uma solicitação feita
+// pelo paciente para mudar a data
+// e/ou horário de uma consulta.
 //
 // IMPORTANTE:
 //
-// A consulta original não será alterada
-// enquanto o médico não responder.
+// A consulta original NÃO será alterada
+// enquanto o médico não aceitar
+// a solicitação.
 //
 // Exemplo:
 //
-// Consulta original:
+// Consulta atual:
 // 18/09/2026 - 14:00
 //
 // Paciente solicita:
 // 20/09/2026 - 09:30
 //
-// Enquanto a remarcação estiver PENDENTE,
-// a consulta continua oficialmente marcada
-// para 18/09/2026 às 14:00.
+// Enquanto estiver PENDENTE,
+// o Agendamento continua apontando
+// para 18/09/2026 - 14:00.
 //
-// Se o médico ACEITAR:
-// o novo horário passa a ser o horário
-// oficial do Agendamento.
+// Se o médico aceitar, o Agendamento
+// será atualizado para o novo horário.
 //
-// Se o médico RECUSAR:
-// a consulta original permanece intacta.
+// Se recusar, a consulta original
+// continuará normalmente.
 model RemarcacaoAgendamento {
   id Int @id @default(autoincrement())
 
   // ========================================
-  // AGENDAMENTO ORIGINAL
+  // AGENDAMENTO
   // ========================================
 
   // Consulta que o paciente
@@ -290,27 +334,29 @@ model RemarcacaoAgendamento {
   agendamentoId Int
 
   // ========================================
-  // NOVO HORÁRIO SOLICITADO
+  // NOVO HORÁRIO
   // ========================================
 
-  // Nova data escolhida pelo paciente
+  // Nova data solicitada
   novaData DateString
 
-  // Novo horário inicial
+  // Novo horário inicial solicitado
   novaHoraInicio String
 
-  // Novo horário final
+  // Novo horário final solicitado
   novaHoraFim String
 
   // ========================================
-  // STATUS DA SOLICITAÇÃO
+  // STATUS
   // ========================================
 
-  // Toda nova solicitação começa
-  // como PENDENTE.
+  // A solicitação nasce como PENDENTE.
   //
-  // O médico posteriormente poderá
-  // ACEITAR ou RECUSAR.
+  // Depois o médico poderá alterar para:
+  //
+  // ACEITA
+  // ou
+  // RECUSADA
   status StatusRemarcacao @default(PENDENTE)
 
   // ========================================
@@ -320,20 +366,22 @@ model RemarcacaoAgendamento {
   // Indica se o paciente já visualizou
   // a resposta do médico.
   //
-  // Exemplo:
+  // Quando o médico aceita ou recusa,
+  // permanece false.
   //
-  // Médico recusou
-  //        ↓
-  // status = RECUSADA
-  // visualizadoPaciente = false
-  //        ↓
-  // paciente recebe o aviso
-  //        ↓
-  // paciente clica em "Entendi"
-  //        ↓
-  // visualizadoPaciente = true
+  // Assim o frontend consegue mostrar:
   //
-  // O registro não será apagado.
+  // "Sua remarcação foi aceita"
+  //
+  // ou
+  //
+  // "Sua remarcação foi recusada".
+  //
+  // Quando o paciente clicar em
+  // "Entendi", será alterado para true.
+  //
+  // O registro continua no banco
+  // para manter o histórico.
   visualizadoPaciente Boolean @default(false)
 
   // ========================================
@@ -356,12 +404,12 @@ model RemarcacaoAgendamento {
   // ÍNDICES
   // ========================================
 
-  // Busca o histórico de remarcações
-  // de uma consulta
+  // Facilita buscar as remarcações
+  // de determinada consulta.
   @@index([agendamentoId])
 
-  // Facilita buscar solicitações
-  // PENDENTES, ACEITAS ou RECUSADAS
+  // Facilita buscar, por exemplo,
+  // todas as solicitações PENDENTES.
   @@index([status])
 }
 
@@ -371,7 +419,14 @@ model RemarcacaoAgendamento {
 // ========================================
 
 // Códigos temporários utilizados
-// na recuperação de senha
+// exclusivamente na recuperação de senha.
+//
+// Este model continuará responsável pelo:
+//
+// "Esqueci minha senha"
+//
+// Ele NÃO será utilizado para o
+// novo fluxo de primeiro acesso.
 model CodigoRedefinicaoSenha {
   id Int @id @default(autoincrement())
 
@@ -389,4 +444,103 @@ model CodigoRedefinicaoSenha {
     fields: [usuarioId],
     references: [id]
   )
+}
+
+
+// ========================================
+// PRIMEIRO ACESSO
+// ========================================
+
+// Códigos temporários utilizados
+// exclusivamente no primeiro acesso.
+//
+// Este fluxo será utilizado quando o
+// usuário ainda NÃO possui senha.
+//
+// Exemplo:
+//
+// Médico libera acesso
+//        ↓
+// Usuario é criado
+// senha = null
+// primeiroAcesso = true
+//        ↓
+// Paciente solicita primeiro acesso
+//        ↓
+// Sistema gera código de 6 dígitos
+//        ↓
+// Código é enviado pela Brevo
+//        ↓
+// Paciente informa:
+// - código
+// - nova senha
+// - confirmação da senha
+//        ↓
+// Backend valida
+//        ↓
+// senha recebe hash bcrypt
+// primeiroAcesso = false
+model CodigoPrimeiroAcesso {
+  id Int @id @default(autoincrement())
+
+  // Usuário responsável pelo
+  // processo de primeiro acesso.
+  usuarioId Int
+
+  // IMPORTANTE:
+  //
+  // Diferentemente da estrutura antiga
+  // de redefinição de senha, neste novo
+  // fluxo não armazenaremos diretamente
+  // o código de 6 dígitos.
+  //
+  // O backend irá gerar:
+  //
+  // 483921
+  //
+  // mas o banco receberá apenas
+  // o hash correspondente.
+  codigoHash String
+
+  // Momento em que o código
+  // deixa de ser válido.
+  expiraEm TimestamptzString
+
+  // Impede que o mesmo código
+  // seja utilizado novamente.
+  usado Boolean @default(false)
+
+  // Quantidade de tentativas incorretas
+  // realizadas com este código.
+  //
+  // Posteriormente o service limitará
+  // a quantidade permitida.
+  tentativas Int @default(0)
+
+  // Momento em que o código foi criado.
+  //
+  // Além do histórico, poderá ser usado
+  // para controlar reenvios muito rápidos.
+  createdAt TimestamptzString @default(now())
+
+  // ========================================
+  // RELACIONAMENTO
+  // ========================================
+
+  usuario Usuario @relation(
+    fields: [usuarioId],
+    references: [id]
+  )
+
+  // ========================================
+  // ÍNDICES
+  // ========================================
+
+  // Facilita localizar rapidamente os
+  // códigos pertencentes ao usuário.
+  @@index([usuarioId])
+
+  // Facilita a busca pelos códigos
+  // ativos/não utilizados do usuário.
+  @@index([usuarioId, usado])
 }

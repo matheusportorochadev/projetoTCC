@@ -10,14 +10,40 @@ import {
   rateLimit
 } from "express-rate-limit";
 
+
+// ========================================
+// CONTROLLERS
+// ========================================
+
 import {
-  loginController
+  loginController,
+  logoutController
 } from "../controllers/auth.controller";
 
 import {
   solicitarRedefinicaoSenhaController,
   redefinirSenhaController
 } from "../controllers/redefinicaoSenha.controller";
+
+
+// ========================================
+// MIDDLEWARE DE VALIDAÇÃO
+// ========================================
+
+import {
+  validarBody
+} from "../middlewares/validar.middleware";
+
+
+// ========================================
+// SCHEMAS ZOD
+// ========================================
+
+import {
+  loginSchema,
+  esqueciSenhaSchema,
+  redefinirSenhaSchema
+} from "../schemas/auth.schema";
 
 
 // ========================================
@@ -32,16 +58,17 @@ const authRoutes =
 // RATE LIMIT — LOGIN
 // ========================================
 
-// Protege contra tentativas repetidas
-// de descobrir a senha de um usuário.
-//
-// Limite:
-//
-// 10 tentativas a cada 15 minutos
-// por endereço IP.
-//
-// As requisições bem-sucedidas
-// não continuam contando no limite.
+/*
+  Máximo:
+
+  10 tentativas
+  a cada 15 minutos
+  por endereço IP.
+
+  Logins bem-sucedidos
+  deixam de contar.
+*/
+
 const loginLimiter =
   rateLimit({
 
@@ -61,28 +88,29 @@ const loginLimiter =
       true,
 
     message: {
+
       mensagem:
         "Muitas tentativas de login. Aguarde alguns minutos e tente novamente."
+
     }
 
   });
 
 
 // ========================================
-// RATE LIMIT — SOLICITAR CÓDIGO
+// RATE LIMIT — ESQUECI SENHA
 // ========================================
 
-// Essa proteção é particularmente
-// importante porque essa rota provoca
-// o envio de um e-mail.
-//
-// Sem limite, alguém poderia chamar
-// essa rota centenas ou milhares de vezes.
-//
-// Limite:
-//
-// 5 solicitações a cada 15 minutos
-// por endereço IP.
+/*
+  Essa rota envia e-mail.
+
+  Máximo:
+
+  5 solicitações
+  a cada 15 minutos
+  por endereço IP.
+*/
+
 const esqueciSenhaLimiter =
   rateLimit({
 
@@ -99,27 +127,30 @@ const esqueciSenhaLimiter =
       false,
 
     message: {
+
       mensagem:
         "Muitas solicitações de redefinição. Aguarde alguns minutos antes de tentar novamente."
+
     }
 
   });
 
 
 // ========================================
-// RATE LIMIT — TESTAR CÓDIGO
+// RATE LIMIT — REDEFINIR SENHA
 // ========================================
 
-// O código possui apenas 6 números.
-//
-// Por isso precisamos impedir que
-// alguém faça milhares de tentativas
-// automaticamente.
-//
-// Limite:
-//
-// 10 tentativas a cada 15 minutos
-// por endereço IP.
+/*
+  Protege contra tentativa
+  automatizada de códigos.
+
+  Máximo:
+
+  10 tentativas
+  a cada 15 minutos
+  por endereço IP.
+*/
+
 const redefinirSenhaLimiter =
   rateLimit({
 
@@ -136,8 +167,10 @@ const redefinirSenhaLimiter =
       false,
 
     message: {
+
       mensagem:
         "Muitas tentativas de redefinição. Aguarde alguns minutos e tente novamente."
+
     }
 
   });
@@ -147,15 +180,66 @@ const redefinirSenhaLimiter =
 // LOGIN
 // ========================================
 
-// POST /auth/login
-//
-// Como o login é público,
-// aplicamos o rate limit antes
-// de executar o controller.
+/*
+  Fluxo:
+
+  POST /auth/login
+
+        ↓
+
+  rate limit
+
+        ↓
+
+  Zod valida:
+
+  - e-mail;
+  - senha;
+  - tipos;
+  - tamanho;
+  - campos extras.
+
+        ↓
+
+  controller
+*/
+
 authRoutes.post(
+
   "/login",
+
   loginLimiter,
+
+  validarBody(
+    loginSchema
+  ),
+
   loginController
+
+);
+
+
+// ========================================
+// LOGOUT
+// ========================================
+
+/*
+  Remove o cookie HttpOnly.
+
+  Não exige autenticação porque até
+  um cookie expirado ou inválido deve
+  poder ser apagado.
+
+  Também não existe body obrigatório,
+  então não precisamos de schema Zod.
+*/
+
+authRoutes.post(
+
+  "/logout",
+
+  logoutController
+
 );
 
 
@@ -163,25 +247,33 @@ authRoutes.post(
 // ESQUECI MINHA SENHA
 // ========================================
 
-// POST /auth/esqueci-senha
-//
-// Fluxo:
-//
-// usuário informa o e-mail
-//        ↓
-// rate limit
-//        ↓
-// backend verifica usuário
-//        ↓
-// se existir e estiver ativo
-// envia o código
-//
-// A resposta continua genérica
-// independentemente de o e-mail existir.
+/*
+  POST /auth/esqueci-senha
+
+  O Zod valida e normaliza o e-mail
+  antes do controller.
+
+  Exemplo:
+
+  " Usuario@EMAIL.com "
+
+  torna-se:
+
+  "usuario@email.com"
+*/
+
 authRoutes.post(
+
   "/esqueci-senha",
+
   esqueciSenhaLimiter,
+
+  validarBody(
+    esqueciSenhaSchema
+  ),
+
   solicitarRedefinicaoSenhaController
+
 );
 
 
@@ -189,22 +281,29 @@ authRoutes.post(
 // REDEFINIR SENHA
 // ========================================
 
-// POST /auth/redefinir-senha
-//
-// Recebe:
-//
-// {
-//   "email": "...",
-//   "codigo": "123456",
-//   "novaSenha": "..."
-// }
-//
-// O rate limit dificulta ataques
-// de força bruta contra o código.
+/*
+  POST /auth/redefinir-senha
+
+  O Zod valida:
+
+  - e-mail;
+  - código de 6 números;
+  - nova senha;
+  - política de senha.
+*/
+
 authRoutes.post(
+
   "/redefinir-senha",
+
   redefinirSenhaLimiter,
+
+  validarBody(
+    redefinirSenhaSchema
+  ),
+
   redefinirSenhaController
+
 );
 
 

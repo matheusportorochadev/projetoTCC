@@ -1,6 +1,4 @@
 // Dependências do serviço de pacientes
-import bcrypt from "bcrypt";
-
 import { db } from "../prisma/db";
 
 
@@ -30,23 +28,6 @@ type AtualizarPacienteDados = {
 
 
 // ========================================
-// CONSTANTES
-// ========================================
-
-// Senha padrão utilizada quando
-// o acesso do paciente é liberado
-// pela primeira vez.
-//
-// O banco não armazena esta senha
-// diretamente.
-//
-// É armazenado apenas o hash gerado
-// pelo bcrypt.
-const SENHA_PADRAO_PACIENTE =
-  "Paciente@";
-
-
-// ========================================
 // BUSCAR MÉDICO PELO USUÁRIO
 // ========================================
 
@@ -65,13 +46,11 @@ export async function buscarMedicoPorUsuarioId(
       })
       .first();
 
-
   if (!medico) {
     throw new Error(
       "Médico não encontrado para este usuário."
     );
   }
-
 
   return medico;
 }
@@ -90,7 +69,6 @@ function validarPaciente(
   const nomeRegex =
     /^[A-Za-zÀ-ÿ\s]+$/;
 
-
   // Validação básica de e-mail.
   const emailRegex =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -106,7 +84,6 @@ function validarPaciente(
     );
   }
 
-
   if (
     dados.nome.trim().length < 3
   ) {
@@ -114,7 +91,6 @@ function validarPaciente(
       "O nome deve ter pelo menos 3 caracteres."
     );
   }
-
 
   if (
     !nomeRegex.test(
@@ -173,7 +149,6 @@ export async function criarPaciente(
   const nome =
     dados.nome.trim();
 
-
   const email =
     dados.email
       ? dados.email
@@ -181,12 +156,10 @@ export async function criarPaciente(
           .toLowerCase()
       : null;
 
-
   const telefone =
     dados.telefone
       ? dados.telefone.trim()
       : null;
-
 
   const cpf =
     dados.cpf
@@ -205,7 +178,6 @@ export async function criarPaciente(
           cpf
         })
         .first();
-
 
     if (pacienteCpf) {
       throw new Error(
@@ -243,7 +215,6 @@ export async function criarPaciente(
           true
       });
 
-
   return paciente;
 }
 
@@ -263,7 +234,6 @@ export async function listarPacientes(
         medicoId
       })
       .all();
-
 
   return pacientes;
 }
@@ -289,13 +259,11 @@ export async function buscarPacientePorId(
       })
       .first();
 
-
   if (!paciente) {
     throw new Error(
       "Paciente não encontrado."
     );
   }
-
 
   return paciente;
 }
@@ -307,6 +275,23 @@ export async function buscarPacientePorId(
 
 // Atualiza os dados cadastrais
 // de um paciente.
+//
+// IMPORTANTE:
+//
+// Se o paciente já possuir Usuario,
+// nome e e-mail também serão
+// sincronizados com a conta de login.
+//
+// Isso evita situações como:
+//
+// Paciente.email = novo@email.com
+//
+// mas:
+//
+// Usuario.email = antigo@email.com
+//
+// o que poderia impedir o paciente
+// de realizar login ou primeiro acesso.
 export async function atualizarPaciente(
   id: number,
   medicoId: number,
@@ -327,6 +312,16 @@ export async function atualizarPaciente(
     AtualizarPacienteDados = {};
 
 
+  // Guarda os valores normalizados
+  // que também poderão ser utilizados
+  // para atualizar Usuario.
+  let nomeAtualizado:
+    string | undefined;
+
+  let emailAtualizado:
+    string | undefined;
+
+
   // ========================================
   // NOME
   // ========================================
@@ -337,7 +332,6 @@ export async function atualizarPaciente(
     const nome =
       dados.nome.trim();
 
-
     if (
       nome.length < 3
     ) {
@@ -346,10 +340,8 @@ export async function atualizarPaciente(
       );
     }
 
-
     const nomeRegex =
       /^[A-Za-zÀ-ÿ\s]+$/;
-
 
     if (
       !nomeRegex.test(nome)
@@ -359,8 +351,10 @@ export async function atualizarPaciente(
       );
     }
 
-
     dadosAtualizados.nome =
+      nome;
+
+    nomeAtualizado =
       nome;
   }
 
@@ -377,11 +371,31 @@ export async function atualizarPaciente(
         .trim()
         .toLowerCase();
 
-
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
+    // ========================================
+    // PACIENTE COM USUÁRIO
+    // ========================================
+
+    // Se o paciente já possui uma conta
+    // de autenticação, não permitimos
+    // remover completamente o e-mail,
+    // porque ele é necessário para login,
+    // primeiro acesso e recuperação de senha.
+    if (
+      paciente.usuarioId &&
+      !email
+    ) {
+      throw new Error(
+        "Não é possível remover o e-mail de um paciente que já possui acesso ao sistema."
+      );
+    }
+
+
+    // Se foi informado algum e-mail,
+    // validamos o formato.
     if (
       email &&
       !emailRegex.test(email)
@@ -392,7 +406,36 @@ export async function atualizarPaciente(
     }
 
 
+    // ========================================
+    // VERIFICAR E-MAIL EM USUARIO
+    // ========================================
+
+    // Evita que o e-mail do paciente seja
+    // alterado para um endereço que já está
+    // sendo utilizado por outra conta.
+    if (email) {
+      const usuarioComMesmoEmail =
+        await db.orm.public.Usuario
+          .where({
+            email
+          })
+          .first();
+
+      if (
+        usuarioComMesmoEmail &&
+        usuarioComMesmoEmail.id !==
+          paciente.usuarioId
+      ) {
+        throw new Error(
+          "Já existe um usuário cadastrado com este e-mail."
+        );
+      }
+    }
+
     dadosAtualizados.email =
+      email;
+
+    emailAtualizado =
       email;
   }
 
@@ -419,7 +462,6 @@ export async function atualizarPaciente(
     const cpf =
       dados.cpf.trim();
 
-
     // Verifica se outro paciente
     // já utiliza esse CPF.
     const cpfExistente =
@@ -428,7 +470,6 @@ export async function atualizarPaciente(
           cpf
         })
         .first();
-
 
     if (
       cpfExistente &&
@@ -440,14 +481,13 @@ export async function atualizarPaciente(
       );
     }
 
-
     dadosAtualizados.cpf =
       cpf;
   }
 
 
   // ========================================
-  // ATUALIZAR NO BANCO
+  // ATUALIZAR PACIENTE
   // ========================================
 
   const pacienteAtualizado =
@@ -460,13 +500,58 @@ export async function atualizarPaciente(
         dadosAtualizados
       );
 
-
   if (!pacienteAtualizado) {
     throw new Error(
       "Erro ao atualizar paciente."
     );
   }
 
+
+  // ========================================
+  // SINCRONIZAR USUÁRIO
+  // ========================================
+
+  // Se o paciente já possui uma conta
+  // de autenticação, mantemos nome e
+  // e-mail sincronizados.
+  if (paciente.usuarioId) {
+    const dadosUsuario: {
+      nome?: string;
+      email?: string;
+    } = {};
+
+    if (
+      nomeAtualizado !== undefined
+    ) {
+      dadosUsuario.nome =
+        nomeAtualizado;
+    }
+
+    if (
+      emailAtualizado !== undefined
+    ) {
+      dadosUsuario.email =
+        emailAtualizado;
+    }
+
+
+    // Só fazemos update se realmente
+    // houver algo para sincronizar.
+    if (
+      Object.keys(
+        dadosUsuario
+      ).length > 0
+    ) {
+      await db.orm.public.Usuario
+        .where({
+          id:
+            paciente.usuarioId
+        })
+        .update(
+          dadosUsuario
+        );
+    }
+  }
 
   return pacienteAtualizado;
 }
@@ -509,7 +594,6 @@ export async function atualizarStatusPaciente(
         ativo
       });
 
-
   if (!pacienteAtualizado) {
     throw new Error(
       "Erro ao atualizar status do paciente."
@@ -535,7 +619,6 @@ export async function atualizarStatusPaciente(
       });
   }
 
-
   return pacienteAtualizado;
 }
 
@@ -547,238 +630,349 @@ export async function atualizarStatusPaciente(
 // Controla o acesso do paciente
 // ao sistema.
 //
-// Fluxo:
+// NOVO FLUXO:
 //
 // Médico cadastra paciente
 //        ↓
 // acessoLiberado = false
+// usuarioId = null
 //        ↓
 // Médico libera acesso
 //        ↓
 // Sistema cria Usuario
 //        ↓
 // tipo = PACIENTE
-//        ↓
-// senha = Paciente@
-//        ↓
+// senha = null
 // primeiroAcesso = true
+//        ↓
+// Paciente utiliza
+// "Primeiro acesso"
+//        ↓
+// Recebe código por e-mail
+//        ↓
+// Cria sua própria senha
+//        ↓
+// primeiroAcesso = false
+//
+// IMPORTANTE:
+//
+// Não existe mais senha padrão
+// como "Paciente@".
+//
+// SEGURANÇA:
+//
+// Toda esta operação agora ocorre
+// dentro de uma TRANSAÇÃO.
+//
+// Dessa forma, se a atualização de
+// Usuario ou Paciente falhar,
+// nenhuma alteração parcial fica
+// salva no banco.
 export async function atualizarAcessoPaciente(
   id: number,
   medicoId: number,
   acessoLiberado: boolean
 ) {
-  // Busca o paciente.
-  const paciente =
-    await buscarPacientePorId(
-      id,
-      medicoId
-    );
+  return db.transaction(
+    async (tx) => {
+
+      // ========================================
+      // BUSCAR PACIENTE NA TRANSAÇÃO
+      // ========================================
+
+      // Não utilizamos buscarPacientePorId()
+      // aqui porque ela usa db.orm.
+      //
+      // Dentro de uma transação devemos
+      // utilizar somente tx.orm.
+      const paciente =
+        await tx.orm.public.Paciente
+          .where({
+            id,
+            medicoId
+          })
+          .first();
+
+      if (!paciente) {
+        throw new Error(
+          "Paciente não encontrado."
+        );
+      }
 
 
-  // ========================================
-  // BLOQUEAR ACESSO
-  // ========================================
+      // ========================================
+      // BLOQUEAR ACESSO
+      // ========================================
 
-  if (!acessoLiberado) {
-    const pacienteAtualizado =
-      await db.orm.public.Paciente
-        .where({
-          id,
-          medicoId
-        })
-        .update({
-          acessoLiberado:
-            false
-        });
+      if (!acessoLiberado) {
+
+        const pacienteAtualizado =
+          await tx.orm.public.Paciente
+            .where({
+              id,
+              medicoId
+            })
+            .update({
+              acessoLiberado:
+                false
+            });
+
+        if (!pacienteAtualizado) {
+          throw new Error(
+            "Erro ao bloquear acesso do paciente."
+          );
+        }
 
 
-    if (!pacienteAtualizado) {
-      throw new Error(
-        "Erro ao bloquear acesso do paciente."
-      );
-    }
+        // Caso exista usuário de login,
+        // também bloqueamos esse usuário.
+        if (paciente.usuarioId) {
+          const usuarioAtualizado =
+            await tx.orm.public.Usuario
+              .where({
+                id:
+                  paciente.usuarioId
+              })
+              .update({
+                ativo:
+                  false
+              });
+
+          if (!usuarioAtualizado) {
+            throw new Error(
+              "Erro ao bloquear usuário do paciente."
+            );
+          }
+        }
 
 
-    // Caso exista usuário de login,
-    // também bloqueamos esse usuário.
-    if (paciente.usuarioId) {
-      await db.orm.public.Usuario
-        .where({
-          id:
+        // Se chegarmos aqui,
+        // tudo ocorreu corretamente.
+        //
+        // A transação será confirmada.
+        return pacienteAtualizado;
+      }
+
+
+      // ========================================
+      // LIBERAR ACESSO
+      // ========================================
+
+      // Um paciente precisa de e-mail
+      // para conseguir realizar:
+      //
+      // - primeiro acesso;
+      // - login;
+      // - recuperação de senha.
+      if (!paciente.email) {
+        throw new Error(
+          "O paciente precisa possuir um e-mail para liberar o acesso."
+        );
+      }
+
+
+      // Normaliza o e-mail que será utilizado
+      // na conta de autenticação.
+      const email =
+        paciente.email
+          .trim()
+          .toLowerCase();
+
+
+      // ========================================
+      // PACIENTE JÁ POSSUI USUÁRIO
+      // ========================================
+
+      // Se usuarioId já existir,
+      // não criamos outro Usuario.
+      //
+      // Apenas reativamos a conta
+      // já existente.
+      if (paciente.usuarioId) {
+
+        // ========================================
+        // VERIFICAR E-MAIL
+        // ========================================
+
+        // Garante que o e-mail atual do
+        // paciente não pertence a outra conta.
+        const usuarioComMesmoEmail =
+          await tx.orm.public.Usuario
+            .where({
+              email
+            })
+            .first();
+
+        if (
+          usuarioComMesmoEmail &&
+          usuarioComMesmoEmail.id !==
             paciente.usuarioId
-        })
-        .update({
-          ativo:
-            false
-        });
+        ) {
+          throw new Error(
+            "Já existe um usuário cadastrado com o e-mail deste paciente."
+          );
+        }
+
+
+        // ========================================
+        // REATIVAR USUÁRIO
+        // ========================================
+
+        // Também sincronizamos nome e e-mail
+        // para evitar inconsistências antigas.
+        const usuarioAtualizado =
+          await tx.orm.public.Usuario
+            .where({
+              id:
+                paciente.usuarioId
+            })
+            .update({
+              nome:
+                paciente.nome,
+
+              email,
+
+              ativo:
+                true
+            });
+
+        if (!usuarioAtualizado) {
+          throw new Error(
+            "Erro ao reativar usuário do paciente."
+          );
+        }
+
+
+        // ========================================
+        // LIBERAR PACIENTE
+        // ========================================
+
+        const pacienteAtualizado =
+          await tx.orm.public.Paciente
+            .where({
+              id,
+              medicoId
+            })
+            .update({
+              acessoLiberado:
+                true
+            });
+
+        if (!pacienteAtualizado) {
+          throw new Error(
+            "Erro ao liberar acesso do paciente."
+          );
+        }
+
+
+        // As duas atualizações somente
+        // serão confirmadas juntas.
+        return pacienteAtualizado;
+      }
+
+
+      // ========================================
+      // VERIFICAR E-MAIL EXISTENTE
+      // ========================================
+
+      // Não permitimos criar dois usuários
+      // utilizando o mesmo e-mail.
+      const usuarioExistente =
+        await tx.orm.public.Usuario
+          .where({
+            email
+          })
+          .first();
+
+      if (usuarioExistente) {
+        throw new Error(
+          "Já existe um usuário cadastrado com o e-mail deste paciente."
+        );
+      }
+
+
+      // ========================================
+      // CRIAR USUÁRIO
+      // ========================================
+
+      // NOVO COMPORTAMENTO:
+      //
+      // Não criamos mais uma senha padrão.
+      //
+      // O usuário nasce com:
+      //
+      // senha = null
+      // primeiroAcesso = true
+      //
+      // Depois, no fluxo de "Primeiro acesso",
+      // o próprio paciente criará sua senha.
+      const usuario =
+        await tx.orm.public.Usuario
+          .create({
+            nome:
+              paciente.nome,
+
+            email,
+
+            senha:
+              null,
+
+            tipo:
+              "PACIENTE",
+
+            ativo:
+              true,
+
+            primeiroAcesso:
+              true
+          });
+
+
+      // ========================================
+      // VINCULAR USUÁRIO AO PACIENTE
+      // ========================================
+
+      const pacienteAtualizado =
+        await tx.orm.public.Paciente
+          .where({
+            id,
+            medicoId
+          })
+          .update({
+            usuarioId:
+              usuario.id,
+
+            acessoLiberado:
+              true
+          });
+
+      if (!pacienteAtualizado) {
+
+        // O usuário acabou de ser criado.
+        //
+        // Porém, como estamos dentro de uma
+        // transação, este erro também desfaz
+        // a criação daquele Usuario.
+        throw new Error(
+          "Erro ao vincular usuário ao paciente."
+        );
+      }
+
+
+      // ========================================
+      // COMMIT
+      // ========================================
+
+      // Se chegarmos aqui:
+      //
+      // Usuario foi criado
+      // +
+      // Paciente foi vinculado.
+      //
+      // O Prisma confirma a transação.
+      return pacienteAtualizado;
     }
-
-
-    return pacienteAtualizado;
-  }
-
-
-  // ========================================
-  // LIBERAR ACESSO
-  // ========================================
-
-  // Um paciente precisa de e-mail
-  // para conseguir autenticar.
-  if (!paciente.email) {
-    throw new Error(
-      "O paciente precisa possuir um e-mail para liberar o acesso."
-    );
-  }
-
-
-  // ========================================
-  // PACIENTE JÁ POSSUI USUÁRIO
-  // ========================================
-
-  // Se usuarioId já existir,
-  // não criamos outro Usuario.
-  //
-  // Apenas reativamos o acesso.
-  if (paciente.usuarioId) {
-    // Reativa o usuário.
-    await db.orm.public.Usuario
-      .where({
-        id:
-          paciente.usuarioId
-      })
-      .update({
-        ativo:
-          true
-      });
-
-
-    // Libera o paciente.
-    const pacienteAtualizado =
-      await db.orm.public.Paciente
-        .where({
-          id,
-          medicoId
-        })
-        .update({
-          acessoLiberado:
-            true
-        });
-
-
-    if (!pacienteAtualizado) {
-      throw new Error(
-        "Erro ao liberar acesso do paciente."
-      );
-    }
-
-
-    return pacienteAtualizado;
-  }
-
-
-  // ========================================
-  // NORMALIZAR E-MAIL
-  // ========================================
-
-  const email =
-    paciente.email
-      .trim()
-      .toLowerCase();
-
-
-  // ========================================
-  // VERIFICAR E-MAIL EXISTENTE
-  // ========================================
-
-  // Não permitimos criar dois usuários
-  // utilizando o mesmo e-mail.
-  const usuarioExistente =
-    await db.orm.public.Usuario
-      .where({
-        email
-      })
-      .first();
-
-
-  if (usuarioExistente) {
-    throw new Error(
-      "Já existe um usuário cadastrado com o e-mail deste paciente."
-    );
-  }
-
-
-  // ========================================
-  // GERAR HASH DA SENHA
-  // ========================================
-
-  // A senha inicial é:
-  //
-  // Paciente@
-  //
-  // Porém, somente o hash
-  // será salvo no banco.
-  const senhaHash =
-    await bcrypt.hash(
-      SENHA_PADRAO_PACIENTE,
-      12
-    );
-
-
-  // ========================================
-  // CRIAR USUÁRIO
-  // ========================================
-
-  const usuario =
-    await db.orm.public.Usuario
-      .create({
-        nome:
-          paciente.nome,
-
-        email,
-
-        senha:
-          senhaHash,
-
-        tipo:
-          "PACIENTE",
-
-        ativo:
-          true,
-
-        // Força troca de senha
-        // no primeiro acesso.
-        primeiroAcesso:
-          true
-      });
-
-
-  // ========================================
-  // VINCULAR USUÁRIO AO PACIENTE
-  // ========================================
-
-  const pacienteAtualizado =
-    await db.orm.public.Paciente
-      .where({
-        id,
-        medicoId
-      })
-      .update({
-        usuarioId:
-          usuario.id,
-
-        acessoLiberado:
-          true
-      });
-
-
-  if (!pacienteAtualizado) {
-    throw new Error(
-      "Erro ao vincular usuário ao paciente."
-    );
-  }
-
-
-  return pacienteAtualizado;
+  );
 }
 
 
@@ -795,134 +989,217 @@ export async function atualizarAcessoPaciente(
 // 3. verifica se possui agendamentos;
 // 4. exclui o paciente;
 // 5. exclui códigos de redefinição;
-// 6. exclui o usuário relacionado.
+// 6. exclui códigos de primeiro acesso;
+// 7. exclui o usuário relacionado.
 //
 // Pacientes com agendamentos não
 // podem ser excluídos para preservar
 // o histórico do sistema.
+//
+// SEGURANÇA:
+//
+// Agora todo o processo de exclusão
+// acontece dentro de uma TRANSAÇÃO.
+//
+// Se qualquer uma das exclusões falhar,
+// todas as exclusões anteriores daquela
+// operação são automaticamente desfeitas.
 export async function excluirPaciente(
   id: number,
   medicoId: number
 ) {
-  // ========================================
-  // BUSCAR PACIENTE
-  // ========================================
+  return db.transaction(
+    async (tx) => {
 
-  const paciente =
-    await buscarPacientePorId(
-      id,
-      medicoId
-    );
+      // ========================================
+      // BUSCAR PACIENTE
+      // ========================================
 
+      const paciente =
+        await tx.orm.public.Paciente
+          .where({
+            id,
+            medicoId
+          })
+          .first();
 
-  // ========================================
-  // VERIFICAR AGENDAMENTOS
-  // ========================================
-
-  // Procura qualquer agendamento
-  // vinculado ao paciente.
-  const agendamentos =
-    await db.orm.public.Agendamento
-      .where({
-        pacienteId:
-          paciente.id
-      })
-      .all();
+      if (!paciente) {
+        throw new Error(
+          "Paciente não encontrado."
+        );
+      }
 
 
-  // Se houver agendamentos,
-  // não permitimos excluir.
-  if (
-    agendamentos.length > 0
-  ) {
-    throw new Error(
-      "Não é possível excluir este paciente porque ele possui agendamentos cadastrados."
-    );
-  }
+      // ========================================
+      // VERIFICAR AGENDAMENTOS
+      // ========================================
+
+      // Procura qualquer agendamento
+      // vinculado ao paciente.
+      const agendamentos =
+        await tx.orm.public.Agendamento
+          .where({
+            pacienteId:
+              paciente.id
+          })
+          .all();
 
 
-  // Guardamos o usuarioId antes
-  // da exclusão do paciente.
-  const usuarioId =
-    paciente.usuarioId;
+      // Se houver agendamentos,
+      // não permitimos excluir.
+      if (
+        agendamentos.length > 0
+      ) {
+        throw new Error(
+          "Não é possível excluir este paciente porque ele possui agendamentos cadastrados."
+        );
+      }
 
 
-  // ========================================
-  // EXCLUIR PACIENTE
-  // ========================================
-
-  const pacienteExcluido =
-    await db.orm.public.Paciente
-      .where({
-        id:
-          paciente.id,
-
-        medicoId
-      })
-      .delete();
+      // Guardamos o usuarioId antes
+      // da exclusão do paciente.
+      const usuarioId =
+        paciente.usuarioId;
 
 
-  if (!pacienteExcluido) {
-    throw new Error(
-      "Erro ao excluir paciente."
-    );
-  }
+      // ========================================
+      // EXCLUIR PACIENTE
+      // ========================================
+
+      const pacienteExcluido =
+        await tx.orm.public.Paciente
+          .where({
+            id:
+              paciente.id,
+
+            medicoId
+          })
+          .delete();
+
+      if (!pacienteExcluido) {
+        throw new Error(
+          "Erro ao excluir paciente."
+        );
+      }
 
 
-  // ========================================
-  // EXCLUIR USUÁRIO RELACIONADO
-  // ========================================
+      // ========================================
+      // PACIENTE SEM USUÁRIO
+      // ========================================
 
-  // Nem todo paciente possui
-  // usuário de autenticação.
-  if (usuarioId) {
-    // ========================================
-    // BUSCAR CÓDIGOS DE REDEFINIÇÃO
-    // ========================================
-
-    const codigos =
-      await db.orm.public.CodigoRedefinicaoSenha
-        .where({
-          usuarioId
-        })
-        .all();
+      // Nem todo paciente possui uma
+      // conta de autenticação.
+      //
+      // Se não existir usuarioId,
+      // a exclusão termina aqui.
+      if (!usuarioId) {
+        return {
+          mensagem:
+            "Paciente excluído com sucesso."
+        };
+      }
 
 
-    // ========================================
-    // EXCLUIR CÓDIGOS
-    // ========================================
+      // ========================================
+      // CÓDIGOS DE REDEFINIÇÃO DE SENHA
+      // ========================================
 
-    // Antes de excluir o usuário,
-    // removemos os códigos relacionados.
-    for (const codigo of codigos) {
-      await db.orm.public.CodigoRedefinicaoSenha
-        .where({
-          id:
-            codigo.id
-        })
-        .delete();
+      const codigosRedefinicao =
+        await tx.orm.public.CodigoRedefinicaoSenha
+          .where({
+            usuarioId
+          })
+          .all();
+
+
+      // Remove todos os códigos relacionados
+      // antes de excluir Usuario.
+      for (
+        const codigo of
+          codigosRedefinicao
+      ) {
+        await tx.orm.public.CodigoRedefinicaoSenha
+          .where({
+            id:
+              codigo.id
+          })
+          .delete();
+      }
+
+
+      // ========================================
+      // CÓDIGOS DE PRIMEIRO ACESSO
+      // ========================================
+
+      // O fluxo de primeiro acesso
+      // também possui relacionamento
+      // obrigatório com Usuario.
+      //
+      // Por isso removemos esses registros
+      // antes de excluir a conta.
+      const codigosPrimeiroAcesso =
+        await tx.orm.public.CodigoPrimeiroAcesso
+          .where({
+            usuarioId
+          })
+          .all();
+
+
+      for (
+        const codigo of
+          codigosPrimeiroAcesso
+      ) {
+        await tx.orm.public.CodigoPrimeiroAcesso
+          .where({
+            id:
+              codigo.id
+          })
+          .delete();
+      }
+
+
+      // ========================================
+      // EXCLUIR USUÁRIO
+      // ========================================
+
+      const usuarioExcluido =
+        await tx.orm.public.Usuario
+          .where({
+            id:
+              usuarioId
+          })
+          .delete();
+
+
+      if (!usuarioExcluido) {
+
+        // Se esta última operação falhar,
+        // o throw provoca rollback.
+        //
+        // Isso restaura:
+        //
+        // - Paciente;
+        // - códigos de redefinição;
+        // - códigos de primeiro acesso;
+        // - demais alterações desta transação.
+        throw new Error(
+          "Erro ao excluir usuário do paciente."
+        );
+      }
+
+
+      // ========================================
+      // RETORNO
+      // ========================================
+
+      // Se chegarmos aqui,
+      // todas as exclusões ocorreram
+      // corretamente e a transação
+      // será confirmada.
+      return {
+        mensagem:
+          "Paciente excluído com sucesso."
+      };
     }
-
-
-    // ========================================
-    // EXCLUIR USUÁRIO
-    // ========================================
-
-    await db.orm.public.Usuario
-      .where({
-        id:
-          usuarioId
-      })
-      .delete();
-  }
-
-
-  // ========================================
-  // RETORNO
-  // ========================================
-
-  return {
-    mensagem:
-      "Paciente excluído com sucesso."
-  };
+  );
 }

@@ -34,7 +34,7 @@ const transporter =
     secure:
       smtpPort === 465,
 
-    // Na porta 587 exigimos STARTTLS.
+    // Porta 587 utiliza STARTTLS.
     requireTLS:
       smtpPort === 587,
 
@@ -48,8 +48,8 @@ const transporter =
 
     },
 
-    // Não aceitamos versões antigas
-    // de TLS.
+    // Não permitimos versões antigas
+    // do protocolo TLS.
     tls: {
       minVersion:
         "TLSv1.2"
@@ -59,9 +59,12 @@ const transporter =
 
 
 // ========================================
-// ENVIAR CÓDIGO
+// ENVIAR CÓDIGO DE REDEFINIÇÃO
 // ========================================
 
+// Utilizado pelo fluxo:
+//
+// "Esqueci minha senha".
 export async function enviarCodigoRedefinicao(
   email: string,
   codigo: string
@@ -79,8 +82,58 @@ export async function enviarCodigoRedefinicao(
       "Redefinição de senha",
 
     text:
-      `Seu código para redefinição de senha é ${codigo}. O código é válido por 10 minutos.`
+      [
+        "Você solicitou a redefinição da sua senha.",
+        "",
+        `Seu código é: ${codigo}`,
+        "",
+        "O código é válido por 10 minutos.",
+        "",
+        "Caso você não tenha solicitado a redefinição, ignore este e-mail."
+      ].join("\n")
 
   });
+}
 
+
+// ========================================
+// ENVIAR CÓDIGO DE PRIMEIRO ACESSO
+// ========================================
+
+// Utilizado exclusivamente quando
+// o paciente ainda não criou sua
+// primeira senha.
+//
+// Este fluxo é separado da
+// recuperação de senha.
+export async function enviarCodigoPrimeiroAcesso(
+  email: string,
+  codigo: string
+) {
+
+  await transporter.sendMail({
+
+    from:
+      `"Sistema Consultório Médico" <${process.env.SMTP_FROM}>`,
+
+    to:
+      email,
+
+    subject:
+      "Código de primeiro acesso",
+
+    text:
+      [
+        "Seu acesso ao Sistema Consultório Médico foi liberado.",
+        "",
+        "Para criar sua senha, utilize o código abaixo:",
+        "",
+        `Código: ${codigo}`,
+        "",
+        "O código é válido por 10 minutos.",
+        "",
+        "Caso você não esperasse receber este e-mail, ignore esta mensagem."
+      ].join("\n")
+
+  });
 }

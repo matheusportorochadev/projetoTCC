@@ -1,3 +1,7 @@
+// ========================================
+// LAYOUT DA ÁREA DO MÉDICO
+// ========================================
+
 import {
   NavLink,
   Outlet,
@@ -8,56 +12,151 @@ import {
   useState
 } from "react";
 
-import "../styles/medicoLayout.css";
+import {
+  fazerLogout
+} from "../services/api";
 
 import BotaoTema from "../components/BotaoTema";
 
-// Layout principal da área do médico
+import "../styles/medicoLayout.css";
+
+
+// ========================================
+// COMPONENTE
+// ========================================
+
 export default function MedicoLayout() {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  // Controla se o menu mobile está aberto ou fechado
-  const [menuAberto, setMenuAberto] =
+
+  // ========================================
+  // MENU MOBILE
+  // ========================================
+
+  const [
+    menuAberto,
+    setMenuAberto
+  ] =
     useState(false);
 
-  // Busca os dados do usuário salvos
+
+  // ========================================
+  // DADOS DO USUÁRIO
+  // ========================================
+
+  /*
+    O JWT não deve mais ser obtido
+    pelo localStorage.
+
+    O objeto "usuario" permanece
+    temporariamente apenas para
+    informações visuais como nome.
+  */
   const usuarioSalvo =
-    localStorage.getItem("usuario");
+    localStorage.getItem(
+      "usuario"
+    );
 
-  const usuario = usuarioSalvo
-    ? JSON.parse(usuarioSalvo)
-    : null;
 
-  // Encerra a sessão
-  function sair() {
+  const usuario =
+    usuarioSalvo
+      ? JSON.parse(
+          usuarioSalvo
+        )
+      : null;
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
 
-    navigate("/login");
+  // ========================================
+  // LOGOUT
+  // ========================================
+
+  async function sair() {
+
+    try {
+
+      /*
+        Chama:
+
+        POST /auth/logout
+
+        O backend remove o cookie:
+
+        access_token
+      */
+      await fazerLogout();
+
+    } catch (erro) {
+
+      console.error(
+        "Erro ao realizar logout:",
+        erro
+      );
+
+    } finally {
+
+      /*
+        Remove qualquer token antigo
+        que ainda tenha ficado salvo
+        durante a migração.
+      */
+      localStorage.removeItem(
+        "token"
+      );
+
+
+      localStorage.removeItem(
+        "usuario"
+      );
+
+
+      setMenuAberto(
+        false
+      );
+
+
+      navigate(
+        "/login"
+      );
+
+    }
   }
 
-  // Fecha o menu quando o usuário
-  // clicar em alguma opção
+
+  // ========================================
+  // FECHAR MENU
+  // ========================================
+
   function fecharMenu() {
-    setMenuAberto(false);
+
+    setMenuAberto(
+      false
+    );
+
   }
+
+
+  // ========================================
+  // INTERFACE
+  // ========================================
 
   return (
     <div className="medico-layout">
 
       <header className="medico-navbar">
 
-        {/* Logo / nome do sistema */}
+        {/* LOGO */}
         <div className="medico-navbar-brand">
+
           <h2>
             Sistema Médico
           </h2>
+
         </div>
 
 
-        {/* Botão do menu mobile */}
+        {/* MENU MOBILE */}
         <button
           type="button"
           className="medico-menu-toggle"
@@ -68,10 +167,11 @@ export default function MedicoLayout() {
             )
           }
           aria-label="Abrir menu"
-          aria-expanded={menuAberto}
+          aria-expanded={
+            menuAberto
+          }
         >
 
-          {/* Ícone hambúrguer */}
           <span></span>
           <span></span>
           <span></span>
@@ -79,7 +179,7 @@ export default function MedicoLayout() {
         </button>
 
 
-        {/* Conteúdo da navbar */}
+        {/* CONTEÚDO DA NAVBAR */}
         <div
           className={
             menuAberto
@@ -88,13 +188,17 @@ export default function MedicoLayout() {
           }
         >
 
-          {/* Navegação */}
+          {/* NAVEGAÇÃO */}
           <nav className="medico-navbar-menu">
 
             <NavLink
               to="/medico/pacientes"
-              onClick={fecharMenu}
-              className={({ isActive }) =>
+              onClick={
+                fecharMenu
+              }
+              className={({
+                isActive
+              }) =>
                 isActive
                   ? "medico-nav-link ativo"
                   : "medico-nav-link"
@@ -103,10 +207,15 @@ export default function MedicoLayout() {
               Pacientes
             </NavLink>
 
+
             <NavLink
               to="/medico/agenda"
-              onClick={fecharMenu}
-              className={({ isActive }) =>
+              onClick={
+                fecharMenu
+              }
+              className={({
+                isActive
+              }) =>
                 isActive
                   ? "medico-nav-link ativo"
                   : "medico-nav-link"
@@ -115,10 +224,15 @@ export default function MedicoLayout() {
               Agenda
             </NavLink>
 
+
             <NavLink
               to="/medico/prontuarios"
-              onClick={fecharMenu}
-              className={({ isActive }) =>
+              onClick={
+                fecharMenu
+              }
+              className={({
+                isActive
+              }) =>
                 isActive
                   ? "medico-nav-link ativo"
                   : "medico-nav-link"
@@ -130,19 +244,28 @@ export default function MedicoLayout() {
           </nav>
 
 
-          {/* Área do usuário */}
+          {/* USUÁRIO */}
           <div className="medico-navbar-user">
 
             <span className="medico-nome-usuario">
-              {usuario?.nome || "Médico"}
+
+              {
+                usuario?.nome ||
+                "Médico"
+              }
+
             </span>
 
+
             <BotaoTema />
+
 
             <button
               type="button"
               className="medico-btn-sair"
-              onClick={sair}
+              onClick={
+                sair
+              }
             >
               Sair
             </button>
@@ -154,9 +277,11 @@ export default function MedicoLayout() {
       </header>
 
 
-      {/* Conteúdo das páginas */}
+      {/* CONTEÚDO */}
       <main className="medico-main">
+
         <Outlet />
+
       </main>
 
     </div>

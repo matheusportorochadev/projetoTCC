@@ -3,9 +3,12 @@
 // ========================================
 
 import bcrypt from "bcrypt";
+
 import jwt from "jsonwebtoken";
 
-import { db } from "../prisma/db";
+import {
+  db
+} from "../prisma/db";
 
 import {
   solicitarRedefinicaoSenha
@@ -13,13 +16,61 @@ import {
 
 
 // ========================================
+// CONFIGURAÇÃO JWT
+// ========================================
+
+const JWT_ISSUER =
+  "tcc-consultorio-api";
+
+const JWT_AUDIENCE =
+  "tcc-consultorio-web";
+
+
+// ========================================
 // TIPOS
 // ========================================
 
-// Dados recebidos no login
 interface LoginDTO {
-  email: string;
-  senha: string;
+
+  email:
+    string;
+
+  senha:
+    string;
+
+}
+
+
+// ========================================
+// OBTER SEGREDO JWT
+// ========================================
+
+function obterJwtSecret() {
+
+  const jwtSecret =
+    process.env.JWT_SECRET;
+
+
+  /*
+    Exigimos um segredo com pelo
+    menos 32 caracteres.
+
+    Não mostramos o segredo em logs
+    nem o retornamos ao frontend.
+  */
+  if (
+    !jwtSecret ||
+    jwtSecret.length < 32
+  ) {
+
+    throw new Error(
+      "JWT_SECRET não está configurado corretamente."
+    );
+
+  }
+
+
+  return jwtSecret;
 }
 
 
@@ -27,46 +78,94 @@ interface LoginDTO {
 // LOGIN
 // ========================================
 
-// Realiza a autenticação do usuário
 export async function login({
   email,
   senha
 }: LoginDTO) {
 
-  // Padroniza o e-mail recebido
-  const emailFormatado =
-    email.trim().toLowerCase();
+  // ========================================
+  // NORMALIZAR E-MAIL
+  // ========================================
 
-  // Busca o usuário pelo e-mail
+  const emailFormatado =
+    email
+      .trim()
+      .toLowerCase();
+
+
+  // ========================================
+  // BUSCAR USUÁRIO
+  // ========================================
+
   const usuario =
     await db.orm.public.Usuario
       .where({
-        email: emailFormatado
+        email:
+          emailFormatado
       })
       .first();
 
 
   // ========================================
-  // VALIDAÇÕES
+  // USUÁRIO NÃO ENCONTRADO
   // ========================================
 
+  /*
+    Utilizamos uma resposta genérica
+    para dificultar enumeração de usuários.
+  */
   if (!usuario) {
+
     throw new Error(
       "E-mail ou senha inválidos."
     );
+
   }
 
 
-  // Impede login de usuário bloqueado
+  // ========================================
+  // USUÁRIO DESATIVADO
+  // ========================================
+
+  /*
+    Também não precisamos revelar
+    pelo login que determinado e-mail
+    pertence a uma conta desativada.
+  */
   if (!usuario.ativo) {
+
     throw new Error(
-      "Usuário bloqueado."
+      "E-mail ou senha inválidos."
     );
+
   }
 
 
-  // Compara a senha informada com
-  // o hash salvo no banco
+  // ========================================
+  // USUÁRIO SEM SENHA
+  // ========================================
+
+  /*
+    Usuário criado pelo novo fluxo:
+
+    senha = null
+    primeiroAcesso = true
+
+    Ele não pode utilizar login normal.
+  */
+  if (!usuario.senha) {
+
+    throw new Error(
+      "E-mail ou senha inválidos. Se este for seu primeiro acesso, utilize a opção Primeiro acesso."
+    );
+
+  }
+
+
+  // ========================================
+  // VALIDAR SENHA
+  // ========================================
+
   const senhaCorreta =
     await bcrypt.compare(
       senha,
@@ -75,66 +174,152 @@ export async function login({
 
 
   if (!senhaCorreta) {
+
     throw new Error(
       "E-mail ou senha inválidos."
     );
+
   }
 
 
   // ========================================
-  // PRIMEIRO ACESSO
+  // PRIMEIRO ACESSO LEGADO
   // ========================================
 
   /*
-    Se for o primeiro acesso do usuário,
-    o sistema gera automaticamente um código
-    de redefinição de senha e envia para
-    o e-mail cadastrado.
+    Ainda existem usuários antigos
+    que possuem:
 
-    Isso acontece somente depois que:
-    - o e-mail foi validado;
-    - a senha inicial foi validada;
-    - o usuário está ativo.
+    senha != null
+    primeiroAcesso = true
+
+    Exemplo:
+
+    médicos cadastrados pelo
+    fluxo anterior.
+
+    Mantemos temporariamente
+    esse comportamento.
+
+    Porém existe uma mudança
+    importante:
+
+    NÃO emitimos um JWT de acesso
+    para esse usuário.
   */
+  if (
+    usuario.primeiroAcesso
+  ) {
 
-  if (usuario.primeiroAcesso) {
     await solicitarRedefinicaoSenha(
       usuario.email
     );
+
+
+    return {
+
+      usuario: {
+
+        id:
+          usuario.id,
+
+        nome:
+          usuario.nome,
+
+        email:
+          usuario.email,
+
+        tipo:
+          usuario.tipo,
+
+        ativo:
+          usuario.ativo,
+
+        primeiroAcesso:
+          true
+
+      },
+
+
+      /*
+        Não fornecemos uma sessão
+        autenticada enquanto o primeiro
+        acesso não for concluído.
+      */
+      token:
+        null
+
+    };
   }
 
 
   // ========================================
-  // JWT
+  // JWT SECRET
   // ========================================
 
   const jwtSecret =
-    process.env.JWT_SECRET;
+    obterJwtSecret();
 
 
-  if (!jwtSecret) {
-    throw new Error(
-      "JWT_SECRET não configurado."
-    );
-  }
+  // ========================================
+  // GERAR TOKEN
+  // ========================================
 
+  /*
+    Nosso token contém apenas:
 
-  // Gera o token de autenticação
+    tipo
+
+    O ID fica no subject ("sub").
+
+    Dados como:
+
+    nome
+    email
+    senha
+
+    não precisam ficar dentro do JWT.
+  */
   const token =
     jwt.sign(
+
       {
-        tipo: usuario.tipo
+        tipo:
+          usuario.tipo
       },
 
       jwtSecret,
 
       {
-        subject:
-          String(usuario.id),
 
+        // Algoritmo aceito pela aplicação.
+        algorithm:
+          "HS256",
+
+
+        // Identificador do usuário.
+        subject:
+          String(
+            usuario.id
+          ),
+
+
+        // Tempo de validade.
         expiresIn:
-          "8h"
+          "8h",
+
+
+        // Quem criou o token.
+        issuer:
+          JWT_ISSUER,
+
+
+        // Para qual aplicação ele foi criado.
+        audience:
+          JWT_AUDIENCE
+
       }
+
     );
 
 
@@ -142,18 +327,32 @@ export async function login({
   // RETORNO
   // ========================================
 
-  // Retorna somente dados seguros
   return {
+
     usuario: {
-      id: usuario.id,
-      nome: usuario.nome,
-      email: usuario.email,
-      tipo: usuario.tipo,
-      ativo: usuario.ativo,
+
+      id:
+        usuario.id,
+
+      nome:
+        usuario.nome,
+
+      email:
+        usuario.email,
+
+      tipo:
+        usuario.tipo,
+
+      ativo:
+        usuario.ativo,
+
       primeiroAcesso:
-        usuario.primeiroAcesso
+        false
+
     },
 
+
     token
+
   };
-} 
+}
