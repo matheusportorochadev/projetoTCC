@@ -4,24 +4,135 @@ import { useNavigate } from "react-router-dom";
 import { cadastrarMedico } from "../services/api";
 import "../styles/cadastrarMedico.css";
 
-// Tela de cadastro de médico
+// ========================================
+// ESTADOS BRASILEIROS
+// ========================================
+
+// Lista das UFs disponíveis para o CRM.
+//
+// O número do CRM e a UF ficam separados
+// visualmente no formulário, mas serão
+// unidos antes do envio ao backend.
+const estados = [
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
+];
+
+// ========================================
+// FUNÇÕES AUXILIARES
+// ========================================
+
+// Formata automaticamente o nome.
+//
+// Exemplo:
+//
+// matheus porto rocha
+//
+// vira:
+//
+// Matheus Porto Rocha
+function formatarNome(valor: string) {
+  // Permite somente letras, acentos e espaços.
+  const somenteLetras = valor.replace(
+    /[^A-Za-zÀ-ÿ\s]/g,
+    ""
+  );
+
+  // Primeiro deixa todo o texto em minúsculo.
+  const minusculo =
+    somenteLetras.toLocaleLowerCase("pt-BR");
+
+  // Depois transforma a primeira letra
+  // de cada palavra em maiúscula.
+  return minusculo.replace(
+    /(^|\s)([a-zà-ÿ])/g,
+    (_, espaco, letra) =>
+      `${espaco}${letra.toLocaleUpperCase("pt-BR")}`
+  );
+}
+
+// Permite somente números no campo CRM.
+//
+// Exemplo:
+//
+// 123ABC456
+//
+// vira:
+//
+// 123456
+function formatarNumeroCrm(valor: string) {
+  return valor.replace(/\D/g, "");
+}
+
+// ========================================
+// TELA DE CADASTRO DE MÉDICO
+// ========================================
+
 export default function CadastrarMedico() {
   const navigate = useNavigate();
 
+  // ========================================
+  // DADOS DO FORMULÁRIO
+  // ========================================
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [crm, setCrm] = useState("");
+
+  // O CRM foi dividido em duas partes:
+  //
+  // crmNumero → número do registro
+  // crmUf     → estado do CRM
+  //
+  // Antes de enviar ao backend,
+  // os dois serão unidos.
+  const [crmNumero, setCrmNumero] = useState("");
+  const [crmUf, setCrmUf] = useState("");
+
+  // ========================================
+  // ESTADOS VISUAIS
+  // ========================================
+
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  // Valida os dados do formulário
+  // ========================================
+  // VALIDAÇÃO DO FORMULÁRIO
+  // ========================================
+
   function validarFormulario() {
     const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const senhaRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    const crmRegex = /^\d+$/;
+
+    // -------------------------
+    // NOME
+    // -------------------------
 
     if (!nome.trim()) {
       throw new Error("O nome é obrigatório.");
@@ -33,46 +144,107 @@ export default function CadastrarMedico() {
       );
     }
 
+    // -------------------------
+    // E-MAIL
+    // -------------------------
+
     if (!emailRegex.test(email.trim())) {
-      throw new Error("Informe um e-mail válido.");
-    }
-
-    if (!crm.trim()) {
-      throw new Error("O CRM é obrigatório.");
-    }
-
-    if (!senhaRegex.test(senha)) {
       throw new Error(
-        "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, letra minúscula, número e caractere especial."
+        "Informe um e-mail válido."
+      );
+    }
+
+    // -------------------------
+    // CRM
+    // -------------------------
+
+    if (!crmNumero.trim()) {
+      throw new Error(
+        "O número do CRM é obrigatório."
+      );
+    }
+
+    if (!crmRegex.test(crmNumero)) {
+      throw new Error(
+        "O CRM deve conter somente números."
+      );
+    }
+
+    // -------------------------
+    // UF DO CRM
+    // -------------------------
+
+    if (!crmUf) {
+      throw new Error(
+        "Selecione o estado do CRM."
       );
     }
   }
 
-  // Envia os dados para o backend
-  async function handleSubmit(event: React.FormEvent) {
+  // ========================================
+  // CADASTRAR MÉDICO
+  // ========================================
+
+  async function handleSubmit(
+    event: React.FormEvent
+  ) {
     event.preventDefault();
 
+    // Limpa mensagens anteriores.
     setMensagem("");
     setErro("");
 
     try {
+      // Valida todos os campos.
       validarFormulario();
 
       setCarregando(true);
 
+      // ========================================
+      // MONTA O CRM COMPLETO
+      // ========================================
+      //
+      // Exemplo:
+      //
+      // crmNumero = 123456
+      // crmUf     = MG
+      //
+      // resultado:
+      //
+      // MG 123456
+      //
+      // O banco continua utilizando apenas
+      // um campo chamado "crm".
+      const crmCompleto =
+        `${crmUf} ${crmNumero}`;
+
+      // ========================================
+      // ENVIA PARA O BACKEND
+      // ========================================
+      //
+      // O ADMIN envia somente:
+      //
+      // nome
+      // email
+      // crm
+      //
+      // Não existe senha inicial.
       await cadastrarMedico(
         nome.trim(),
         email.trim().toLowerCase(),
-        senha,
-        crm.trim()
+        crmCompleto
       );
 
-      setMensagem("Médico cadastrado com sucesso.");
+      // Mensagem de sucesso.
+      setMensagem(
+        "Médico cadastrado com sucesso. O médico deverá utilizar o Primeiro Acesso para criar sua senha."
+      );
 
+      // Limpa o formulário.
       setNome("");
       setEmail("");
-      setSenha("");
-      setCrm("");
+      setCrmNumero("");
+      setCrmUf("");
     } catch (erro) {
       setErro(
         erro instanceof Error
@@ -84,27 +256,49 @@ export default function CadastrarMedico() {
     }
   }
 
+  // ========================================
+  // INTERFACE
+  // ========================================
+
   return (
     <div className="cadastro-medico-page">
       <div className="cadastro-medico-container">
+        {/* ====================================
+            CABEÇALHO
+        ==================================== */}
+
         <div className="cadastro-medico-header">
           <div>
             <h1>Cadastrar médico</h1>
-            <p>Adicione um novo profissional ao sistema</p>
+
+            <p>
+              Adicione um novo profissional ao sistema
+            </p>
           </div>
 
           <button
             className="btn-voltar"
-            onClick={() => navigate("/admin")}
+            type="button"
+            onClick={() =>
+              navigate("/admin")
+            }
           >
             Voltar
           </button>
         </div>
 
+        {/* ====================================
+            FORMULÁRIO
+        ==================================== */}
+
         <form
           className="cadastro-medico-form"
           onSubmit={handleSubmit}
         >
+          {/* ==================================
+              NOME
+          ================================== */}
+
           <div className="form-group">
             <label>Nome</label>
 
@@ -113,18 +307,27 @@ export default function CadastrarMedico() {
               value={nome}
               onChange={(event) =>
                 setNome(
-                  event.target.value.replace(
-                    /[^A-Za-zÀ-ÿ\s]/g,
-                    ""
+                  formatarNome(
+                    event.target.value
                   )
                 )
               }
               placeholder="Nome completo"
               minLength={3}
               maxLength={100}
+              autoComplete="name"
               required
             />
+
+            <small>
+              O nome será formatado
+              automaticamente.
+            </small>
           </div>
+
+          {/* ==================================
+              E-MAIL
+          ================================== */}
 
           <div className="form-group">
             <label>E-mail</label>
@@ -137,54 +340,108 @@ export default function CadastrarMedico() {
               }
               placeholder="medico@email.com"
               maxLength={150}
+              autoComplete="email"
               required
             />
           </div>
+
+          {/* ==================================
+              CRM
+          ================================== */}
 
           <div className="form-group">
             <label>CRM</label>
 
-            <input
-              type="text"
-              value={crm}
-              onChange={(event) =>
-                setCrm(event.target.value)
-              }
-              placeholder="Ex: MG 123456"
-              minLength={4}
-              maxLength={20}
-              required
-            />
-          </div>
+            <div className="crm-campos">
+              {/* Número do CRM */}
+              <input
+                className="crm-numero"
+                type="text"
+                value={crmNumero}
+                onChange={(event) =>
+                  setCrmNumero(
+                    formatarNumeroCrm(
+                      event.target.value
+                    )
+                  )
+                }
+                placeholder="123456"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                minLength={4}
+                maxLength={10}
+                required
+              />
 
-          <div className="form-group">
-            <label>Senha inicial</label>
+              {/* Estado do CRM */}
+              <select
+                className="crm-uf"
+                value={crmUf}
+                onChange={(event) =>
+                  setCrmUf(
+                    event.target.value
+                  )
+                }
+                required
+              >
+                <option value="">
+                  UF
+                </option>
 
-            <input
-              type="password"
-              value={senha}
-              onChange={(event) =>
-                setSenha(event.target.value)
-              }
-              placeholder="Digite uma senha inicial"
-              minLength={8}
-              maxLength={100}
-              required
-            />
+                {estados.map((estado) => (
+                  <option
+                    key={estado}
+                    value={estado}
+                  >
+                    {estado}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <small>
-              Mínimo 8 caracteres, com letra maiúscula,
-              minúscula, número e caractere especial.
+              Informe o número do CRM e
+              selecione o estado de registro.
             </small>
           </div>
 
+          {/* ==================================
+              PRIMEIRO ACESSO
+          ================================== */}
+
+          <div className="form-group">
+            <small>
+              O médico não receberá uma senha
+              inicial. Após o cadastro, deverá
+              utilizar a opção Primeiro Acesso
+              para receber um código por e-mail
+              e criar a própria senha.
+            </small>
+          </div>
+
+          {/* ==================================
+              ERRO
+          ================================== */}
+
           {erro && (
-            <p className="form-erro">{erro}</p>
+            <p className="form-erro">
+              {erro}
+            </p>
           )}
 
+          {/* ==================================
+              SUCESSO
+          ================================== */}
+
           {mensagem && (
-            <p className="form-sucesso">{mensagem}</p>
+            <p className="form-sucesso">
+              {mensagem}
+            </p>
           )}
+
+          {/* ==================================
+              BOTÃO
+          ================================== */}
 
           <button
             className="btn-cadastrar"

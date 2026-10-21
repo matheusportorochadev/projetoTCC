@@ -202,3 +202,428 @@
     align-items: flex-start;
   }
 }
+
+/* ========================================
+   ABAS DO PAINEL ADMINISTRATIVO
+======================================== */
+
+.admin-abas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  padding: 6px;
+  margin-bottom: 26px;
+
+  background: #e9eef6;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.admin-aba {
+  flex: 1;
+  min-height: 43px;
+
+  padding: 11px 18px;
+
+  color: #4b5563;
+  background: transparent;
+
+  border: none;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-aba:hover {
+  background: #ffffffa8;
+}
+
+.admin-aba.ativa {
+  color: #1d4ed8;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.07);
+}
+
+.admin-aba:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   FILTROS DA AUDITORIA
+======================================== */
+
+.admin-auditoria-filtros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+
+  padding: 20px;
+  margin: 22px 0 14px;
+
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+}
+
+.admin-auditoria-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.admin-auditoria-campo label {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-auditoria-campo select,
+.admin-auditoria-campo input {
+  width: 100%;
+  min-width: 0;
+  min-height: 43px;
+
+  padding: 10px 12px;
+
+  color: #1f2937;
+  background: #ffffff;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.admin-auditoria-campo select:focus,
+.admin-auditoria-campo input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+/* ========================================
+   AÇÕES DOS FILTROS
+======================================== */
+
+.admin-auditoria-acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin: 14px 0 26px;
+}
+
+.admin-auditoria-btn-primario,
+.admin-auditoria-btn-secundario,
+.admin-auditoria-exportar {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 17px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-auditoria-btn-primario {
+  color: #ffffff;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+.admin-auditoria-btn-primario:hover {
+  background: #1d4ed8;
+}
+
+.admin-auditoria-btn-secundario {
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+.admin-auditoria-btn-secundario:hover {
+  background: #f3f4f6;
+}
+
+.admin-auditoria-exportar {
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-auditoria-exportar:hover {
+  background: #dbeafe;
+}
+
+.admin-auditoria-btn-primario:disabled,
+.admin-auditoria-btn-secundario:disabled,
+.admin-auditoria-exportar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   INDICADORES DA AUDITORIA
+======================================== */
+
+.admin-auditoria-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+
+  margin-bottom: 28px;
+}
+
+.admin-auditoria-resumo > div {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  padding: 18px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.admin-auditoria-resumo span {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.admin-auditoria-resumo strong {
+  color: #111827;
+  font-size: 25px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   CABEÇALHO DO HISTÓRICO
+======================================== */
+
+.admin-auditoria-lista-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+
+  margin-bottom: 17px;
+}
+
+.admin-auditoria-lista-topo h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 17px;
+}
+
+.admin-auditoria-lista-topo p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   TABELA DE AUDITORIA
+======================================== */
+
+.admin-auditoria-tabela-wrapper {
+  width: 100%;
+  overflow-x: auto;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+}
+
+.admin-auditoria-tabela {
+  width: 100%;
+  min-width: 740px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.admin-auditoria-tabela th {
+  padding: 15px 17px;
+
+  color: #475569;
+  background: #f8fafc;
+
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-auditoria-tabela td {
+  padding: 15px 17px;
+
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.6;
+  vertical-align: middle;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-auditoria-tabela tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-auditoria-tabela tbody tr:hover {
+  background: #f8fafc;
+}
+
+.admin-auditoria-tabela td strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+}
+
+.admin-auditoria-tabela td small {
+  display: block;
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* ========================================
+   STATUS DOS EVENTOS
+======================================== */
+
+.admin-auditoria-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 11px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-auditoria-status.sucesso {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.admin-auditoria-status.falha {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+/* ========================================
+   ESTADOS E PRIVACIDADE
+======================================== */
+
+.admin-auditoria-vazio {
+  padding: 38px 20px;
+  color: #6b7280;
+  background: #f8fafc;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.admin-auditoria-erro {
+  padding: 12px 14px;
+  margin: 16px 0;
+
+  color: #991b1b;
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  font-size: 13px;
+}
+
+.admin-auditoria-privacidade {
+  padding: 13px 15px;
+  margin: 20px 0 0;
+
+  color: #475569;
+  background: #eff6ff;
+
+  border: 1px solid #dbeafe;
+  border-radius: 9px;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 900px) {
+  .admin-auditoria-filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+
+  .admin-abas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-aba {
+    width: 100%;
+  }
+
+  .admin-auditoria-filtros {
+    grid-template-columns: 1fr;
+    padding: 15px;
+  }
+
+  .admin-auditoria-campo select,
+  .admin-auditoria-campo input {
+    font-size: 16px;
+  }
+
+  .admin-auditoria-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-auditoria-acoes {
+    flex-direction: column;
+  }
+
+  .admin-auditoria-acoes button,
+  .admin-auditoria-exportar {
+    width: 100%;
+  }
+
+  .admin-auditoria-lista-topo {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

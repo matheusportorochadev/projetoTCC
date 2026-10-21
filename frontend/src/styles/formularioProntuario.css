@@ -1,0 +1,1012 @@
+
+/* ========================================
+   FORMULÁRIO DE PRONTUÁRIO
+======================================== */
+
+.formulario-prontuario {
+  width: 100%;
+  min-width: 0;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+.formulario-prontuario *,
+.formulario-prontuario *::before,
+.formulario-prontuario *::after {
+  box-sizing: border-box;
+}
+
+/* ========================================
+   PRONTUÁRIO ANTERIOR COMPACTO
+======================================== */
+
+.formulario-prontuario-anterior-compacto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 14px;
+  padding: 15px 18px;
+  margin-bottom: 20px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+}
+
+.formulario-prontuario-anterior-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.formulario-prontuario-anterior-info strong {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.formulario-prontuario-anterior-info span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.formulario-prontuario-anterior-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.formulario-prontuario-anterior-acoes button {
+  min-height: 40px;
+  padding: 9px 14px;
+  font-size: 12px;
+}
+
+/* ========================================
+   SEÇÕES MINIMIZÁVEIS
+======================================== */
+
+.formulario-prontuario-recolhivel {
+  width: 100%;
+  margin-bottom: 14px;
+
+  overflow: hidden;
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+}
+
+.formulario-prontuario-recolhivel-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+  width: 100%;
+  min-height: 60px;
+
+  padding: 16px 20px;
+
+  background: #f8fafc;
+  color: #1e293b;
+
+  border: none;
+  border-radius: 0;
+
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+  line-height: 1.5;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.formulario-prontuario-recolhivel-titulo:hover {
+  background: #eff6ff;
+}
+
+.formulario-prontuario-recolhivel-titulo:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3);
+  outline-offset: -3px;
+}
+
+.formulario-prontuario-recolhivel-nome {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========================================
+   SETA DAS SEÇÕES
+======================================== */
+
+.formulario-prontuario-seta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+
+  border-radius: 9px;
+  transition: transform 0.2s ease;
+}
+
+.formulario-prontuario-seta svg {
+  display: block;
+}
+
+.formulario-prontuario-recolhivel-titulo[aria-expanded="false"]
+.formulario-prontuario-seta {
+  transform: rotate(-90deg);
+}
+
+.formulario-prontuario-recolhivel-titulo[aria-expanded="true"]
+.formulario-prontuario-seta {
+  transform: rotate(0deg);
+}
+
+/* ========================================
+   CONTEÚDO DAS SEÇÕES
+======================================== */
+
+.formulario-prontuario-recolhivel-conteudo {
+  padding: 21px 22px;
+
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+/*
+  Importante:
+  garante que uma seção fechada permaneça
+  oculta mesmo com display configurado.
+*/
+
+.formulario-prontuario-recolhivel-conteudo[hidden] {
+  display: none !important;
+}
+
+.formulario-prontuario-recolhivel-conteudo > p {
+  margin: 0 0 15px;
+
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ========================================
+   CAMPOS DE TEXTO
+======================================== */
+
+.formulario-prontuario-campo {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+  min-width: 0;
+  margin-top: 15px;
+}
+
+.formulario-prontuario-campo:first-child {
+  margin-top: 0;
+}
+
+.formulario-prontuario-label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.formulario-prontuario-obrigatorio {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.formulario-prontuario-campo textarea,
+.formulario-prontuario-campo input {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 12px 14px;
+
+  color: #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.65;
+
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.formulario-prontuario-campo textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+
+.formulario-prontuario-campo input {
+  min-height: 43px;
+}
+
+.formulario-prontuario-campo textarea:focus,
+.formulario-prontuario-campo input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.formulario-prontuario-campo textarea::placeholder,
+.formulario-prontuario-campo input::placeholder {
+  color: #94a3b8;
+}
+
+/* ========================================
+   GRUPOS DE SELEÇÃO
+======================================== */
+
+.formulario-prontuario-grupo {
+  min-width: 0;
+
+  margin: 18px 0;
+  padding: 16px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+}
+
+.formulario-prontuario-grupo legend {
+  padding: 0 7px;
+
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.formulario-prontuario-opcoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+.formulario-prontuario-opcao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  min-width: 0;
+
+  padding: 10px 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+}
+
+.formulario-prontuario-opcao span {
+  flex: 1;
+  min-width: 0;
+
+  color: #334155;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.formulario-prontuario-opcao select {
+  flex-shrink: 0;
+  width: 120px;
+  max-width: 100%;
+  min-height: 37px;
+
+  padding: 7px 9px;
+
+  color: #334155;
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.formulario-prontuario-opcao select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ========================================
+   SINAIS VITAIS
+======================================== */
+
+.formulario-prontuario-sinais {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.formulario-prontuario-sinal {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+  min-width: 0;
+}
+
+.formulario-prontuario-sinal label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.formulario-prontuario-sinal label small {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.formulario-prontuario-sinal input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+
+  color: #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.formulario-prontuario-sinal input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ========================================
+   BOTÕES
+======================================== */
+
+.formulario-prontuario-acoes,
+.prontuario-previa-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 11px;
+  margin-top: 22px;
+}
+
+.formulario-prontuario-primario,
+.formulario-prontuario-secundario,
+.prontuario-botao-pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+  min-height: 44px;
+
+  padding: 11px 17px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.formulario-prontuario-primario {
+  color: #ffffff;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+.formulario-prontuario-primario:hover {
+  background: #1d4ed8;
+}
+
+.formulario-prontuario-secundario {
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.formulario-prontuario-secundario:hover {
+  background: #f1f5f9;
+}
+
+.prontuario-botao-pdf {
+  color: #1d4ed8;
+  background: #ffffff;
+  border: 1px solid #93c5fd;
+}
+
+.prontuario-botao-pdf:hover {
+  background: #eff6ff;
+}
+
+.formulario-prontuario button:disabled,
+.formulario-prontuario input:disabled,
+.formulario-prontuario textarea:disabled,
+.formulario-prontuario select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   MENSAGENS
+======================================== */
+
+.formulario-prontuario-erro {
+  padding: 13px 15px;
+  margin: 13px 0;
+
+  color: #991b1b;
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.formulario-prontuario .prontuario-sucesso {
+  padding: 13px 15px;
+  margin: 13px 0;
+
+  color: #166534;
+  background: #f0fdf4;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 9px;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   DOCUMENTO DA PRÉ-VISUALIZAÇÃO
+======================================== */
+
+.formulario-prontuario-previa {
+  width: 100%;
+  min-width: 0;
+}
+
+.prontuario-documento-pdf {
+  width: 100%;
+  padding: 34px;
+
+  color: #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.prontuario-documento-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 15px;
+  padding-bottom: 23px;
+  margin-bottom: 24px;
+
+  border-bottom: 2px solid #2563eb;
+}
+
+.prontuario-documento-sistema {
+  display: block;
+
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+
+.prontuario-documento-cabecalho h2 {
+  margin: 9px 0;
+
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.prontuario-documento-cabecalho p {
+  margin: 0;
+
+  color: #64748b;
+  font-size: 12px;
+}
+
+.prontuario-documento-status {
+  padding: 9px 11px;
+
+  color: #92400e;
+  background: #fef3c7;
+
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ========================================
+   IDENTIFICAÇÃO NA PRÉVIA
+======================================== */
+
+.prontuario-documento-identificacao {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 17px;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+}
+
+.prontuario-documento-identificacao > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.prontuario-documento-identificacao span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.prontuario-documento-identificacao strong {
+  color: #0f172a;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* ========================================
+   CONTEÚDO CLÍNICO DA PRÉVIA
+======================================== */
+
+.prontuario-documento-secao {
+  margin-bottom: 23px;
+}
+
+.prontuario-documento-secao h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding-bottom: 9px;
+  margin: 0 0 11px;
+
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.prontuario-documento-secao h3 span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.prontuario-documento-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prontuario-documento-conteudo p {
+  margin: 0;
+
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.75;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.prontuario-documento-rodape {
+  margin-top: 28px;
+  padding-top: 14px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.prontuario-documento-rodape p {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   MODAIS PERSONALIZADOS
+======================================== */
+
+.formulario-prontuario-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.formulario-prontuario-modal {
+  width: 100%;
+  max-width: 440px;
+
+  padding: 28px;
+
+  color: #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.23);
+}
+
+.formulario-prontuario-modal-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 48px;
+  height: 48px;
+
+  margin-bottom: 16px;
+
+  color: #2563eb;
+  background: #eff6ff;
+
+  border-radius: 13px;
+}
+
+.formulario-prontuario-modal h3 {
+  margin: 0 0 11px;
+
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.formulario-prontuario-modal > p {
+  margin: 0 0 14px;
+
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.formulario-prontuario-modal-aviso {
+  padding: 12px;
+
+  color: #475569;
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+}
+
+.formulario-prontuario-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 10px;
+  margin-top: 22px;
+}
+
+/* ========================================
+   MODO ESCURO
+======================================== */
+
+body.modo-escuro .formulario-prontuario-recolhivel,
+body.modo-escuro .formulario-prontuario-anterior-compacto,
+body.modo-escuro .formulario-prontuario-modal {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.modo-escuro
+.formulario-prontuario-recolhivel-titulo {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+body.modo-escuro
+.formulario-prontuario-recolhivel-titulo:hover {
+  background: #334155;
+}
+
+body.modo-escuro
+.formulario-prontuario-recolhivel-conteudo {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.formulario-prontuario-anterior-info strong,
+body.modo-escuro
+.formulario-prontuario-label,
+body.modo-escuro
+.formulario-prontuario-grupo legend,
+body.modo-escuro
+.formulario-prontuario-opcao span,
+body.modo-escuro
+.formulario-prontuario-sinal label,
+body.modo-escuro
+.formulario-prontuario-modal h3 {
+  color: #e2e8f0;
+}
+
+body.modo-escuro .formulario-prontuario-grupo {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.modo-escuro .formulario-prontuario-opcao {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.modo-escuro
+.formulario-prontuario-campo textarea,
+body.modo-escuro
+.formulario-prontuario-campo input,
+body.modo-escuro
+.formulario-prontuario-opcao select,
+body.modo-escuro
+.formulario-prontuario-sinal input {
+  color: #f8fafc;
+  background: #0f172a;
+  border-color: #475569;
+}
+
+body.modo-escuro
+.formulario-prontuario-modal > p {
+  color: #cbd5e1;
+}
+
+body.modo-escuro
+.formulario-prontuario-modal-aviso {
+  color: #cbd5e1;
+  background: #0f172a;
+  border-color: #334155;
+}
+
+/* O documento da prévia permanece branco. */
+
+body.modo-escuro .prontuario-documento-pdf {
+  color: #1e293b;
+  background: #ffffff;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 900px) {
+  .formulario-prontuario-sinais {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formulario-prontuario-opcoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .formulario-prontuario-anterior-compacto {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .formulario-prontuario-anterior-acoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formulario-prontuario-anterior-acoes button {
+    width: 100%;
+  }
+
+  .formulario-prontuario-recolhivel-titulo {
+    min-height: 56px;
+    padding: 14px 15px;
+    font-size: 14px;
+  }
+
+  .formulario-prontuario-recolhivel-conteudo {
+    padding: 15px;
+  }
+
+  .formulario-prontuario-opcoes,
+  .formulario-prontuario-sinais,
+  .prontuario-documento-identificacao {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-prontuario-opcao {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .formulario-prontuario-opcao select {
+    width: 100%;
+  }
+
+  .formulario-prontuario-campo textarea,
+  .formulario-prontuario-campo input,
+  .formulario-prontuario-opcao select,
+  .formulario-prontuario-sinal input {
+    font-size: 16px;
+  }
+
+  .formulario-prontuario-acoes,
+  .prontuario-previa-acoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formulario-prontuario-acoes button,
+  .prontuario-previa-acoes button {
+    width: 100%;
+  }
+
+  .prontuario-documento-pdf {
+    padding: 17px;
+  }
+
+  .prontuario-documento-cabecalho h2 {
+    font-size: 21px;
+  }
+
+  .formulario-prontuario-modal {
+    padding: 22px;
+  }
+
+  .formulario-prontuario-modal-acoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formulario-prontuario-modal-acoes button {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   EXPORTAÇÃO E IMPRESSÃO EM PDF
+======================================== */
+
+@media print {
+
+  @page {
+    size: A4;
+    margin: 16mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .prontuario-documento-pdf,
+  .prontuario-documento-pdf * {
+    visibility: visible !important;
+  }
+
+  .prontuario-documento-pdf {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    color: #000000 !important;
+    background: #ffffff !important;
+
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .prontuario-previa-acoes,
+  .formulario-prontuario-modal-overlay {
+    display: none !important;
+  }
+
+  .prontuario-documento-cabecalho,
+  .prontuario-documento-identificacao {
+    break-inside: avoid-page;
+  }
+
+  .prontuario-documento-secao {
+    break-inside: auto;
+  }
+
+  .prontuario-documento-secao h3 {
+    break-after: avoid-page;
+  }
+
+  .prontuario-documento-status {
+    color: #000000 !important;
+    background: #ffffff !important;
+    border: 1px solid #000000;
+  }
+
+  .prontuario-documento-pdf h2,
+  .prontuario-documento-pdf h3,
+  .prontuario-documento-pdf p,
+  .prontuario-documento-pdf strong,
+  .prontuario-documento-pdf span {
+    color: #000000 !important;
+  }
+}

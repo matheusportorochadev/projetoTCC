@@ -1,0 +1,805 @@
+
+/* ========================================
+   PAINEL CLÍNICO DOS PRONTUÁRIOS
+======================================== */
+
+/*
+  Este CSS controla:
+
+  - Seleção de pacientes;
+  - Histórico clínico;
+  - Listagem de registros;
+  - Visualização de prontuários;
+  - Mensagens de erro;
+  - Navegação do painel;
+  - Responsividade;
+  - Modo escuro.
+
+  Não interfere no CSS da senha adicional
+  nem no formulário de preenchimento.
+*/
+
+/* ========================================
+   VARIÁVEIS DO PAINEL
+======================================== */
+
+.painel-clinico {
+  --pc-azul: #2563eb;
+  --pc-azul-hover: #1d4ed8;
+
+  --pc-fundo: #ffffff;
+  --pc-fundo-suave: #f8fafc;
+
+  --pc-texto: #1e293b;
+  --pc-texto-secundario: #64748b;
+
+  --pc-borda: #e2e8f0;
+
+  --pc-erro-fundo: #fef2f2;
+  --pc-erro-texto: #b91c1c;
+
+  width: 100%;
+  min-width: 0;
+
+  margin-top: 12px;
+
+  color: var(--pc-texto);
+
+  box-sizing: border-box;
+}
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.painel-clinico-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  flex-wrap: wrap;
+  gap: 18px;
+
+  margin-bottom: 26px;
+}
+
+.painel-clinico-cabecalho h2 {
+  margin: 0 0 8px;
+
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: 700;
+
+  color: var(--pc-texto);
+}
+
+.painel-clinico-cabecalho p {
+  margin: 0;
+
+  color: var(--pc-texto-secundario);
+
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+/* ========================================
+   BOTÃO DE VOLTAR
+======================================== */
+
+.painel-clinico-voltar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 43px;
+  padding: 10px 18px;
+
+  background: var(--pc-fundo);
+  color: var(--pc-azul);
+
+  border: 1px solid var(--pc-borda);
+  border-radius: 10px;
+
+  font: inherit;
+  font-size: 0.91rem;
+  font-weight: 650;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.painel-clinico-voltar:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.painel-clinico-voltar:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
+}
+
+.painel-clinico-voltar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   SELEÇÃO DO PACIENTE
+======================================== */
+
+.painel-clinico-selecao {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-bottom: 24px;
+}
+
+.painel-clinico-rotulo {
+  display: block;
+
+  color: var(--pc-texto);
+
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.painel-clinico-selecao select {
+  display: block;
+
+  width: 100%;
+  max-width: 580px;
+  min-height: 48px;
+
+  padding: 12px 15px;
+
+  box-sizing: border-box;
+
+  background: var(--pc-fundo);
+  color: var(--pc-texto);
+
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+
+  font: inherit;
+  font-size: 0.95rem;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.painel-clinico-selecao select:focus {
+  border-color: var(--pc-azul);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.painel-clinico-selecao select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   ERROS
+======================================== */
+
+.painel-clinico-erro {
+  margin: 0 0 18px;
+
+  padding: 14px 16px;
+
+  background: var(--pc-erro-fundo);
+  color: var(--pc-erro-texto);
+
+  border: 1px solid rgba(185, 28, 28, 0.18);
+  border-radius: 10px;
+
+  font-size: 0.91rem;
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+}
+
+/* ========================================
+   AVISOS
+======================================== */
+
+.painel-clinico-aviso {
+  display: block;
+
+  margin: 16px 0 24px;
+  padding: 20px;
+
+  background: var(--pc-fundo-suave);
+  color: var(--pc-texto);
+
+  border: 1px solid var(--pc-borda);
+  border-radius: 12px;
+}
+
+.painel-clinico-aviso h3 {
+  margin: 0 0 12px;
+
+  color: var(--pc-texto);
+
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.painel-clinico-aviso p {
+  margin: 0 0 12px;
+
+  color: var(--pc-texto-secundario);
+
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.painel-clinico-aviso p:last-child {
+  margin-bottom: 0;
+}
+
+.painel-clinico-aviso .painel-clinico-voltar {
+  margin-top: 12px;
+}
+
+/* ========================================
+   HISTÓRICO DOS PRONTUÁRIOS
+======================================== */
+
+.painel-clinico-historico {
+  margin-top: 20px;
+  padding: 22px;
+
+  background: var(--pc-fundo);
+
+  border: 1px solid var(--pc-borda);
+  border-radius: 14px;
+}
+
+.painel-clinico-historico > h3 {
+  margin: 0 0 20px;
+
+  color: var(--pc-texto);
+
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ========================================
+   LISTA DO HISTÓRICO
+======================================== */
+
+.painel-clinico-lista {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.painel-clinico-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 15px;
+
+  background: var(--pc-fundo-suave);
+
+  border: 1px solid var(--pc-borda);
+  border-radius: 10px;
+}
+
+.painel-clinico-lista li span {
+  min-width: 0;
+
+  color: var(--pc-texto);
+
+  font-size: 0.91rem;
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+}
+
+.painel-clinico-lista li button {
+  flex-shrink: 0;
+
+  min-height: 39px;
+  padding: 9px 16px;
+
+  background: var(--pc-azul);
+  color: #ffffff;
+
+  border: none;
+  border-radius: 9px;
+
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.painel-clinico-lista li button:hover:not(:disabled) {
+  background: var(--pc-azul-hover);
+}
+
+.painel-clinico-lista li button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   DOCUMENTO CLÍNICO
+======================================== */
+
+.painel-clinico-documento {
+  margin-top: 24px;
+  padding: 28px;
+
+  background: var(--pc-fundo);
+  color: var(--pc-texto);
+
+  border: 1px solid var(--pc-borda);
+  border-radius: 14px;
+}
+
+.painel-clinico-documento > h3 {
+  margin: 0 0 8px;
+
+  color: var(--pc-texto);
+
+  font-size: 1.4rem;
+  font-weight: 750;
+}
+
+.painel-clinico-data {
+  margin: 0 0 12px;
+
+  color: var(--pc-texto-secundario);
+
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.painel-clinico-documento section {
+  padding: 20px 0;
+
+  border-bottom: 1px solid var(--pc-borda);
+}
+
+.painel-clinico-documento section:last-child {
+  border-bottom: none;
+}
+
+.painel-clinico-documento section h4 {
+  margin: 0 0 10px;
+
+  color: var(--pc-texto);
+
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.painel-clinico-documento section p {
+  margin: 0;
+
+  color: var(--pc-texto);
+
+  font-size: 0.94rem;
+  line-height: 1.8;
+
+  /* Preserva as quebras de linha
+     e a organização dos dados clínicos. */
+  white-space: pre-wrap;
+
+  overflow-wrap: anywhere;
+}
+
+/* ========================================
+   MODO ESCURO
+======================================== */
+
+body.modo-escuro .painel-clinico {
+  --pc-fundo: #1e293b;
+  --pc-fundo-suave: #0f172a;
+
+  --pc-texto: #f1f5f9;
+  --pc-texto-secundario: #94a3b8;
+
+  --pc-borda: #334155;
+
+  --pc-erro-fundo: #451a1a;
+  --pc-erro-texto: #fecaca;
+}
+
+body.modo-escuro
+.painel-clinico-selecao select {
+  border-color: #475569;
+  color-scheme: dark;
+}
+
+body.modo-escuro
+.painel-clinico-voltar {
+  color: #93c5fd;
+}
+
+body.modo-escuro
+.painel-clinico-voltar:hover:not(:disabled) {
+  background: #334155;
+  border-color: #475569;
+}
+
+body.modo-escuro
+.painel-clinico-lista li button {
+  background: #2563eb;
+}
+
+body.modo-escuro
+.painel-clinico-lista li button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+/* ========================================
+   TABLETS
+======================================== */
+
+@media (max-width: 900px) {
+  .painel-clinico-documento {
+    padding: 22px;
+  }
+
+  .painel-clinico-historico {
+    padding: 18px;
+  }
+}
+
+/* ========================================
+   CELULARES
+======================================== */
+
+@media (max-width: 600px) {
+  .painel-clinico-cabecalho {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .painel-clinico-cabecalho h2 {
+    font-size: 1.35rem;
+  }
+
+  .painel-clinico-cabecalho
+  .painel-clinico-voltar {
+    width: 100%;
+  }
+
+  .painel-clinico-aviso {
+    padding: 16px;
+  }
+
+  .painel-clinico-historico {
+    padding: 15px;
+  }
+
+  .painel-clinico-lista li {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .painel-clinico-lista li button {
+    width: 100%;
+  }
+
+  .painel-clinico-documento {
+    padding: 17px;
+  }
+
+  .painel-clinico-documento > h3 {
+    font-size: 1.2rem;
+  }
+
+  .painel-clinico-documento section {
+    padding: 16px 0;
+  }
+}
+
+/* ========================================
+   ACESSIBILIDADE
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .painel-clinico-voltar {
+    transition: none;
+  }
+}
+
+/* ========================================
+   FILTROS DOS PRONTUÁRIOS
+======================================== */
+
+.painel-clinico-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin: 18px 0;
+}
+
+.painel-clinico-filtro {
+  padding: 10px 15px;
+
+  color: #475569;
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.painel-clinico-filtro.ativo {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.painel-clinico-restaurar-todos {
+  margin-left: auto;
+  padding: 10px 14px;
+
+  color: #047857;
+  background: #ecfdf5;
+
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* ========================================
+   AÇÕES POR REGISTRO
+======================================== */
+
+.painel-clinico-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 12px;
+}
+
+.painel-clinico-item-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.painel-clinico-acao-ocultar,
+.painel-clinico-acao-restaurar {
+  padding: 9px 13px;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.painel-clinico-acao-ocultar {
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+
+.painel-clinico-acao-restaurar {
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+/* ========================================
+   MODAL PERSONALIZADO
+======================================== */
+
+.painel-clinico-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(5px);
+}
+
+.painel-clinico-modal {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+
+  padding: 30px;
+
+  color: #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.painel-clinico-modal-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  margin-bottom: 18px;
+
+  color: #b45309;
+  background: #fef3c7;
+
+  border-radius: 15px;
+}
+
+.painel-clinico-modal h3 {
+  margin: 0 0 12px;
+
+  color: #0f172a;
+  font-size: 22px;
+}
+
+.painel-clinico-modal > p {
+  margin: 0 0 15px;
+
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.painel-clinico-modal-info {
+  padding: 12px;
+
+  background: #f8fafc;
+  border-radius: 9px;
+}
+
+.painel-clinico-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.painel-clinico-modal-cancelar,
+.painel-clinico-modal-confirmar {
+  min-height: 43px;
+
+  padding: 10px 16px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.painel-clinico-modal-cancelar {
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.painel-clinico-modal-confirmar {
+  color: #ffffff;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+.painel-clinico-modal-confirmar:hover {
+  background: #1d4ed8;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 600px) {
+
+  .painel-clinico-modal {
+    padding: 22px;
+  }
+
+  .painel-clinico-item-acoes {
+    width: 100%;
+  }
+
+  .painel-clinico-modal-acoes button {
+    flex: 1;
+  }
+
+  .painel-clinico-restaurar-todos {
+    margin-left: 0;
+  }
+}
+
+/* ========================================
+   INDICADOR DE REGISTRO SALVO
+======================================== */
+
+.painel-clinico-status-salvo {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 9px 12px;
+
+  color: #166534;
+  background: #f0fdf4;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 7px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ========================================
+   ESPAÇAMENTO DA VISUALIZAÇÃO CLÍNICA
+======================================== */
+
+.painel-clinico > .formulario-prontuario-previa {
+  margin-top: 24px;
+}
+
+/* ========================================
+   DOCUMENTO SALVO NO MODO ESCURO
+======================================== */
+
+body.modo-escuro
+.painel-clinico > .formulario-prontuario-previa
+.prontuario-documento-pdf {
+  color: #1e293b;
+  background: #ffffff;
+}
+
+body.modo-escuro
+.painel-clinico-status-salvo {
+  color: #86efac;
+  background: #14532d;
+  border-color: #166534;
+}

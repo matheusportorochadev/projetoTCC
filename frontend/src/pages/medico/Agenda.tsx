@@ -1254,6 +1254,54 @@ const [
 
 
   // ========================================
+  // BLOQUEIO DE DATAS PASSADAS
+  // ========================================
+
+  // Retorna a data local de hoje no formato
+  // YYYY-MM-DD, sem conversão para UTC.
+  function obterDataHoje() {
+    const agora =
+      new Date();
+
+    const ano =
+      agora.getFullYear();
+
+    const mes =
+      String(
+        agora.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+    const dia =
+      String(
+        agora.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+    return `${ano}-${mes}-${dia}`;
+  }
+
+
+  // Datas anteriores a hoje ficam bloqueadas.
+  //
+  // Hoje continua permitido.
+  // Datas futuras continuam permitidas,
+  // inclusive no próximo ano.
+  function dataJaPassou(
+    data: string
+  ) {
+    return (
+      data <
+      obterDataHoje()
+    );
+  }
+
+
+  // ========================================
   // STATUS
   // ========================================
 
@@ -1379,6 +1427,18 @@ const [
       return;
     }
 
+    if (
+      dataJaPassou(
+        dataModal
+      )
+    ) {
+      setErro(
+        "Não é possível adicionar disponibilidade em uma data que já passou."
+      );
+
+      return;
+    }
+
     setDataNovoHorario(
       dataModal
     );
@@ -1456,6 +1516,18 @@ const [
     if (!dataNovoHorario) {
       setErroModal(
         "Data não encontrada."
+      );
+
+      return;
+    }
+
+    if (
+      dataJaPassou(
+        dataNovoHorario
+      )
+    ) {
+      setErroModal(
+        "Não é possível adicionar disponibilidade em uma data que já passou."
       );
 
       return;
@@ -1629,6 +1701,18 @@ const [
     if (!dataConfiguracao) {
       setErro(
         "Selecione uma data."
+      );
+
+      return;
+    }
+
+    if (
+      dataJaPassou(
+        dataConfiguracao
+      )
+    ) {
+      setErro(
+        "Não é possível configurar disponibilidade em uma data que já passou."
       );
 
       return;
@@ -1947,6 +2031,18 @@ const [
     }
 
     if (
+      dataJaPassou(
+        dataRemarcacao
+      )
+    ) {
+      setErroRemarcacao(
+        "Não é possível remarcar uma consulta para uma data que já passou."
+      );
+
+      return;
+    }
+
+    if (
       !horarioRemarcacao
     ) {
       setErroRemarcacao(
@@ -2088,6 +2184,18 @@ const [
     ) {
       setErroNovaConsulta(
         "Selecione a data da consulta."
+      );
+
+      return;
+    }
+
+    if (
+      dataJaPassou(
+        dataNovaConsulta
+      )
+    ) {
+      setErroNovaConsulta(
+        "Não é possível cadastrar uma consulta em uma data que já passou."
       );
 
       return;
@@ -2489,6 +2597,16 @@ const [
                             dia
                           );
 
+                        const dataDia =
+                          montarData(
+                            dia
+                          );
+
+                        const passado =
+                          dataJaPassou(
+                            dataDia
+                          );
+
                         return (
                           <button
                             key={dia}
@@ -2498,6 +2616,10 @@ const [
 
                               disponivel
                                 ? "agenda-dia-disponivel"
+                                : "",
+
+                              passado
+                                ? "agenda-dia-passado"
                                 : ""
                             ]
                               .filter(Boolean)
@@ -2567,6 +2689,9 @@ const [
 
                     <input
                       type="date"
+                      min={
+                        obterDataHoje()
+                      }
                       value={
                         dataConfiguracao
                       }
@@ -3282,6 +3407,9 @@ const [
 
                   <input
                     type="date"
+                    min={
+                      obterDataHoje()
+                    }
                     value={
                       dataNovaConsulta
                     }
@@ -3760,15 +3888,21 @@ const [
                   Fechar
                 </button>
 
-                <button
-                  type="button"
-                  className="agenda-modal-btn agenda-modal-btn-primary"
-                  onClick={
-                    abrirModalNovoHorario
-                  }
-                >
-                  Adicionar horário
-                </button>
+                {
+                  !dataJaPassou(
+                    dataModal
+                  ) && (
+                    <button
+                      type="button"
+                      className="agenda-modal-btn agenda-modal-btn-primary"
+                      onClick={
+                        abrirModalNovoHorario
+                      }
+                    >
+                      Adicionar horário
+                    </button>
+                  )
+                }
               </div>
             </div>
           </div>
@@ -4180,6 +4314,9 @@ const [
 
                 <input
                   type="date"
+                  min={
+                    obterDataHoje()
+                  }
                   value={
                     dataRemarcacao
                   }

@@ -1,3 +1,4 @@
+
 // ========================================
 // DEPENDÊNCIAS
 // ========================================
@@ -133,6 +134,69 @@ export async function enviarCodigoPrimeiroAcesso(
         "O código é válido por 10 minutos.",
         "",
         "Caso você não esperasse receber este e-mail, ignore esta mensagem."
+      ].join("\n")
+
+  });
+}
+
+
+// ========================================
+// RECUPERAÇÃO DA SENHA DOS PRONTUÁRIOS
+// ========================================
+
+// NOVA FUNÇÃO.
+//
+// Envia um código de 6 dígitos para
+// recuperar exclusivamente a senha
+// adicional dos prontuários.
+//
+// O e-mail do destinatário será obtido
+// pelo backend a partir do usuário
+// médico autenticado.
+//
+// Esta função utiliza o mesmo transporter
+// SMTP já configurado no sistema.
+//
+// IMPORTANTE:
+//
+// - Não altera a senha de login.
+// - Não modifica dados dos pacientes.
+// - Não modifica prontuários.
+// - Apenas envia o código por e-mail.
+//
+// A geração, o armazenamento seguro,
+// a expiração e a validação do código
+// serão realizados pelo service
+// de recuperação dos prontuários.
+export async function enviarCodigoRecuperacaoProntuario(
+  email: string,
+  codigo: string
+) {
+
+  await transporter.sendMail({
+
+    from:
+      `"Sistema Consultório Médico" <${process.env.SMTP_FROM}>`,
+
+    to:
+      email,
+
+    subject:
+      "Recuperação da senha dos prontuários",
+
+    text:
+      [
+        "Foi solicitada a recuperação da senha de acesso aos prontuários médicos.",
+        "",
+        "Utilize o código abaixo para cadastrar uma nova senha:",
+        "",
+        `Código: ${codigo}`,
+        "",
+        "O código é válido por 10 minutos e pode ser utilizado apenas uma vez.",
+        "",
+        "Se você não solicitou esta recuperação, ignore esta mensagem.",
+        "",
+        "A senha principal de acesso ao sistema não será alterada."
       ].join("\n")
 
   });

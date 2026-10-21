@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6d17391f3570ac6893deff51f875e46473bec5efaa685fe102c24138a61e9411'>;
+  StorageHashBase<'c55f8c5d46a82a479e9ba609f5da6e9eeb7689159f055988a40c71f333ef6f95'>;
 export type ExecutionHash =
   ExecutionHashBase<'f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27'>;
 export type ProfileHash =
@@ -241,6 +241,13 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 
 export type FieldOutputTypes = {
   readonly public: {
+    readonly AcessoProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
+      readonly senhaHash: CodecTypes['pg/text@1']['output'];
+      readonly versaoAutorizacao: CodecTypes['pg/int4@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly Agendamento: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly medicoId: CodecTypes['pg/int4@1']['output'];
@@ -253,9 +260,29 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly AuditoriaProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly prontuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly CodigoPrimeiroAcesso: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'];
+      readonly codigoHash: CodecTypes['pg/text@1']['output'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly usado: CodecTypes['pg/bool@1']['output'];
+      readonly tentativas: CodecTypes['pg/int4@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly CodigoRecuperacaoProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
       readonly codigoHash: CodecTypes['pg/text@1']['output'];
       readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly usado: CodecTypes['pg/bool@1']['output'];
@@ -294,6 +321,22 @@ export type FieldOutputTypes = {
       readonly cpf: CodecTypes['pg/text@1']['output'] | null;
       readonly acessoLiberado: CodecTypes['pg/bool@1']['output'];
       readonly ativo: CodecTypes['pg/bool@1']['output'];
+    };
+    readonly Prontuario: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
+      readonly queixaPrincipal: CodecTypes['pg/text@1']['output'] | null;
+      readonly historiaMolestiaAtual: CodecTypes['pg/text@1']['output'] | null;
+      readonly historiaPatologicaPregressa: CodecTypes['pg/text@1']['output'] | null;
+      readonly exameFisico: CodecTypes['pg/text@1']['output'] | null;
+      readonly examesComplementares: CodecTypes['pg/text@1']['output'] | null;
+      readonly conduta: CodecTypes['pg/text@1']['output'] | null;
+      readonly prontuarioAnteriorId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly conteudoCriptografado: CodecTypes['pg/text@1']['output'] | null;
+      readonly versaoSchema: CodecTypes['pg/int4@1']['output'];
+      readonly versaoChave: CodecTypes['pg/int4@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly RemarcacaoAgendamento: {
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -321,6 +364,13 @@ export type FieldOutputTypes = {
 };
 export type FieldInputTypes = {
   readonly public: {
+    readonly AcessoProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
+      readonly senhaHash: CodecTypes['pg/text@1']['input'];
+      readonly versaoAutorizacao: CodecTypes['pg/int4@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly Agendamento: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly medicoId: CodecTypes['pg/int4@1']['input'];
@@ -333,9 +383,29 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
+    readonly AuditoriaProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly prontuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly CodigoPrimeiroAcesso: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+      readonly codigoHash: CodecTypes['pg/text@1']['input'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly usado: CodecTypes['pg/bool@1']['input'];
+      readonly tentativas: CodecTypes['pg/int4@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly CodigoRecuperacaoProntuario: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
       readonly codigoHash: CodecTypes['pg/text@1']['input'];
       readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly usado: CodecTypes['pg/bool@1']['input'];
@@ -375,6 +445,22 @@ export type FieldInputTypes = {
       readonly acessoLiberado: CodecTypes['pg/bool@1']['input'];
       readonly ativo: CodecTypes['pg/bool@1']['input'];
     };
+    readonly Prontuario: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
+      readonly queixaPrincipal: CodecTypes['pg/text@1']['input'] | null;
+      readonly historiaMolestiaAtual: CodecTypes['pg/text@1']['input'] | null;
+      readonly historiaPatologicaPregressa: CodecTypes['pg/text@1']['input'] | null;
+      readonly exameFisico: CodecTypes['pg/text@1']['input'] | null;
+      readonly examesComplementares: CodecTypes['pg/text@1']['input'] | null;
+      readonly conduta: CodecTypes['pg/text@1']['input'] | null;
+      readonly prontuarioAnteriorId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly conteudoCriptografado: CodecTypes['pg/text@1']['input'] | null;
+      readonly versaoSchema: CodecTypes['pg/int4@1']['input'];
+      readonly versaoChave: CodecTypes['pg/int4@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly RemarcacaoAgendamento: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly agendamentoId: CodecTypes['pg/int4@1']['input'];
@@ -401,6 +487,13 @@ export type FieldInputTypes = {
 };
 export type StorageColumnTypes = {
   readonly public: {
+    readonly acessoProntuario: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
+      readonly senhaHash: CodecTypes['pg/text@1']['output'];
+      readonly versaoAutorizacao: CodecTypes['pg/int4@1']['output'];
+    };
     readonly agendamento: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly data: CodecTypes['pg/date-string@1']['output'];
@@ -413,6 +506,17 @@ export type StorageColumnTypes = {
         'AGENDADA' | 'PENDENTE' | 'CONFIRMADA' | 'REALIZADA' | 'RECUSADA' | 'CANCELADA' | 'FALTOU';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly auditoriaProntuario: {
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly prontuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+    };
     readonly codigoPrimeiroAcesso: {
       readonly codigoHash: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -421,6 +525,15 @@ export type StorageColumnTypes = {
       readonly tentativas: CodecTypes['pg/int4@1']['output'];
       readonly usado: CodecTypes['pg/bool@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'];
+    };
+    readonly codigoRecuperacaoProntuario: {
+      readonly codigoHash: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
+      readonly tentativas: CodecTypes['pg/int4@1']['output'];
+      readonly usado: CodecTypes['pg/bool@1']['output'];
     };
     readonly codigoRedefinicaoSenha: {
       readonly codigo: CodecTypes['pg/text@1']['output'];
@@ -455,6 +568,22 @@ export type StorageColumnTypes = {
       readonly telefone: CodecTypes['pg/text@1']['output'] | null;
       readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
     };
+    readonly prontuario: {
+      readonly conduta: CodecTypes['pg/text@1']['output'] | null;
+      readonly conteudoCriptografado: CodecTypes['pg/text@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly exameFisico: CodecTypes['pg/text@1']['output'] | null;
+      readonly examesComplementares: CodecTypes['pg/text@1']['output'] | null;
+      readonly historiaMolestiaAtual: CodecTypes['pg/text@1']['output'] | null;
+      readonly historiaPatologicaPregressa: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'];
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'];
+      readonly prontuarioAnteriorId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly queixaPrincipal: CodecTypes['pg/text@1']['output'] | null;
+      readonly versaoChave: CodecTypes['pg/int4@1']['output'];
+      readonly versaoSchema: CodecTypes['pg/int4@1']['output'];
+    };
     readonly remarcacaoAgendamento: {
       readonly agendamentoId: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -481,6 +610,13 @@ export type StorageColumnTypes = {
 };
 export type StorageColumnInputTypes = {
   readonly public: {
+    readonly acessoProntuario: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
+      readonly senhaHash: CodecTypes['pg/text@1']['input'];
+      readonly versaoAutorizacao: CodecTypes['pg/int4@1']['input'];
+    };
     readonly agendamento: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly data: CodecTypes['pg/date-string@1']['input'];
@@ -493,6 +629,17 @@ export type StorageColumnInputTypes = {
         'AGENDADA' | 'PENDENTE' | 'CONFIRMADA' | 'REALIZADA' | 'RECUSADA' | 'CANCELADA' | 'FALTOU';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
+    readonly auditoriaProntuario: {
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly prontuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+    };
     readonly codigoPrimeiroAcesso: {
       readonly codigoHash: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -501,6 +648,15 @@ export type StorageColumnInputTypes = {
       readonly tentativas: CodecTypes['pg/int4@1']['input'];
       readonly usado: CodecTypes['pg/bool@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly codigoRecuperacaoProntuario: {
+      readonly codigoHash: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly expiraEm: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
+      readonly tentativas: CodecTypes['pg/int4@1']['input'];
+      readonly usado: CodecTypes['pg/bool@1']['input'];
     };
     readonly codigoRedefinicaoSenha: {
       readonly codigo: CodecTypes['pg/text@1']['input'];
@@ -534,6 +690,22 @@ export type StorageColumnInputTypes = {
       readonly nome: CodecTypes['pg/text@1']['input'];
       readonly telefone: CodecTypes['pg/text@1']['input'] | null;
       readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+    };
+    readonly prontuario: {
+      readonly conduta: CodecTypes['pg/text@1']['input'] | null;
+      readonly conteudoCriptografado: CodecTypes['pg/text@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly exameFisico: CodecTypes['pg/text@1']['input'] | null;
+      readonly examesComplementares: CodecTypes['pg/text@1']['input'] | null;
+      readonly historiaMolestiaAtual: CodecTypes['pg/text@1']['input'] | null;
+      readonly historiaPatologicaPregressa: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'];
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'];
+      readonly prontuarioAnteriorId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly queixaPrincipal: CodecTypes['pg/text@1']['input'] | null;
+      readonly versaoChave: CodecTypes['pg/int4@1']['input'];
+      readonly versaoSchema: CodecTypes['pg/int4@1']['input'];
     };
     readonly remarcacaoAgendamento: {
       readonly agendamentoId: CodecTypes['pg/int4@1']['input'];
@@ -577,6 +749,61 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly acessoProntuario: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly senhaHash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly versaoAutorizacao: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['medicoId'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'acessoProntuario';
+                    readonly columns: readonly ['medicoId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'medico';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly agendamento: {
               columns: {
                 readonly id: {
@@ -695,6 +922,89 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly auditoriaProntuario: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly usuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly pacienteId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly prontuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly acao: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly resultado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly requisicaoId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auditoriaProntuario_createdAt_idx_9575dbd7';
+                  readonly prefix: 'auditoriaProntuario_createdAt_idx';
+                  readonly columns: readonly ['createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd';
+                  readonly prefix: 'auditoriaProntuario_usuarioId_createdAt_idx';
+                  readonly columns: readonly ['usuarioId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea';
+                  readonly prefix: 'auditoriaProntuario_prontuarioId_createdAt_idx';
+                  readonly columns: readonly ['prontuarioId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaProntuario_acao_createdAt_idx_1bb6e007';
+                  readonly prefix: 'auditoriaProntuario_acao_createdAt_idx';
+                  readonly columns: readonly ['acao', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
             readonly codigoPrimeiroAcesso: {
               columns: {
                 readonly id: {
@@ -772,6 +1082,88 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'usuario';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly codigoRecuperacaoProntuario: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly codigoHash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly expiraEm: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+                readonly usado: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly tentativas: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'codigoRecuperacaoProntuario_medicoId_idx_cef7d96a';
+                  readonly prefix: 'codigoRecuperacaoProntuario_medicoId_idx';
+                  readonly columns: readonly ['medicoId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'codigoRecuperacaoProntuario_medicoId_usado_idx_44145758';
+                  readonly prefix: 'codigoRecuperacaoProntuario_medicoId_usado_idx';
+                  readonly columns: readonly ['medicoId', 'usado'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'codigoRecuperacaoProntuario';
+                    readonly columns: readonly ['medicoId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'medico';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1068,6 +1460,141 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly prontuario: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly pacienteId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly queixaPrincipal: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly historiaMolestiaAtual: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly historiaPatologicaPregressa: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly exameFisico: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly examesComplementares: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly conduta: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly prontuarioAnteriorId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly conteudoCriptografado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly versaoSchema: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                };
+                readonly versaoChave: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'prontuario_pacienteId_createdAt_idx_4c3fde10';
+                  readonly prefix: 'prontuario_pacienteId_createdAt_idx';
+                  readonly columns: readonly ['pacienteId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'prontuario_medicoId_idx_cef7d96a';
+                  readonly prefix: 'prontuario_medicoId_idx';
+                  readonly columns: readonly ['medicoId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'prontuario_pacienteId_idx_8734dc3f';
+                  readonly prefix: 'prontuario_pacienteId_idx';
+                  readonly columns: readonly ['pacienteId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'prontuario';
+                    readonly columns: readonly ['pacienteId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'paciente';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'prontuario';
+                    readonly columns: readonly ['medicoId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'medico';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly remarcacaoAgendamento: {
               columns: {
                 readonly id: {
@@ -1282,11 +1809,78 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'CodigoPrimeiroAcesso';
     };
+    readonly acessoProntuario: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AcessoProntuario';
+    };
+    readonly prontuario: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Prontuario';
+    };
+    readonly codigoRecuperacaoProntuario: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'CodigoRecuperacaoProntuario';
+    };
+    readonly auditoriaProntuario: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuditoriaProntuario';
+    };
   };
   readonly domain: {
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly AcessoProntuario: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly senhaHash: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly versaoAutorizacao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly medico: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Medico';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['medicoId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'acessoProntuario';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly medicoId: { readonly column: 'medicoId' };
+                readonly senhaHash: { readonly column: 'senhaHash' };
+                readonly versaoAutorizacao: { readonly column: 'versaoAutorizacao' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
           readonly Agendamento: {
             readonly fields: {
               readonly id: {
@@ -1383,6 +1977,65 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly AuditoriaProntuario: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly pacienteId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly prontuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly acao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly resultado: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly requisicaoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'auditoriaProntuario';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly medicoId: { readonly column: 'medicoId' };
+                readonly pacienteId: { readonly column: 'pacienteId' };
+                readonly prontuarioId: { readonly column: 'prontuarioId' };
+                readonly acao: { readonly column: 'acao' };
+                readonly resultado: { readonly column: 'resultado' };
+                readonly requisicaoId: { readonly column: 'requisicaoId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
           readonly CodigoPrimeiroAcesso: {
             readonly fields: {
               readonly id: {
@@ -1439,6 +2092,70 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly id: { readonly column: 'id' };
                 readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly codigoHash: { readonly column: 'codigoHash' };
+                readonly expiraEm: { readonly column: 'expiraEm' };
+                readonly usado: { readonly column: 'usado' };
+                readonly tentativas: { readonly column: 'tentativas' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
+          readonly CodigoRecuperacaoProntuario: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly codigoHash: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly expiraEm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly usado: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly tentativas: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly medico: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Medico';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['medicoId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'codigoRecuperacaoProntuario';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly medicoId: { readonly column: 'medicoId' };
                 readonly codigoHash: { readonly column: 'codigoHash' };
                 readonly expiraEm: { readonly column: 'expiraEm' };
                 readonly usado: { readonly column: 'usado' };
@@ -1580,10 +2297,32 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly acessoProntuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'AcessoProntuario';
+                };
+                readonly cardinality: '1:1';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['medicoId'];
+                };
+              };
               readonly agendamentos: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Agendamento';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['medicoId'];
+                };
+              };
+              readonly codigosRecuperacaoProntuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'CodigoRecuperacaoProntuario';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -1606,6 +2345,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Paciente';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['medicoId'];
+                };
+              };
+              readonly prontuarios: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Prontuario';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -1697,6 +2447,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly prontuarios: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Prontuario';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['pacienteId'];
+                };
+              };
               readonly usuario: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -1722,6 +2483,115 @@ type ContractBase = Omit<
                 readonly cpf: { readonly column: 'cpf' };
                 readonly acessoLiberado: { readonly column: 'acessoLiberado' };
                 readonly ativo: { readonly column: 'ativo' };
+              };
+            };
+          };
+          readonly Prontuario: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly pacienteId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly queixaPrincipal: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly historiaMolestiaAtual: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly historiaPatologicaPregressa: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly exameFisico: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly examesComplementares: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly conduta: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly prontuarioAnteriorId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly conteudoCriptografado: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly versaoSchema: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly versaoChave: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly medico: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Medico';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['medicoId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly paciente: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Paciente';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['pacienteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'prontuario';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly pacienteId: { readonly column: 'pacienteId' };
+                readonly medicoId: { readonly column: 'medicoId' };
+                readonly queixaPrincipal: { readonly column: 'queixaPrincipal' };
+                readonly historiaMolestiaAtual: { readonly column: 'historiaMolestiaAtual' };
+                readonly historiaPatologicaPregressa: {
+                  readonly column: 'historiaPatologicaPregressa';
+                };
+                readonly exameFisico: { readonly column: 'exameFisico' };
+                readonly examesComplementares: { readonly column: 'examesComplementares' };
+                readonly conduta: { readonly column: 'conduta' };
+                readonly prontuarioAnteriorId: { readonly column: 'prontuarioAnteriorId' };
+                readonly conteudoCriptografado: { readonly column: 'conteudoCriptografado' };
+                readonly versaoSchema: { readonly column: 'versaoSchema' };
+                readonly versaoChave: { readonly column: 'versaoChave' };
+                readonly createdAt: { readonly column: 'createdAt' };
               };
             };
           };

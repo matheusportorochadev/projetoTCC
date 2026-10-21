@@ -106,3 +106,34 @@
     padding: 20px 15px;
   }
 }
+/* ========================================
+   CRM - NÚMERO + UF
+======================================== */
+
+.crm-campos {
+  display: grid;
+  grid-template-columns: 1fr 90px;
+  gap: 10px;
+  width: 100%;
+}
+
+.crm-numero,
+.crm-uf {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.crm-uf {
+  cursor: pointer;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 480px) {
+  .crm-campos {
+    grid-template-columns: 1fr 80px;
+    gap: 8px;
+  }
+}

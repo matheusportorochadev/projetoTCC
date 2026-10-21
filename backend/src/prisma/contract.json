@@ -4,12 +4,24 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "acessoProntuario": {
+      "model": "AcessoProntuario",
+      "namespace": "public"
+    },
     "agendamento": {
       "model": "Agendamento",
       "namespace": "public"
     },
+    "auditoriaProntuario": {
+      "model": "AuditoriaProntuario",
+      "namespace": "public"
+    },
     "codigoPrimeiroAcesso": {
       "model": "CodigoPrimeiroAcesso",
+      "namespace": "public"
+    },
+    "codigoRecuperacaoProntuario": {
+      "model": "CodigoRecuperacaoProntuario",
       "namespace": "public"
     },
     "codigoRedefinicaoSenha": {
@@ -26,6 +38,10 @@
     },
     "paciente": {
       "model": "Paciente",
+      "namespace": "public"
+    },
+    "prontuario": {
+      "model": "Prontuario",
       "namespace": "public"
     },
     "remarcacaoAgendamento": {
@@ -110,6 +126,83 @@
           }
         },
         "models": {
+          "AcessoProntuario": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "senhaHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "versaoAutorizacao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "medico": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "medicoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Medico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "senhaHash": {
+                  "column": "senhaHash"
+                },
+                "versaoAutorizacao": {
+                  "column": "versaoAutorizacao"
+                }
+              },
+              "namespaceId": "public",
+              "table": "acessoProntuario"
+            }
+          },
           "Agendamento": {
             "fields": {
               "createdAt": {
@@ -263,6 +356,107 @@
               "table": "agendamento"
             }
           },
+          "AuditoriaProntuario": {
+            "fields": {
+              "acao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "pacienteId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "prontuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "requisicaoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "resultado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "acao": {
+                  "column": "acao"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "pacienteId": {
+                  "column": "pacienteId"
+                },
+                "prontuarioId": {
+                  "column": "prontuarioId"
+                },
+                "requisicaoId": {
+                  "column": "requisicaoId"
+                },
+                "resultado": {
+                  "column": "resultado"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auditoriaProntuario"
+            }
+          },
           "CodigoPrimeiroAcesso": {
             "fields": {
               "codigoHash": {
@@ -358,6 +552,103 @@
               },
               "namespaceId": "public",
               "table": "codigoPrimeiroAcesso"
+            }
+          },
+          "CodigoRecuperacaoProntuario": {
+            "fields": {
+              "codigoHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiraEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tentativas": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "usado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "medico": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "medicoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Medico",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "codigoHash": {
+                  "column": "codigoHash"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiraEm": {
+                  "column": "expiraEm"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "tentativas": {
+                  "column": "tentativas"
+                },
+                "usado": {
+                  "column": "usado"
+                }
+              },
+              "namespaceId": "public",
+              "table": "codigoRecuperacaoProntuario"
             }
           },
           "CodigoRedefinicaoSenha": {
@@ -569,6 +860,21 @@
               }
             },
             "relations": {
+              "acessoProntuario": {
+                "cardinality": "1:1",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "medicoId"
+                  ]
+                },
+                "to": {
+                  "model": "AcessoProntuario",
+                  "namespace": "public"
+                }
+              },
               "agendamentos": {
                 "cardinality": "1:N",
                 "on": {
@@ -581,6 +887,21 @@
                 },
                 "to": {
                   "model": "Agendamento",
+                  "namespace": "public"
+                }
+              },
+              "codigosRecuperacaoProntuario": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "medicoId"
+                  ]
+                },
+                "to": {
+                  "model": "CodigoRecuperacaoProntuario",
                   "namespace": "public"
                 }
               },
@@ -611,6 +932,21 @@
                 },
                 "to": {
                   "model": "Paciente",
+                  "namespace": "public"
+                }
+              },
+              "prontuarios": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "medicoId"
+                  ]
+                },
+                "to": {
+                  "model": "Prontuario",
                   "namespace": "public"
                 }
               },
@@ -743,6 +1079,21 @@
                   "namespace": "public"
                 }
               },
+              "prontuarios": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "pacienteId"
+                  ]
+                },
+                "to": {
+                  "model": "Prontuario",
+                  "namespace": "public"
+                }
+              },
               "usuario": {
                 "cardinality": "N:1",
                 "on": {
@@ -791,6 +1142,188 @@
               },
               "namespaceId": "public",
               "table": "paciente"
+            }
+          },
+          "Prontuario": {
+            "fields": {
+              "conduta": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "conteudoCriptografado": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "exameFisico": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "examesComplementares": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "historiaMolestiaAtual": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "historiaPatologicaPregressa": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "pacienteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "prontuarioAnteriorId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "queixaPrincipal": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "versaoChave": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "versaoSchema": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "medico": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "medicoId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Medico",
+                  "namespace": "public"
+                }
+              },
+              "paciente": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "pacienteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Paciente",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "conduta": {
+                  "column": "conduta"
+                },
+                "conteudoCriptografado": {
+                  "column": "conteudoCriptografado"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "exameFisico": {
+                  "column": "exameFisico"
+                },
+                "examesComplementares": {
+                  "column": "examesComplementares"
+                },
+                "historiaMolestiaAtual": {
+                  "column": "historiaMolestiaAtual"
+                },
+                "historiaPatologicaPregressa": {
+                  "column": "historiaPatologicaPregressa"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "pacienteId": {
+                  "column": "pacienteId"
+                },
+                "prontuarioAnteriorId": {
+                  "column": "prontuarioAnteriorId"
+                },
+                "queixaPrincipal": {
+                  "column": "queixaPrincipal"
+                },
+                "versaoChave": {
+                  "column": "versaoChave"
+                },
+                "versaoSchema": {
+                  "column": "versaoSchema"
+                }
+              },
+              "namespaceId": "public",
+              "table": "prontuario"
             }
           },
           "RemarcacaoAgendamento": {
@@ -1093,6 +1626,78 @@
       "public": {
         "entries": {
           "table": {
+            "acessoProntuario": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "senhaHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "versaoAutorizacao": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "medicoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "acessoProntuario"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "medico"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "medicoId"
+                  ]
+                }
+              ]
+            },
             "agendamento": {
               "checks": [
                 {
@@ -1253,6 +1858,107 @@
               },
               "uniques": []
             },
+            "auditoriaProntuario": {
+              "columns": {
+                "acao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "pacienteId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "prontuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "requisicaoId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "resultado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "acao",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaProntuario_acao_createdAt_idx_1bb6e007",
+                  "prefix": "auditoriaProntuario_acao_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "auditoriaProntuario_createdAt_idx_9575dbd7",
+                  "prefix": "auditoriaProntuario_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "prontuarioId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea",
+                  "prefix": "auditoriaProntuario_prontuarioId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd",
+                  "prefix": "auditoriaProntuario_usuarioId_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "codigoPrimeiroAcesso": {
               "columns": {
                 "codigoHash": {
@@ -1341,6 +2047,104 @@
                   ],
                   "name": "codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520",
                   "prefix": "codigoPrimeiroAcesso_usuarioId_usado_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "codigoRecuperacaoProntuario": {
+              "columns": {
+                "codigoHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expiraEm": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "tentativas": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "usado": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "medicoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "codigoRecuperacaoProntuario"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "medico"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "medicoId"
+                  ],
+                  "name": "codigoRecuperacaoProntuario_medicoId_idx_cef7d96a",
+                  "prefix": "codigoRecuperacaoProntuario_medicoId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId",
+                    "usado"
+                  ],
+                  "name": "codigoRecuperacaoProntuario_medicoId_usado_idx_44145758",
+                  "prefix": "codigoRecuperacaoProntuario_medicoId_usado_idx",
                   "unique": false
                 }
               ],
@@ -1706,6 +2510,163 @@
                 }
               ]
             },
+            "prontuario": {
+              "columns": {
+                "conduta": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "conteudoCriptografado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "exameFisico": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "examesComplementares": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "historiaMolestiaAtual": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "historiaPatologicaPregressa": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "pacienteId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "prontuarioAnteriorId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "queixaPrincipal": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "versaoChave": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "versaoSchema": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "pacienteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "prontuario"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "paciente"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "medicoId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "prontuario"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "medico"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "medicoId"
+                  ],
+                  "name": "prontuario_medicoId_idx_cef7d96a",
+                  "prefix": "prontuario_medicoId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "pacienteId",
+                    "createdAt"
+                  ],
+                  "name": "prontuario_pacienteId_createdAt_idx_4c3fde10",
+                  "prefix": "prontuario_pacienteId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "pacienteId"
+                  ],
+                  "name": "prontuario_pacienteId_idx_8734dc3f",
+                  "prefix": "prontuario_pacienteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "remarcacaoAgendamento": {
               "checks": [
                 {
@@ -1954,7 +2915,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6d17391f3570ac6893deff51f875e46473bec5efaa685fe102c24138a61e9411"
+    "storageHash": "c55f8c5d46a82a479e9ba609f5da6e9eeb7689159f055988a40c71f333ef6f95"
   },
   "execution": {
     "executionHash": "f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27",

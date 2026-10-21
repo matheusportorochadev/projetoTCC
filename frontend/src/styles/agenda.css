@@ -2462,3 +2462,30 @@ body.modo-escuro
     border-top-color: #273449;
   }
 }
+/* ========================================
+   DIAS QUE JÁ PASSARAM
+======================================== */
+
+.agenda-dia-passado {
+  opacity: 0.5;
+}
+
+.agenda-dia-passado .agenda-dia-numero {
+  color: #94a3b8;
+}
+
+.agenda-dia-passado small {
+  opacity: 0.65;
+}
+
+/* Tema escuro */
+
+body.modo-escuro .agenda-dia-passado {
+  opacity: 0.45;
+}
+
+body.modo-escuro
+  .agenda-dia-passado
+  .agenda-dia-numero {
+  color: #64748b;
+}

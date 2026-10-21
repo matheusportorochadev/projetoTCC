@@ -1,3 +1,4 @@
+
 // ========================================
 // CONTROLLER DE AUTENTICAÇÃO
 // ========================================
@@ -18,19 +19,32 @@ import {
 
 
 // ========================================
-// CONFIGURAÇÃO DO COOKIE
+// CONFIGURAÇÃO DOS COOKIES
 // ========================================
 
+// Cookie principal do sistema.
+// Armazena o JWT utilizado no login.
 const NOME_COOKIE =
   "access_token";
 
+// NOVO:
+//
+// Cookie utilizado exclusivamente para
+// autorizar o acesso aos prontuários.
+//
+// O nome precisa ser igual ao utilizado
+// no controller de prontuários.
+const COOKIE_PRONTUARIO =
+  "prontuario_access";
+
 
 // ========================================
-// TEMPO DE VIDA DO COOKIE
+// TEMPO DE VIDA DO COOKIE PRINCIPAL
 // ========================================
 
 /*
-  O JWT possui validade de 8 horas.
+  O JWT principal possui validade
+  de 8 horas.
 
   Mantemos o cookie com o mesmo
   tempo de validade.
@@ -48,6 +62,51 @@ function estaEmProducao() {
   return (
     process.env.NODE_ENV ===
     "production"
+  );
+
+}
+
+
+// ========================================
+// REMOVER AUTORIZAÇÃO DOS PRONTUÁRIOS
+// ========================================
+
+// NOVO:
+//
+// Esta função remove o cookie adicional
+// utilizado para acessar prontuários.
+//
+// IMPORTANTE:
+//
+// O cookie foi criado com:
+//
+// path: "/prontuarios"
+//
+// Portanto, precisamos usar o mesmo
+// path ao removê-lo.
+//
+// Não alteramos o cookie principal.
+function removerCookieProntuario(
+  res: Response
+) {
+
+  res.clearCookie(
+    COOKIE_PRONTUARIO,
+    {
+
+      httpOnly:
+        true,
+
+      secure:
+        estaEmProducao(),
+
+      sameSite:
+        "lax",
+
+      path:
+        "/prontuarios"
+
+    }
   );
 
 }
@@ -114,6 +173,26 @@ export async function loginController(
 
 
     // ========================================
+    // NOVO — LIMPAR ACESSO ANTIGO
+    // ========================================
+
+    /*
+      Depois que as credenciais principais
+      são validadas, removemos qualquer
+      autorização anterior de prontuários.
+
+      Assim, um novo login no navegador
+      não reutiliza o desbloqueio anterior
+      do módulo clínico.
+
+      O médico precisará informar novamente
+      a senha adicional dos prontuários.
+    */
+
+    removerCookieProntuario(res);
+
+
+    // ========================================
     // CRIAR COOKIE HTTPONLY
     // ========================================
 
@@ -124,8 +203,9 @@ export async function loginController(
       O JWT é armazenado exclusivamente
       no cookie HttpOnly.
 
-      Ele NÃO será mais devolvido no JSON.
+      Ele NÃO será devolvido no JSON.
     */
+
     if (
       resultado.token
     ) {
@@ -183,6 +263,7 @@ export async function loginController(
       O JWT permanece exclusivamente
       dentro do cookie HttpOnly.
     */
+
     return res
       .status(200)
       .json({
@@ -229,8 +310,10 @@ export async function logoutController(
     O cookie HttpOnly não pode ser
     apagado diretamente pelo frontend.
 
-    Por isso o backend remove o cookie.
+    Por isso o backend remove o cookie
+    de autenticação principal.
   */
+
   res.clearCookie(
 
     NOME_COOKIE,
@@ -253,6 +336,33 @@ export async function logoutController(
 
   );
 
+
+  // ========================================
+  // NOVO — BLOQUEAR PRONTUÁRIOS NO LOGOUT
+  // ========================================
+
+  /*
+    Ao sair do sistema, também removemos
+    o cookie adicional dos prontuários.
+
+    Assim, o navegador deixa de enviar
+    essa autorização nas próximas
+    requisições.
+
+    Isso não modifica a senha cadastrada
+    no PostgreSQL.
+
+    Quando o médico fizer login novamente,
+    precisará informar sua senha adicional
+    para desbloquear os prontuários.
+  */
+
+  removerCookieProntuario(res);
+
+
+  // ========================================
+  // RESPOSTA DO LOGOUT
+  // ========================================
 
   return res
     .status(200)

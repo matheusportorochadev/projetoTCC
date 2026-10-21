@@ -1,617 +1,833 @@
-// ========================================
-// CONFIGURAÇÃO PRINCIPAL DO SERVIDOR
-// ========================================
 
-import express from "express";
+ // ========================================
+ // CONFIGURAÇÃO PRINCIPAL DO SERVIDOR
+ // ========================================
 
-import type {
-  ErrorRequestHandler
-} from "express";
+ import express from "express";
 
-import cors from "cors";
+ import type {
+   ErrorRequestHandler
+ } from "express";
 
-import helmet from "helmet";
+ import cors from "cors";
 
-import cookieParser from "cookie-parser";
+ import helmet from "helmet";
 
+ import cookieParser from "cookie-parser";
 
-// ========================================
-// ROTAS
-// ========================================
 
-import primeiroAcessoRoutes
-  from "./routes/primeiroAcesso.routes";
+ // ========================================
+ // ROTAS EXISTENTES
+ // ========================================
 
-import authRoutes
-  from "./routes/auth.routes";
+ import primeiroAcessoRoutes
+   from "./routes/primeiroAcesso.routes";
 
-import medicoRoutes
-  from "./routes/medico.routes";
+ import authRoutes
+   from "./routes/auth.routes";
 
-import pacienteRoutes
-  from "./routes/paciente.routes";
+ import medicoRoutes
+   from "./routes/medico.routes";
 
-import agendaRoutes
-  from "./routes/agenda.routes";
+ import pacienteRoutes
+   from "./routes/paciente.routes";
 
-import agendamentoRoutes
-  from "./routes/agendamento.routes";
+ import agendaRoutes
+   from "./routes/agenda.routes";
 
+ import agendamentoRoutes
+   from "./routes/agendamento.routes";
 
-// ========================================
-// MIDDLEWARES
-// ========================================
 
-import {
-  authMiddleware
-} from "./middlewares/auth.middleware";
+ // ========================================
+ // AUDITORIA ADMINISTRATIVA
+ // ========================================
 
-import {
-  permitirPerfis
-} from "./middlewares/role.middleware";
+ // Rotas exclusivas do administrador
+ // para consulta dos logs de auditoria.
+ //
+ // A rota permite consultar informações
+ // sobre as operações realizadas pelos
+ // médicos, mas nunca os dados clínicos
+ // armazenados nos prontuários.
 
-import {
-  protegerContraCsrf
-} from "./middlewares/csrf.middleware";
+ import auditoriaAdminRoutes
+   from "./routes/auditoria-admin.routes";
 
 
-// ========================================
-// APLICAÇÃO EXPRESS
-// ========================================
+ // ========================================
+ // ACESSO E RECUPERAÇÃO DOS PRONTUÁRIOS
+ // ========================================
 
-const app =
-  express();
+ // Responsável por:
+ //
+ // - verificar se o médico possui senha;
+ // - cadastrar senha adicional;
+ // - desbloquear os prontuários;
+ // - validar a autorização de 2 horas;
+ // - solicitar código de recuperação;
+ // - redefinir senha adicional.
+ //
+ // Este grupo não disponibiliza
+ // diretamente dados clínicos.
 
+ import prontuarioAcessoRoutes
+   from "./routes/prontuario-acesso.routes";
 
-// ========================================
-// REMOVER IDENTIFICAÇÃO DO EXPRESS
-// ========================================
 
-app.disable(
-  "x-powered-by"
-);
+ // ========================================
+ // ROTAS CLÍNICAS DOS PRONTUÁRIOS
+ // ========================================
 
+ // Responsáveis por:
+ //
+ // - listar pacientes do médico;
+ // - consultar histórico clínico;
+ // - consultar prontuário individual;
+ // - criar um novo prontuário.
+ //
+ // Essas rotas exigem a autenticação
+ // principal E a autorização adicional.
 
-// ========================================
-// HELMET
-// ========================================
+ import prontuarioRoutes
+   from "./routes/prontuario.routes";
 
-/*
-  O Helmet adiciona cabeçalhos HTTP
-  importantes de segurança.
 
-  Entre eles:
+ // ========================================
+ // MIDDLEWARES
+ // ========================================
 
-  - Content Security Policy;
-  - proteção contra MIME sniffing;
-  - proteção contra iframe;
-  - políticas de segurança do navegador.
-*/
+ import {
+   authMiddleware
+ } from "./middlewares/auth.middleware";
 
-app.use(
-  helmet()
-);
+ import {
+   permitirPerfis
+ } from "./middlewares/role.middleware";
 
+ import {
+   protegerContraCsrf
+ } from "./middlewares/csrf.middleware";
 
-// ========================================
-// ORIGENS PERMITIDAS
-// ========================================
 
-/*
-  As origens autorizadas são carregadas
-  através da variável FRONTEND_URLS.
+ // ========================================
+ // APLICAÇÃO EXPRESS
+ // ========================================
 
-  Exemplo:
+ const app = express();
 
-  FRONTEND_URLS=http://localhost:5173
 
-  Também podemos utilizar várias origens:
+ // ========================================
+ // REMOVER IDENTIFICAÇÃO DO EXPRESS
+ // ========================================
 
-  FRONTEND_URLS=http://localhost:5173,http://192.168.1.10:5173
-*/
+ // Evita enviar o cabeçalho
+ // X-Powered-By nas respostas.
 
-const origensPermitidas =
-  (
-    process.env.FRONTEND_URLS ||
-    "http://localhost:5173"
-  )
-    .split(",")
-    .map(
-      (origem) =>
-        origem.trim()
-    )
-    .filter(
-      Boolean
-    );
+ app.disable("x-powered-by");
 
 
-// ========================================
-// CORS
-// ========================================
+ // ========================================
+ // HELMET
+ // ========================================
 
-app.use(
-  cors({
+ /*
+   O Helmet adiciona cabeçalhos HTTP
+   importantes de segurança.
 
-    // ========================================
-    // VALIDAR ORIGEM
-    // ========================================
+   Entre eles:
 
-    origin: (
-      origin,
-      callback
-    ) => {
+   - Content Security Policy;
+   - proteção contra MIME sniffing;
+   - proteção contra iframe;
+   - políticas de segurança do navegador.
+ */
 
-      /*
-        Algumas ferramentas como curl
-        e Postman podem não enviar Origin.
+ app.use(
+   helmet()
+ );
 
-        Permitimos que o CORS continue.
 
-        Porém requisições que alteram dados
-        serão posteriormente verificadas
-        pelo middleware de CSRF.
-      */
+ // ========================================
+ // ORIGENS PERMITIDAS
+ // ========================================
 
-      if (!origin) {
+ /*
+   As origens autorizadas são carregadas
+   através da variável FRONTEND_URLS.
 
-        return callback(
-          null,
-          true
-        );
+   Exemplo:
 
-      }
+   FRONTEND_URLS=http://localhost:5173
 
+   Também podemos utilizar várias origens:
 
-      // ========================================
-      // ORIGEM AUTORIZADA
-      // ========================================
+   FRONTEND_URLS=http://localhost:5173,http://192.168.1.10:5173
+ */
 
-      if (
-        origensPermitidas.includes(
-          origin
-        )
-      ) {
+ const origensPermitidas =
+   (
+     process.env.FRONTEND_URLS ||
+     "http://localhost:5173"
+   )
+     .split(",")
+     .map(
+       (origem) => origem.trim()
+     )
+     .filter(Boolean);
 
-        return callback(
-          null,
-          true
-        );
 
-      }
+ // ========================================
+ // CORS
+ // ========================================
 
+ app.use(
+   cors({
 
-      // ========================================
-      // ORIGEM NÃO AUTORIZADA
-      // ========================================
+     // ========================================
+     // VALIDAR ORIGEM
+     // ========================================
 
-      /*
-        Criamos um erro específico.
+     origin: (
+       origin,
+       callback
+     ) => {
 
-        Esse erro será tratado mais abaixo
-        pelo tratamentoGlobalErros.
+       /*
+         Algumas ferramentas, como curl
+         e Postman, podem não enviar Origin.
 
-        Assim não retornamos stack trace
-        nem resposta HTML.
-      */
+         Permitimos que a requisição
+         continue nessa situação.
 
-      return callback(
-        new Error(
-          "Origem não permitida pelo CORS."
-        )
-      );
+         As requisições que alteram dados
+         continuam sujeitas à proteção
+         CSRF configurada abaixo.
+       */
 
-    },
+       if (!origin) {
 
+         return callback(
+           null,
+           true
+         );
 
-    // ========================================
-    // MÉTODOS PERMITIDOS
-    // ========================================
+       }
 
-    methods: [
 
-      "GET",
+       // ========================================
+       // ORIGEM AUTORIZADA
+       // ========================================
 
-      "POST",
+       if (
+         origensPermitidas.includes(origin)
+       ) {
 
-      "PUT",
+         return callback(
+           null,
+           true
+         );
 
-      "PATCH",
+       }
 
-      "DELETE",
 
-      "OPTIONS"
+       // ========================================
+       // ORIGEM NÃO AUTORIZADA
+       // ========================================
 
-    ],
+       // O erro será tratado pelo
+       // middleware global no final.
 
+       return callback(
+         new Error(
+           "Origem não permitida pelo CORS."
+         )
+       );
 
-    // ========================================
-    // CABEÇALHOS PERMITIDOS
-    // ========================================
+     },
 
-    allowedHeaders: [
 
-      "Content-Type"
+     // ========================================
+     // MÉTODOS PERMITIDOS
+     // ========================================
 
-    ],
+     methods: [
+       "GET",
+       "POST",
+       "PUT",
+       "PATCH",
+       "DELETE",
+       "OPTIONS"
+     ],
 
 
-    // ========================================
-    // COOKIES
-    // ========================================
+     // ========================================
+     // CABEÇALHOS PERMITIDOS
+     // ========================================
 
-    /*
-      Necessário porque o JWT da aplicação
-      é enviado através de cookie HttpOnly.
-    */
+     allowedHeaders: [
+       "Content-Type"
+     ],
 
-    credentials:
-      true
 
-  })
-);
+     // ========================================
+     // COOKIES
+     // ========================================
 
+     // Necessário para o navegador enviar
+     // os cookies HttpOnly nas requisições.
 
-// ========================================
-// COOKIE PARSER
-// ========================================
+     credentials: true
 
-/*
-  Transforma:
+   })
+ );
 
-  Cookie: access_token=...
 
-  em:
+ // ========================================
+ // COOKIE PARSER
+ // ========================================
 
-  req.cookies.access_token
-*/
+ /*
+   Disponibiliza os cookies em req.cookies.
 
-app.use(
-  cookieParser()
-);
+   Exemplos:
 
+   req.cookies.access_token
 
-// ========================================
-// JSON
-// ========================================
+   req.cookies.prontuario_access
+ */
 
-/*
-  Limita o tamanho máximo do JSON recebido.
+ app.use(
+   cookieParser()
+ );
 
-  Isso reduz abuso através de requisições
-  com payloads excessivamente grandes.
-*/
 
-app.use(
-  express.json({
+ // ========================================
+ // JSON
+ // ========================================
 
-    limit:
-      "10kb"
+ /*
+   Limita o tamanho máximo do corpo
+   das requisições recebidas.
 
-  })
-);
+   Mantemos o limite original de 10kb.
 
+   Os campos dos prontuários deverão
+   respeitar também esse limite total.
+ */
 
-// ========================================
-// PROTEÇÃO CONTRA CSRF
-// ========================================
+ app.use(
+   express.json({
+     limit: "10kb"
+   })
+ );
 
-/*
-  O middleware de CSRF verifica
-  requisições que alteram dados:
 
-  POST
-  PUT
-  PATCH
-  DELETE
+ // ========================================
+ // PROTEÇÃO CONTRA CSRF
+ // ========================================
 
-  Ele valida o cabeçalho Origin contra
-  FRONTEND_URLS.
+ /*
+   O middleware de CSRF verifica
+   requisições que alteram dados:
 
-  Métodos seguros como GET, HEAD e OPTIONS
-  continuam normalmente.
+   POST
+   PUT
+   PATCH
+   DELETE
 
-  IMPORTANTE:
+   Ele valida o cabeçalho Origin contra
+   as origens configuradas no servidor.
 
-  Este middleware precisa ficar antes
-  das rotas.
-*/
+   Métodos seguros como GET, HEAD e OPTIONS
+   continuam normalmente.
 
-app.use(
-  protegerContraCsrf
-);
+   IMPORTANTE:
 
+   Este middleware deve permanecer
+   antes de todas as rotas.
+ */
 
-// ========================================
-// ROTAS DE AUTENTICAÇÃO
-// ========================================
+ app.use(
+   protegerContraCsrf
+ );
 
-app.use(
-  "/auth",
-  authRoutes
-);
 
+ // ========================================
+ // ROTAS DE AUTENTICAÇÃO
+ // ========================================
 
-// ========================================
-// PRIMEIRO ACESSO
-// ========================================
+ app.use(
+   "/auth",
+   authRoutes
+ );
 
-app.use(
-  "/auth/primeiro-acesso",
-  primeiroAcessoRoutes
-);
 
+ // ========================================
+ // PRIMEIRO ACESSO
+ // ========================================
 
-// ========================================
-// MÉDICOS
-// ========================================
+ app.use(
+   "/auth/primeiro-acesso",
+   primeiroAcessoRoutes
+ );
 
-app.use(
-  "/medicos",
-  medicoRoutes
-);
 
+ // ========================================
+ // MÉDICOS
+ // ========================================
 
-// ========================================
-// PACIENTES
-// ========================================
+ app.use(
+   "/medicos",
+   medicoRoutes
+ );
 
-app.use(
-  "/pacientes",
-  pacienteRoutes
-);
 
+ // ========================================
+ // PACIENTES
+ // ========================================
 
-// ========================================
-// AGENDA
-// ========================================
+ app.use(
+   "/pacientes",
+   pacienteRoutes
+ );
 
-app.use(
-  "/agenda",
-  agendaRoutes
-);
 
+ // ========================================
+ // AGENDA
+ // ========================================
 
-// ========================================
-// AGENDAMENTOS
-// ========================================
+ app.use(
+   "/agenda",
+   agendaRoutes
+ );
 
-app.use(
-  "/agendamentos",
-  agendamentoRoutes
-);
 
+ // ========================================
+ // AGENDAMENTOS
+ // ========================================
 
-// ========================================
-// PERFIL
-// ========================================
+ app.use(
+   "/agendamentos",
+   agendamentoRoutes
+ );
 
-app.get(
-  "/perfil",
 
-  authMiddleware,
+ // ========================================
+ // ACESSO AOS PRONTUÁRIOS
+ // ========================================
 
-  (
-    req,
-    res
-  ) => {
+ /*
+   Endpoints deste grupo:
 
-    return res.json({
+   GET /prontuarios/acesso/situacao
 
-      mensagem:
-        "Usuário autenticado.",
+   POST /prontuarios/acesso/cadastrar
 
-      usuario:
-        req.usuario
+   POST /prontuarios/acesso/verificar
 
-    });
+   GET /prontuarios/acesso/sessao
 
-  }
-);
+   POST
+   /prontuarios/acesso/recuperacao/solicitar
 
+   POST
+   /prontuarios/acesso/recuperacao/concluir
 
-// ========================================
-// ADMIN
-// ========================================
+   O router já aplica:
 
-app.get(
-  "/admin",
+   - authMiddleware;
+   - permitirPerfis("MEDICO");
+   - validação Zod;
+   - rate limiting nas operações sensíveis.
 
-  authMiddleware,
+   A proteção CSRF global permanece ativa.
+ */
 
-  permitirPerfis(
-    "ADMIN"
-  ),
+ app.use(
+   "/prontuarios/acesso",
+   prontuarioAcessoRoutes
+ );
 
-  (
-    req,
-    res
-  ) => {
 
-    return res.json({
+ // ========================================
+ // PRONTUÁRIOS CLÍNICOS
+ // ========================================
 
-      mensagem:
-        "Acesso de administrador autorizado."
+ /*
+   Endpoints deste grupo:
 
-    });
+   GET
+   /prontuarios/clinicos/pacientes
 
-  }
-);
+   Lista os pacientes ativos pertencentes
+   ao médico autenticado.
 
 
-// ========================================
-// TESTE DA API
-// ========================================
+   GET
+   /prontuarios/clinicos/pacientes/:pacienteId
 
-app.get(
-  "/",
+   Consulta todos os registros clínicos
+   de um paciente.
 
-  (
-    req,
-    res
-  ) => {
 
-    return res.json({
+   GET
+   /prontuarios/clinicos/pacientes/:pacienteId/:prontuarioId
 
-      message:
-        "API do sistema médico funcionando"
+   Consulta um prontuário específico.
 
-    });
 
-  }
-);
+   POST
+   /prontuarios/clinicos/pacientes/:pacienteId
 
+   Cadastra um novo registro clínico.
 
-// ========================================
-// TRATAMENTO GLOBAL DE ERROS
-// ========================================
 
-/*
-  Este middleware precisa ficar:
+   SEGURANÇA:
 
-  - depois de todas as rotas;
-  - antes do app.listen.
+   O router aplica, nesta ordem:
 
-  Ele recebe erros não tratados
-  anteriormente.
-*/
+   1. authMiddleware;
+   2. permitirPerfis("MEDICO");
+   3. protegerProntuarios.
 
-const tratamentoGlobalErros:
-  ErrorRequestHandler =
-  (
-    erro,
-    req,
-    res,
-    next
-  ) => {
+   O último middleware verifica:
 
-    /*
-      O parâmetro next faz parte da
-      assinatura obrigatória de um
-      middleware de erro do Express.
+   - JWT adicional;
+   - validade de 2 horas;
+   - vínculo com o login principal;
+   - versão atual da autorização.
 
-      Mesmo não sendo usado diretamente,
-      ele precisa existir para que o
-      Express reconheça este middleware
-      como tratador de erros.
-    */
+   O service também verifica se
+   o paciente pertence ao médico.
+ */
 
-    void next;
+ app.use(
+   "/prontuarios/clinicos",
+   prontuarioRoutes
+ );
 
 
-    // ========================================
-    // ERRO DE CORS
-    // ========================================
+ // ========================================
+ // PERFIL
+ // ========================================
 
-    if (
-      erro instanceof Error &&
-      erro.message ===
-        "Origem não permitida pelo CORS."
-    ) {
+ app.get(
+   "/perfil",
 
-      console.warn(
+   authMiddleware,
 
-        `[CORS] Origem bloqueada: ${
-          req.get(
-            "origin"
-          ) ||
-          "não informada"
-        }`
+   (
+     req,
+     res
+   ) => {
 
-      );
+     return res.json({
 
+       mensagem:
+         "Usuário autenticado.",
 
-      return res
-        .status(403)
-        .json({
+       usuario:
+         req.usuario
 
-          mensagem:
-            "Origem da requisição não autorizada."
+     });
 
-        });
+   }
+ );
 
-    }
 
+ // ========================================
+ // ADMIN
+ // ========================================
 
-    // ========================================
-    // OUTROS ERROS
-    // ========================================
+ app.get(
+   "/admin",
 
-    /*
-      O erro completo fica somente
-      no terminal do servidor.
+   authMiddleware,
 
-      O frontend recebe apenas uma
-      mensagem genérica.
+   permitirPerfis(
+     "ADMIN"
+   ),
 
-      Isso evita expor:
+   (
+     req,
+     res
+   ) => {
 
-      - caminho de arquivos;
-      - estrutura interna;
-      - stack trace;
-      - detalhes do servidor.
-    */
+     void req;
 
-    console.error(
-      "[SERVIDOR] Erro não tratado:",
-      erro
-    );
+     return res.json({
 
+       mensagem:
+         "Acesso de administrador autorizado."
 
-    return res
-      .status(500)
-      .json({
+     });
 
-        mensagem:
-          "Erro interno do servidor."
+   }
+ );
 
-      });
 
-  };
+ // ========================================
+ // AUDITORIA ADMINISTRATIVA
+ // ========================================
 
+ /*
+   Endpoint:
 
-// ========================================
-// REGISTRAR TRATAMENTO DE ERROS
-// ========================================
+   GET /admin/auditoria/prontuarios
 
-app.use(
-  tratamentoGlobalErros
-);
 
+   FUNCIONAMENTO:
 
-// ========================================
-// PORTA
-// ========================================
+   1. O frontend solicita os logs.
 
-const PORT =
-  Number(
-    process.env.PORT
-  ) ||
-  3000;
+   2. O backend verifica a autenticação
+      principal do administrador.
 
+   3. O middleware de perfil permite
+      somente usuários ADMIN.
 
-// ========================================
-// INICIAR SERVIDOR
-// ========================================
+   4. O controller consulta o service
+      de auditoria.
 
-app.listen(
-  PORT,
+   5. O service lê os registros da
+      tabela AuditoriaProntuario.
 
-  () => {
+   6. O frontend recebe os metadados
+      necessários para exibição.
 
-    console.log(
-      `Servidor rodando na porta ${PORT}`
-    );
 
+   SEGURANÇA:
 
-    console.log(
-      "Origens permitidas pelo CORS:",
-      origensPermitidas
-    );
+   O administrador poderá consultar:
 
+   - identificador do evento;
+   - data e horário;
+   - médico responsável;
+   - identificador do paciente;
+   - identificador do prontuário;
+   - ação realizada;
+   - resultado da operação.
 
-    console.log(
-      "Proteção CSRF por Origin ativada."
-    );
+   O administrador NÃO poderá consultar:
 
-  }
-);
+   - queixa principal;
+   - diagnósticos;
+   - exames;
+   - histórico clínico;
+   - condutas;
+   - conteúdo criptografado;
+   - senhas;
+   - tokens.
+
+   IMPORTANTE:
+
+   O controle de acesso fica dentro
+   de auditoria-admin.routes.ts.
+
+   Esse router deverá aplicar:
+
+   authMiddleware
+
+   permitirPerfis("ADMIN")
+
+   A autorização precisa existir no
+   backend, independentemente do frontend.
+ */
+
+ app.use(
+   "/admin/auditoria",
+   auditoriaAdminRoutes
+ );
+
+
+ // ========================================
+ // TESTE DA API
+ // ========================================
+
+ app.get(
+   "/",
+
+   (
+     req,
+     res
+   ) => {
+
+     void req;
+
+     return res.json({
+
+       message:
+         "API do sistema médico funcionando"
+
+     });
+
+   }
+ );
+
+
+ // ========================================
+ // TRATAMENTO GLOBAL DE ERROS
+ // ========================================
+
+ /*
+   Este middleware precisa ficar:
+
+   - depois de todas as rotas;
+   - antes do app.listen.
+
+   Ele recebe erros não tratados
+   anteriormente.
+ */
+
+ const tratamentoGlobalErros:
+   ErrorRequestHandler =
+   (
+     erro,
+     req,
+     res,
+     next
+   ) => {
+
+     /*
+       O parâmetro next faz parte da
+       assinatura do middleware de erro.
+
+       Mantemos a estrutura original
+       usada no projeto.
+     */
+
+     void next;
+
+
+     // ========================================
+     // ERRO DE CORS
+     // ========================================
+
+     if (
+       erro instanceof Error &&
+       erro.message ===
+         "Origem não permitida pelo CORS."
+     ) {
+
+       console.warn(
+
+         `[CORS] Origem bloqueada: ${
+           req.get("origin") ||
+           "não informada"
+         }`
+
+       );
+
+       return res
+         .status(403)
+         .json({
+
+           mensagem:
+             "Origem da requisição não autorizada."
+
+         });
+
+     }
+
+
+     // ========================================
+     // OUTROS ERROS
+     // ========================================
+
+     /*
+       O erro completo fica somente
+       no terminal do servidor.
+
+       O frontend recebe apenas uma
+       mensagem genérica.
+
+       Evita expor:
+
+       - caminhos de arquivos;
+       - estrutura interna;
+       - stack traces;
+       - detalhes de infraestrutura.
+     */
+
+     console.error(
+       "[SERVIDOR] Erro não tratado:",
+       erro
+     );
+
+     return res
+       .status(500)
+       .json({
+
+         mensagem:
+           "Erro interno do servidor."
+
+       });
+
+   };
+
+
+ // ========================================
+ // REGISTRAR TRATAMENTO DE ERROS
+ // ========================================
+
+ app.use(
+   tratamentoGlobalErros
+ );
+
+
+ // ========================================
+ // PORTA
+ // ========================================
+
+ const PORT =
+   Number(
+     process.env.PORT
+   ) ||
+   3000;
+
+
+ // ========================================
+ // INICIAR SERVIDOR
+ // ========================================
+
+ app.listen(
+   PORT,
+
+   () => {
+
+     console.log(
+       `Servidor rodando na porta ${PORT}`
+     );
+
+     console.log(
+       "Origens permitidas pelo CORS:",
+       origensPermitidas
+     );
+
+     console.log(
+       "Proteção CSRF por Origin ativada."
+     );
+
+     console.log(
+       "Rotas de acesso aos prontuários registradas."
+     );
+
+     console.log(
+       "Rotas clínicas dos prontuários registradas."
+     );
+
+     // ========================================
+     // CONFIRMAR ROTA DE AUDITORIA
+     // ========================================
+
+     console.log(
+       "Rotas administrativas de auditoria registradas."
+     );
+
+     console.log(
+       "GET /admin/auditoria/prontuarios"
+     );
+
+   }
+ );
