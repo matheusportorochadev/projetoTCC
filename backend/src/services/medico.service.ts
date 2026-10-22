@@ -555,6 +555,79 @@ export async function excluirMedico(
 
 
       // ========================================
+      // VERIFICAR PRONTUÁRIOS VINCULADOS
+      // ========================================
+      // Não excluímos médicos que possuem
+      // prontuários registrados.
+      //
+      // Isso preserva o histórico clínico
+      // e impede a perda de rastreabilidade.
+
+      const prontuariosVinculados =
+        await tx.orm.public.Prontuario
+          .where({
+            medicoId: id
+          })
+          .all();
+
+      if (prontuariosVinculados.length > 0) {
+        throw new Error(
+          "Não é possível excluir este médico porque existem prontuários vinculados a ele."
+        );
+      }
+
+
+      // ========================================
+      // CÓDIGOS DE RECUPERAÇÃO DOS PRONTUÁRIOS
+      // ========================================
+      // Esses códigos pertencem exclusivamente
+      // à credencial do médico excluído.
+      //
+      // Devem ser removidos antes de excluir
+      // o médico para respeitar a FK.
+
+      const codigosRecuperacaoProntuario =
+        await tx.orm.public.CodigoRecuperacaoProntuario
+          .where({
+            medicoId: id
+          })
+          .all();
+
+      for (const codigo of codigosRecuperacaoProntuario) {
+        await tx.orm.public.CodigoRecuperacaoProntuario
+          .where({
+            id: codigo.id
+          })
+          .delete();
+      }
+
+
+      // ========================================
+      // EXCLUIR CREDENCIAL DOS PRONTUÁRIOS
+      // ========================================
+      // Remove somente o acesso adicional
+      // utilizado pelo médico.
+      //
+      // Não exclui prontuários ou registros
+      // históricos de auditoria.
+
+      const acessosProntuario =
+        await tx.orm.public.AcessoProntuario
+          .where({
+            medicoId: id
+          })
+          .all();
+
+      for (const acesso of acessosProntuario) {
+        await tx.orm.public.AcessoProntuario
+          .where({
+            id: acesso.id
+          })
+          .delete();
+      }
+
+
+      // ========================================
       // EXCLUIR MÉDICO
       // ========================================
 

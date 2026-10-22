@@ -72,55 +72,21 @@ export default function MedicoLayout() {
   // LOGOUT
   // ========================================
 
+  const [erroLogout, setErroLogout] = useState("");
+
   async function sair() {
-
+    setErroLogout("");
     try {
-
-      /*
-        Chama:
-
-        POST /auth/logout
-
-        O backend remove o cookie:
-
-        access_token
-      */
       await fazerLogout();
-
-    } catch (erro) {
-
-      console.error(
-        "Erro ao realizar logout:",
-        erro
-      );
-
-    } finally {
-
-      /*
-        Remove qualquer token antigo
-        que ainda tenha ficado salvo
-        durante a migração.
-      */
-      localStorage.removeItem(
-        "token"
-      );
-
-
-      localStorage.removeItem(
-        "usuario"
-      );
-
-
-      setMenuAberto(
-        false
-      );
-
-
-      navigate(
-        "/login"
-      );
-
+    } catch {
+      // Só anuncia a saída quando a revogação foi confirmada pelo backend.
+      setErroLogout("Não foi possível encerrar a sessão com segurança. Tente novamente.");
+      return;
     }
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setMenuAberto(false);
+    navigate("/login");
   }
 
 
@@ -143,6 +109,7 @@ export default function MedicoLayout() {
 
   return (
     <div className="medico-layout">
+      {erroLogout && <p role="alert">{erroLogout}</p>}
 
       <header className="medico-navbar">
 

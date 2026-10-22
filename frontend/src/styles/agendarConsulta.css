@@ -34,7 +34,7 @@
   background:
     linear-gradient(
       180deg,
-      #16a34a,
+      #2563eb,
       #4ade80
     );
 
@@ -44,7 +44,7 @@
 .agendamento-cabecalho-tipo {
   margin: 0 0 7px;
 
-  color: #16a34a;
+  color: #2563eb;
 
   font-size: 12px;
   font-weight: 800;
@@ -169,7 +169,7 @@
 
 .agendamento-mes-botao:hover:not(:disabled) {
   background: #f8fafc;
-  border-color: #16a34a;
+  border-color: #2563eb;
   transform: translateY(-1px);
 }
 
@@ -186,12 +186,12 @@
 .agendamento-calendario-carregando {
   padding: 10px 16px;
 
-  background: #f0fdf4;
+  background: #eff6ff;
 
   border-bottom:
-    1px solid #bbf7d0;
+    1px solid #bfdbfe;
 
-  color: #15803d;
+  color: #1d4ed8;
 
   font-size: 13px;
   font-weight: 500;
@@ -310,26 +310,26 @@
 ======================================== */
 
 .agendamento-dia.disponivel {
-  background: #f0fdf4;
+  background: #eff6ff;
 
   cursor: pointer;
 
   box-shadow:
     inset 0 0 0 1px
-    #bbf7d0;
+    #bfdbfe;
 }
 
 .agendamento-dia.disponivel
 .agendamento-dia-numero {
-  color: #15803d;
+  color: #1d4ed8;
 }
 
 .agendamento-dia.disponivel:hover {
-  background: #dcfce7;
+  background: #dbeafe;
 
   box-shadow:
     inset 0 0 0 2px
-    #22c55e;
+    #3b82f6;
 
   transform:
     translateY(-1px);
@@ -359,7 +359,7 @@
 
   flex-shrink: 0;
 
-  background: #22c55e;
+  background: #3b82f6;
 
   border-radius: 50%;
 }
@@ -371,11 +371,11 @@
 
   padding: 5px 8px;
 
-  background: #dcfce7;
+  background: #dbeafe;
 
   border-radius: 7px;
 
-  color: #15803d;
+  color: #1d4ed8;
 
   font-size: 11px;
   font-weight: 700;
@@ -450,8 +450,8 @@
 
 .agendamento-dia.hoje.disponivel
 .agendamento-dia-numero {
-  border-color: #16a34a;
-  color: #15803d;
+  border-color: #2563eb;
+  color: #1d4ed8;
 }
 
 
@@ -460,28 +460,28 @@
 ======================================== */
 
 .agendamento-dia.selecionado {
-  background: #bbf7d0;
+  background: #bfdbfe;
 
   box-shadow:
     inset 0 0 0 2px
-    #16a34a;
+    #2563eb;
 
   z-index: 3;
 }
 
 .agendamento-dia.selecionado
 .agendamento-dia-numero {
-  background: #16a34a;
+  background: #2563eb;
 
-  border-color: #16a34a;
+  border-color: #2563eb;
 
   color: #ffffff;
 }
 
 .agendamento-dia.selecionado
 .agendamento-dia-quantidade {
-  background: #86efac;
-  color: #14532d;
+  background: #93c5fd;
+  color: #1e3a8a;
 }
 
 
@@ -510,12 +510,12 @@
 }
 
 .agendamento-mensagem.sucesso {
-  background: #f0fdf4;
+  background: #eff6ff;
 
   border:
-    1px solid #bbf7d0;
+    1px solid #bfdbfe;
 
-  color: #166534;
+  color: #1e40af;
 }
 
 
@@ -574,8 +574,8 @@
   background:
     linear-gradient(
       180deg,
-      #16a34a,
-      #86efac
+      #2563eb,
+      #93c5fd
     );
 
   border-radius: 999px;
@@ -591,7 +591,7 @@
 
   margin-bottom: 5px;
 
-  color: #16a34a;
+  color: #2563eb;
 
   font-size: 11px;
   font-weight: 800;
@@ -653,16 +653,16 @@
   background:
     linear-gradient(
       135deg,
-      #dcfce7,
-      #bbf7d0
+      #dbeafe,
+      #bfdbfe
     );
 
   border:
-    1px solid #86efac;
+    1px solid #93c5fd;
 
   border-radius: 13px;
 
-  color: #15803d;
+  color: #1d4ed8;
 
   font-size: 16px;
   font-weight: 800;
@@ -731,7 +731,7 @@
 
   width: 4px;
 
-  background: #22c55e;
+  background: #3b82f6;
 }
 
 
@@ -739,7 +739,7 @@
   transform:
     translateY(-2px);
 
-  border-color: #bbf7d0;
+  border-color: #bfdbfe;
 
   box-shadow:
     0 8px 20px
@@ -780,13 +780,13 @@
   background:
     linear-gradient(
       135deg,
-      #dcfce7,
-      #bbf7d0
+      #dbeafe,
+      #bfdbfe
     );
 
   border-radius: 12px;
 
-  color: #16a34a;
+  color: #2563eb;
 
   font-size: 18px;
   font-weight: 900;
@@ -867,14 +867,14 @@
 .agendamento-recente-status {
   padding: 7px 12px;
 
-  background: #dcfce7;
+  background: #dbeafe;
 
   border:
-    1px solid #bbf7d0;
+    1px solid #bfdbfe;
 
   border-radius: 999px;
 
-  color: #15803d;
+  color: #1d4ed8;
 
   font-size: 10px;
   font-weight: 800;
@@ -992,7 +992,7 @@ body.agendamento-modal-aberto {
 .agendamento-modal-etiqueta {
   margin: 0 0 4px;
 
-  color: #16a34a;
+  color: #2563eb;
 
   font-size: 12px;
   font-weight: 700;
@@ -1114,18 +1114,18 @@ body.agendamento-modal-aberto {
 }
 
 .agendamento-horario:hover {
-  background: #f0fdf4;
+  background: #eff6ff;
 
-  border-color: #22c55e;
+  border-color: #3b82f6;
 
-  color: #15803d;
+  color: #1d4ed8;
 
   transform:
     translateY(-2px);
 
   box-shadow:
     0 5px 12px
-    rgba(22, 163, 74, 0.12);
+    rgba(37, 99, 235, 0.12);
 }
 
 .agendamento-horario-inicio {
@@ -1161,10 +1161,10 @@ body.agendamento-modal-aberto {
   height: 20px;
 
   border:
-    3px solid #dcfce7;
+    3px solid #dbeafe;
 
   border-top-color:
-    #16a34a;
+    #2563eb;
 
   border-radius: 50%;
 
@@ -1236,11 +1236,11 @@ body.agendamento-modal-aberto {
 
   margin: 0 auto 18px;
 
-  background: #dcfce7;
+  background: #dbeafe;
 
   border-radius: 50%;
 
-  color: #16a34a;
+  color: #2563eb;
 
   font-size: 28px;
   font-weight: 700;
@@ -1352,10 +1352,10 @@ body.agendamento-modal-aberto {
 
   padding: 11px 18px;
 
-  background: #16a34a;
+  background: #2563eb;
 
   border:
-    1px solid #16a34a;
+    1px solid #2563eb;
 
   border-radius: 10px;
 
@@ -1368,7 +1368,7 @@ body.agendamento-modal-aberto {
 }
 
 .agendamento-botao-confirmar:hover:not(:disabled) {
-  background: #15803d;
+  background: #1d4ed8;
 }
 
 .agendamento-botao-confirmar:disabled,
@@ -1463,28 +1463,28 @@ body.modo-escuro
 
 body.modo-escuro
 .agendamento-dia.disponivel {
-  background: #052e16;
+  background: #172554;
 
   box-shadow:
     inset 0 0 0 1px
-    #166534;
+    #1e40af;
 }
 
 body.modo-escuro
 .agendamento-dia.disponivel:hover {
-  background: #14532d;
+  background: #1e3a8a;
 }
 
 body.modo-escuro
 .agendamento-dia-quantidade {
-  background: #14532d;
+  background: #1e3a8a;
 
-  color: #bbf7d0;
+  color: #bfdbfe;
 }
 
 body.modo-escuro
 .agendamento-dia.selecionado {
-  background: #166534;
+  background: #1e40af;
 }
 
 body.modo-escuro
@@ -1496,12 +1496,12 @@ body.modo-escuro
 
 body.modo-escuro
 .agendamento-recente-card:hover {
-  border-color: #166534;
+  border-color: #1e40af;
 }
 
 body.modo-escuro
 .agendamento-recente-icone {
-  background: #052e16;
+  background: #172554;
 
   color: #4ade80;
 }
@@ -1528,20 +1528,20 @@ body.modo-escuro
 
 body.modo-escuro
 .agendamento-recente-status {
-  background: #14532d;
+  background: #1e3a8a;
 
-  border-color: #166534;
+  border-color: #1e40af;
 
-  color: #bbf7d0;
+  color: #bfdbfe;
 }
 
 body.modo-escuro
 .agendamentos-recentes-contador {
-  background: #14532d;
+  background: #1e3a8a;
 
-  border-color: #166534;
+  border-color: #1e40af;
 
-  color: #bbf7d0;
+  color: #bfdbfe;
 }
 
 body.modo-escuro
@@ -1578,11 +1578,11 @@ body.modo-escuro
 
 body.modo-escuro
 .agendamento-horario:hover {
-  background: #052e16;
+  background: #172554;
 
-  border-color: #22c55e;
+  border-color: #3b82f6;
 
-  color: #86efac;
+  color: #93c5fd;
 }
 
 body.modo-escuro

@@ -1,12 +1,10 @@
 // ========================================
 // IMPORTAÇÕES
 // ========================================
-
 import type {
   Request,
   Response
 } from "express";
-
 import {
   aceitarRemarcacao,
   buscarPacientePorUsuarioId,
@@ -14,6 +12,8 @@ import {
   cancelarAgendamentoPaciente,
   confirmarAgendamento,
   criarAgendamento,
+  ErroAgendamento,
+  validarDataNovaConsulta,
   criarAgendamentoPeloMedico,
   excluirAgendamento,
   horarioEstaDisponivel,
@@ -28,40 +28,31 @@ import {
   remarcarAgendamento,
   solicitarRemarcacao
 } from "../services/agendamento.service";
-
 import {
   buscarMedicoAgendaPorUsuarioId
 } from "../services/agenda.service";
-
-
 // ========================================
 // FUNÇÃO AUXILIAR — VALIDAR ID
 // ========================================
-
 function obterId(
-  idRecebido: unknown
+idRecebido: unknown
 ): number | null {
   if (
     typeof idRecebido !== "string" ||
-    idRecebido.trim() === ""
+idRecebido.trim() === ""
   ) {
     return null;
   }
-
   const id =
-    Number(idRecebido);
-
+Number(idRecebido);
   if (
     !Number.isInteger(id) ||
     id <= 0
   ) {
     return null;
   }
-
   return id;
 }
-
-
 // ========================================
 // HORÁRIOS DISPONÍVEIS
 // ========================================
@@ -71,10 +62,9 @@ function obterId(
 //
 // O médico é descoberto através
 // do próprio cadastro do paciente.
-
 export async function horariosDisponiveis(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -83,10 +73,8 @@ export async function horariosDisponiveis(
           "Usuário não autenticado."
       });
     }
-
     const data =
-      req.query.data;
-
+req.query.data;
     if (
       !data ||
       typeof data !== "string"
@@ -96,58 +84,48 @@ export async function horariosDisponiveis(
           "A data deve ser informada."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
         req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     if (!paciente.ativo) {
       return res.status(403).json({
         mensagem:
           "Paciente inativo."
       });
     }
-
     if (!paciente.acessoLiberado) {
       return res.status(403).json({
         mensagem:
           "Seu acesso ainda não foi liberado pelo médico."
       });
     }
-
     const horarios =
       await listarHorariosDisponiveis(
         paciente.medicoId,
         data
       );
-
     return res.json({
       data,
       horarios
     });
-
   } catch (erro) {
     console.error(
       "Erro ao buscar horários disponíveis:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao buscar horários disponíveis."
     });
   }
 }
-
-
 // ========================================
 // CRIAR SOLICITAÇÃO DE AGENDAMENTO
 // ========================================
@@ -165,10 +143,9 @@ export async function horariosDisponiveis(
 // - status.
 //
 // Todo novo agendamento nasce PENDENTE.
-
 export async function agendarConsulta(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -177,12 +154,10 @@ export async function agendarConsulta(
           "Usuário não autenticado."
       });
     }
-
     const {
       data,
       horaInicio
     } = req.body;
-
     if (
       !data ||
       !horaInicio ||
@@ -194,33 +169,29 @@ export async function agendarConsulta(
           "Data e horário são obrigatórios."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
-        req.usuario.id
+req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     if (!paciente.ativo) {
       return res.status(403).json({
         mensagem:
           "Paciente inativo."
       });
     }
-
     if (!paciente.acessoLiberado) {
       return res.status(403).json({
         mensagem:
           "Seu acesso ainda não foi liberado pelo médico."
       });
     }
-
+    validarDataNovaConsulta(data);
     // Revalida o horário no backend.
     const slot =
       await horarioEstaDisponivel(
@@ -228,59 +199,46 @@ export async function agendarConsulta(
         data,
         horaInicio
       );
-
     if (!slot) {
       return res.status(409).json({
         mensagem:
           "Este horário não está disponível."
       });
     }
-
-    const agendamento =
-      await criarAgendamento({
-        medicoId:
-          paciente.medicoId,
-
-        pacienteId:
-          paciente.id,
-
-        data,
-
-        horaInicio:
-          slot.horaInicio,
-
-        horaFim:
-          slot.horaFim
-      });
-
+  const agendamento =
+  await criarAgendamento({
+    usuarioId: req.usuario.id,
+    medicoId: paciente.medicoId,
+    pacienteId: paciente.id,
+    data,
+    horaInicio: slot.horaInicio,
+    horaFim: slot.horaFim
+  });
     return res.status(201).json({
       mensagem:
         "Solicitação enviada. Aguarde a confirmação do médico.",
-
       agendamento
     });
-
   } catch (erro) {
+    if (erro instanceof ErroAgendamento) {
+      return res.status(erro.status).json({ mensagem: erro.message });
+    }
     console.error(
       "Erro ao criar agendamento:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao criar agendamento."
     });
   }
 }
-
-
 // ========================================
 // AGENDAMENTOS DO PACIENTE
 // ========================================
-
 export async function meusAgendamentos(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -289,49 +247,40 @@ export async function meusAgendamentos(
           "Usuário não autenticado."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
-        req.usuario.id
+req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     const agendamentos =
       await listarAgendamentosDoPaciente(
         paciente.id
       );
-
     return res.json({
       agendamentos
     });
-
   } catch (erro) {
     console.error(
       "Erro ao listar agendamentos do paciente:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao listar agendamentos."
     });
   }
 }
-
-
 // ========================================
 // AGENDAMENTOS DO MÉDICO
 // ========================================
-
 export async function agendamentosMedico(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -340,42 +289,34 @@ export async function agendamentosMedico(
           "Usuário não autenticado."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const agendamentos =
       await listarAgendamentosDoMedico(
         medico.id
       );
-
     return res.json({
       agendamentos
     });
-
   } catch (erro) {
     console.error(
       "Erro ao listar agendamentos do médico:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao listar agendamentos."
     });
   }
 }
-
-
 // ========================================
 // CONFIRMAR AGENDAMENTO
 // ========================================
@@ -385,10 +326,9 @@ export async function agendamentosMedico(
 // PENDENTE
 //    ↓
 // CONFIRMADA
-
 export async function confirmarAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -397,48 +337,40 @@ export async function confirmarAgendamentoController(
           "Usuário não autenticado."
       });
     }
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const agendamento =
       await confirmarAgendamento(
         id,
-        medico.id
-      );
-
+        medico.id,
+        req.usuario.id
+    );
     return res.json({
       mensagem:
         "Consulta confirmada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao confirmar agendamento:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -449,7 +381,6 @@ export async function confirmarAgendamentoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Somente agendamentos pendentes podem ser confirmados."
@@ -460,15 +391,12 @@ export async function confirmarAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao confirmar agendamento."
     });
   }
 }
-
-
 // ========================================
 // RECUSAR AGENDAMENTO
 // ========================================
@@ -478,10 +406,9 @@ export async function confirmarAgendamentoController(
 // PENDENTE
 //    ↓
 // RECUSADA
-
 export async function recusarAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -490,48 +417,40 @@ export async function recusarAgendamentoController(
           "Usuário não autenticado."
       });
     }
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const agendamento =
       await recusarAgendamento(
         id,
-        medico.id
-      );
-
+        medico.id,
+        req.usuario.id
+    );
     return res.json({
       mensagem:
         "Solicitação recusada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao recusar agendamento:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -542,7 +461,6 @@ export async function recusarAgendamentoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Somente agendamentos pendentes podem ser recusados."
@@ -553,22 +471,18 @@ export async function recusarAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao recusar agendamento."
     });
   }
 }
-
-
 // ========================================
 // CANCELAR AGENDAMENTO PELO MÉDICO
 // ========================================
-
 export async function cancelarAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -577,48 +491,40 @@ export async function cancelarAgendamentoController(
           "Usuário não autenticado."
       });
     }
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const agendamento =
       await cancelarAgendamento(
         id,
-        medico.id
-      );
-
+        medico.id,
+        req.usuario.id
+    );
     return res.json({
       mensagem:
         "Consulta cancelada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao cancelar agendamento:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -629,7 +535,6 @@ export async function cancelarAgendamentoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Somente consultas confirmadas podem ser canceladas."
@@ -640,15 +545,12 @@ export async function cancelarAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao cancelar agendamento."
     });
   }
 }
-
-
 // ========================================
 // CANCELAR AGENDAMENTO PELO PACIENTE
 // ========================================
@@ -661,10 +563,9 @@ export async function cancelarAgendamentoController(
 //
 // O backend identifica o paciente
 // através do JWT.
-
 export async function cancelarMeuAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -673,48 +574,40 @@ export async function cancelarMeuAgendamentoController(
           "Usuário não autenticado."
       });
     }
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
         req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     const agendamento =
       await cancelarAgendamentoPaciente(
         id,
-        paciente.id
-      );
-
+        paciente.id,
+        req.usuario.id
+    );
     return res.json({
       mensagem:
         "Consulta cancelada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao cancelar agendamento pelo paciente:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -725,7 +618,6 @@ export async function cancelarMeuAgendamentoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Este agendamento não pode ser cancelado."
@@ -736,15 +628,12 @@ export async function cancelarMeuAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao cancelar agendamento."
     });
   }
 }
-
-
 // ========================================
 // REMARCAR CONSULTA DIRETAMENTE PELO MÉDICO
 // ========================================
@@ -759,53 +648,41 @@ export async function cancelarMeuAgendamentoController(
 //   "data": "2026-09-20",
 //   "horaInicio": "10:00"
 // }
-
 export async function remarcarAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     // ========================================
     // VALIDAR AUTENTICAÇÃO
     // ========================================
-
     if (!req.usuario) {
       return res.status(401).json({
         mensagem:
           "Usuário não autenticado."
       });
     }
-
-
     // ========================================
     // VALIDAR ID
     // ========================================
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
-
     // ========================================
     // RECEBER DADOS
     // ========================================
-
     const {
       data,
       horaInicio
     } = req.body;
-
-
     // ========================================
     // VALIDAR DATA
     // ========================================
-
     if (
       !data ||
       typeof data !== "string"
@@ -815,12 +692,9 @@ export async function remarcarAgendamentoController(
           "A nova data é obrigatória."
       });
     }
-
-
     // ========================================
     // VALIDAR HORÁRIO
     // ========================================
-
     if (
       !horaInicio ||
       typeof horaInicio !== "string"
@@ -830,60 +704,47 @@ export async function remarcarAgendamentoController(
           "O novo horário é obrigatório."
       });
     }
-
-
     // ========================================
     // IDENTIFICAR MÉDICO
     // ========================================
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
-
     // ========================================
     // REMARCAR
     // ========================================
-
     const agendamento =
       await remarcarAgendamento(
         id,
         medico.id,
         data,
-        horaInicio
+        horaInicio,
+        req.usuario.id
       );
-
-
     // ========================================
     // RESPOSTA
     // ========================================
-
     return res.json({
       mensagem:
         "Consulta remarcada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao remarcar agendamento:",
       erro
     );
-
     if (erro instanceof Error) {
       // ========================================
       // NÃO ENCONTRADO
       // ========================================
-
       if (
         erro.message ===
         "Agendamento não encontrado."
@@ -893,28 +754,20 @@ export async function remarcarAgendamentoController(
             erro.message
         });
       }
-
-
       // ========================================
       // DADOS / OPERAÇÃO INVÁLIDOS
       // ========================================
-
       if (
         erro.message ===
           "Este agendamento não pode ser remarcado." ||
-
         erro.message ===
           "Data inválida." ||
-
         erro.message ===
           "Não é possível remarcar uma consulta para uma data passada." ||
-
         erro.message ===
           "Horário inválido." ||
-
         erro.message ===
           "Escolha um horário diferente do atual." ||
-
         erro.message ===
           "O horário selecionado não pertence às disponibilidades configuradas."
       ) {
@@ -923,19 +776,14 @@ export async function remarcarAgendamentoController(
             erro.message
         });
       }
-
-
       // ========================================
       // CONFLITOS
       // ========================================
-
       if (
         erro.message ===
           "Já existe uma consulta ocupando este período." ||
-
         erro.message ===
           "Este horário está reservado por uma solicitação de remarcação pendente." ||
-
         erro.message ===
           "Existe uma solicitação de remarcação pendente para esta consulta. Aceite ou recuse a solicitação antes de remarcar diretamente."
       ) {
@@ -944,8 +792,6 @@ export async function remarcarAgendamentoController(
             erro.message
         });
       }
-
-
       if (
         erro.message ===
         "Não foi possível remarcar o agendamento."
@@ -956,15 +802,12 @@ export async function remarcarAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao remarcar consulta."
     });
   }
 }
-
-
 // ========================================
 // SOLICITAR REMARCAÇÃO — PACIENTE
 // ========================================
@@ -978,10 +821,9 @@ export async function remarcarAgendamentoController(
 // consulta original permanece igual
 //            ↓
 // médico aceita ou recusa
-
 export async function solicitarRemarcacaoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -990,22 +832,18 @@ export async function solicitarRemarcacaoController(
           "Usuário não autenticado."
       });
     }
-
     const agendamentoId =
       obterId(req.params.id);
-
     if (!agendamentoId) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const {
       data,
       horaInicio
     } = req.body;
-
     if (
       !data ||
       !horaInicio ||
@@ -1017,33 +855,28 @@ export async function solicitarRemarcacaoController(
           "Nova data e novo horário são obrigatórios."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
         req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     if (!paciente.ativo) {
       return res.status(403).json({
         mensagem:
           "Paciente inativo."
       });
     }
-
     if (!paciente.acessoLiberado) {
       return res.status(403).json({
         mensagem:
           "Seu acesso ainda não foi liberado pelo médico."
       });
     }
-
     const remarcacao =
       await solicitarRemarcacao(
         agendamentoId,
@@ -1051,22 +884,22 @@ export async function solicitarRemarcacaoController(
         {
           data,
           horaInicio
-        }
+        },
+        req.usuario.id
       );
-
     return res.status(201).json({
       mensagem:
         "Solicitação de remarcação enviada. Aguarde a resposta do médico.",
-
       remarcacao
     });
-
   } catch (erro) {
+    if (erro instanceof ErroAgendamento) {
+      return res.status(erro.status).json({ mensagem: erro.message });
+    }
     console.error(
       "Erro ao solicitar remarcação:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1077,7 +910,6 @@ export async function solicitarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Este agendamento não pode ser remarcado."
@@ -1087,7 +919,6 @@ export async function solicitarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Escolha um horário diferente do atual."
@@ -1097,7 +928,6 @@ export async function solicitarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Já existe uma solicitação de remarcação aguardando resposta do médico."
@@ -1107,7 +937,6 @@ export async function solicitarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "O horário selecionado não está mais disponível."
@@ -1118,22 +947,18 @@ export async function solicitarRemarcacaoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao solicitar remarcação."
     });
   }
 }
-
-
 // ========================================
 // HISTÓRICO DE REMARCAÇÕES — PACIENTE
 // ========================================
-
 export async function minhasRemarcacoesController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1142,49 +967,40 @@ export async function minhasRemarcacoesController(
           "Usuário não autenticado."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
         req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     const remarcacoes =
       await listarRemarcacoesDoPaciente(
         paciente.id
       );
-
     return res.json({
       remarcacoes
     });
-
   } catch (erro) {
     console.error(
       "Erro ao listar remarcações do paciente:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao listar remarcações."
     });
   }
 }
-
-
 // ========================================
 // MARCAR RESPOSTA COMO VISUALIZADA
 // ========================================
-
 export async function visualizarRemarcacaoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1193,48 +1009,40 @@ export async function visualizarRemarcacaoController(
           "Usuário não autenticado."
       });
     }
-
     const remarcacaoId =
       obterId(req.params.id);
-
     if (!remarcacaoId) {
       return res.status(400).json({
         mensagem:
           "ID da remarcação inválido."
       });
     }
-
     const paciente =
       await buscarPacientePorUsuarioId(
         req.usuario.id
       );
-
     if (!paciente) {
       return res.status(404).json({
         mensagem:
           "Paciente não encontrado."
       });
     }
-
     const remarcacao =
       await marcarRemarcacaoComoVisualizada(
         remarcacaoId,
-        paciente.id
+        paciente.id,
+        req.usuario.id
       );
-
     return res.json({
       mensagem:
         "Resposta da remarcação marcada como visualizada.",
-
       remarcacao
     });
-
   } catch (erro) {
     console.error(
       "Erro ao marcar remarcação como visualizada:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1245,7 +1053,6 @@ export async function visualizarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Agendamento não encontrado."
@@ -1255,7 +1062,6 @@ export async function visualizarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Esta solicitação ainda não foi respondida."
@@ -1266,22 +1072,18 @@ export async function visualizarRemarcacaoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao atualizar visualização."
     });
   }
 }
-
-
 // ========================================
 // REMARCAÇÕES PENDENTES — MÉDICO
 // ========================================
-
 export async function remarcacoesPendentesMedicoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1290,49 +1092,40 @@ export async function remarcacoesPendentesMedicoController(
           "Usuário não autenticado."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const remarcacoes =
       await listarRemarcacoesPendentesDoMedico(
         medico.id
       );
-
     return res.json({
       remarcacoes
     });
-
   } catch (erro) {
     console.error(
       "Erro ao listar remarcações pendentes:",
       erro
     );
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao listar remarcações pendentes."
     });
   }
 }
-
-
 // ========================================
 // ACEITAR REMARCAÇÃO — MÉDICO
 // ========================================
-
 export async function aceitarRemarcacaoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1341,48 +1134,40 @@ export async function aceitarRemarcacaoController(
           "Usuário não autenticado."
       });
     }
-
     const remarcacaoId =
       obterId(req.params.id);
-
     if (!remarcacaoId) {
       return res.status(400).json({
         mensagem:
           "ID da remarcação inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const remarcacao =
       await aceitarRemarcacao(
         remarcacaoId,
-        medico.id
+        medico.id,
+        req.usuario.id
       );
-
     return res.json({
       mensagem:
         "Remarcação aceita com sucesso.",
-
       remarcacao
     });
-
   } catch (erro) {
     console.error(
       "Erro ao aceitar remarcação:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1395,7 +1180,6 @@ export async function aceitarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
           "Esta solicitação de remarcação já foi respondida." ||
@@ -1412,22 +1196,18 @@ export async function aceitarRemarcacaoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao aceitar remarcação."
     });
   }
 }
-
-
 // ========================================
 // RECUSAR REMARCAÇÃO — MÉDICO
 // ========================================
-
 export async function recusarRemarcacaoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1436,48 +1216,40 @@ export async function recusarRemarcacaoController(
           "Usuário não autenticado."
       });
     }
-
     const remarcacaoId =
       obterId(req.params.id);
-
     if (!remarcacaoId) {
       return res.status(400).json({
         mensagem:
           "ID da remarcação inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const remarcacao =
       await recusarRemarcacao(
         remarcacaoId,
-        medico.id
+        medico.id,
+        req.usuario.id
       );
-
     return res.json({
       mensagem:
         "Remarcação recusada com sucesso.",
-
       remarcacao
     });
-
   } catch (erro) {
     console.error(
       "Erro ao recusar remarcação:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1490,7 +1262,6 @@ export async function recusarRemarcacaoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Esta solicitação de remarcação já foi respondida."
@@ -1501,15 +1272,12 @@ export async function recusarRemarcacaoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao recusar remarcação."
     });
   }
 }
-
-
 // ========================================
 // CRIAR CONSULTA DIRETAMENTE PELO MÉDICO
 // ========================================
@@ -1525,10 +1293,9 @@ export async function recusarRemarcacaoController(
 //
 // A consulta criada pela própria médica
 // já nasce CONFIRMADA.
-
 export async function criarAgendamentoPeloMedicoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1537,14 +1304,12 @@ export async function criarAgendamentoPeloMedicoController(
           "Usuário não autenticado."
       });
     }
-
     const {
       pacienteId,
       data,
       horaInicio,
       duracaoConsulta
     } = req.body;
-
     if (
       typeof pacienteId !== "number" ||
       !Number.isInteger(pacienteId) ||
@@ -1555,7 +1320,6 @@ export async function criarAgendamentoPeloMedicoController(
           "Paciente inválido."
       });
     }
-
     if (
       !data ||
       typeof data !== "string"
@@ -1565,7 +1329,6 @@ export async function criarAgendamentoPeloMedicoController(
           "A data da consulta é obrigatória."
       });
     }
-
     if (
       !horaInicio ||
       typeof horaInicio !== "string"
@@ -1575,7 +1338,6 @@ export async function criarAgendamentoPeloMedicoController(
           "O horário da consulta é obrigatório."
       });
     }
-
     if (
       typeof duracaoConsulta !== "number" ||
       !Number.isInteger(duracaoConsulta) ||
@@ -1586,19 +1348,16 @@ export async function criarAgendamentoPeloMedicoController(
           "A duração da consulta é inválida."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     const agendamento =
       await criarAgendamentoPeloMedico(
         medico.id,
@@ -1607,22 +1366,19 @@ export async function criarAgendamentoPeloMedicoController(
           data,
           horaInicio,
           duracaoConsulta
-        }
+        },
+        req.usuario.id
       );
-
     return res.status(201).json({
       mensagem:
         "Consulta cadastrada com sucesso.",
-
       agendamento
     });
-
   } catch (erro) {
     console.error(
       "Erro ao cadastrar consulta pelo médico:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1633,20 +1389,15 @@ export async function criarAgendamentoPeloMedicoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
           "Data inválida." ||
-
         erro.message ===
           "Não é possível cadastrar uma consulta em uma data passada." ||
-
         erro.message ===
           "Horário inválido." ||
-
         erro.message ===
           "Duração da consulta inválida." ||
-
         erro.message ===
           "O horário final da consulta ultrapassa o fim do dia."
       ) {
@@ -1655,11 +1406,9 @@ export async function criarAgendamentoPeloMedicoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
           "Já existe uma consulta ocupando este período." ||
-
         erro.message ===
           "Este período está reservado por uma solicitação de remarcação pendente."
       ) {
@@ -1669,15 +1418,12 @@ export async function criarAgendamentoPeloMedicoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao cadastrar consulta."
     });
   }
 }
-
-
 // ========================================
 // EXCLUIR CONSULTA DEFINITIVAMENTE
 // ========================================
@@ -1691,10 +1437,9 @@ export async function criarAgendamentoPeloMedicoController(
 //
 // registro e remarcações relacionadas
 // são removidos definitivamente.
-
 export async function excluirAgendamentoController(
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) {
   try {
     if (!req.usuario) {
@@ -1703,45 +1448,38 @@ export async function excluirAgendamentoController(
           "Usuário não autenticado."
       });
     }
-
     const id =
       obterId(req.params.id);
-
     if (!id) {
       return res.status(400).json({
         mensagem:
           "ID do agendamento inválido."
       });
     }
-
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
-        req.usuario.id
+req.usuario.id
       );
-
     if (!medico) {
       return res.status(404).json({
         mensagem:
           "Médico não encontrado."
       });
     }
-
     await excluirAgendamento(
       id,
-      medico.id
+      medico.id,
+      req.usuario.id
     );
-
     return res.json({
       mensagem:
         "Consulta excluída definitivamente."
     });
-
   } catch (erro) {
     console.error(
       "Erro ao excluir agendamento:",
       erro
     );
-
     if (erro instanceof Error) {
       if (
         erro.message ===
@@ -1752,7 +1490,6 @@ export async function excluirAgendamentoController(
             erro.message
         });
       }
-
       if (
         erro.message ===
         "Não foi possível excluir o agendamento."
@@ -1763,7 +1500,6 @@ export async function excluirAgendamentoController(
         });
       }
     }
-
     return res.status(500).json({
       mensagem:
         "Erro interno ao excluir consulta."

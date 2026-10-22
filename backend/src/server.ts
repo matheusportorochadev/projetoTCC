@@ -731,6 +731,15 @@
      }
 
 
+     // Somente erros reconhecidos do parser recebem status de cliente.
+     // Não registrar o objeto do parser: ele pode conter o corpo e senhas.
+     if (erro?.type === "entity.parse.failed" && erro.status === 400) {
+       return res.status(400).json({ mensagem: "JSON inválido." });
+     }
+     if (erro?.type === "entity.too.large" && erro.status === 413) {
+       return res.status(413).json({ mensagem: "Corpo da requisição excede o limite permitido." });
+     }
+
      // ========================================
      // OUTROS ERROS
      // ========================================

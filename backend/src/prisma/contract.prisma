@@ -45,6 +45,18 @@
  // ========================================
 
  // Usuários que podem acessar o sistema
+ // Revogação independente do cadastro: não armazena JWT ou conteúdo clínico.
+ // A chave primária permite verificar cada sessão com uma busca indexada.
+ model SessaoRevogada {
+   tokenHash String @id
+   usuarioId Int
+   expiresAt TimestamptzString
+   createdAt TimestamptzString @default(now())
+
+   @@index([expiresAt])
+   @@index([usuarioId])
+ }
+
  model Usuario {
    id             Int               @id @default(autoincrement())
    nome           String
@@ -78,6 +90,9 @@
    // Indica se o usuário ainda precisa
    // concluir o processo de primeiro acesso.
    primeiroAcesso Boolean           @default(true)
+
+   // Incrementada atomicamente na redefinição da senha principal.
+   versaoSessao   Int               @default(0)
 
    createdAt      TimestamptzString @default(now())
    updatedAt      temporal.updatedAtString()
@@ -826,3 +841,236 @@
    @@index([prontuarioId, createdAt])
    @@index([acao, createdAt])
  }
+
+ // ========================================
+ // AUDITORIA DA AGENDA MÉDICA
+ // ========================================
+
+ // Armazena o histórico de operações
+ // realizadas na agenda médica.
+ //
+ // Exemplos:
+ //
+ // - criação de disponibilidade;
+ // - alteração de disponibilidade;
+ // - remoção de disponibilidade;
+ // - confirmação de consulta;
+ // - cancelamento de consulta;
+ // - remarcação de consulta.
+ //
+ // IMPORTANTE:
+ //
+ // Esta tabela não armazena prontuários,
+ // diagnósticos ou informações clínicas.
+ //
+ // Os identificadores são mantidos sem
+ // relacionamentos obrigatórios para
+ // preservar o histórico de auditoria
+ // mesmo após alterações nos cadastros.
+
+ model AuditoriaAgenda {
+
+   // ========================================
+   // IDENTIFICAÇÃO
+   // ========================================
+
+   id Int @id @default(autoincrement())
+
+   // Usuário autenticado que realizou
+   // a operação.
+   //
+   // Pode representar um médico,
+   // paciente ou administrador.
+   usuarioId Int?
+
+   // Médico relacionado à operação.
+   medicoId Int?
+
+   // ========================================
+   // REGISTROS RELACIONADOS
+   // ========================================
+
+   // Identificador da disponibilidade
+   // criada, alterada ou removida.
+   disponibilidadeId Int?
+
+   // Identificador do agendamento
+   // relacionado à operação.
+   agendamentoId Int?
+
+   // ========================================
+   // OPERAÇÃO
+   // ========================================
+
+   // Exemplos:
+   //
+   // CRIAR_DISPONIBILIDADE
+   // ALTERAR_DISPONIBILIDADE
+   // REMOVER_DISPONIBILIDADE
+   // CONFIRMAR_CONSULTA
+   // CANCELAR_CONSULTA
+   // ACEITAR_REMARCACAO
+   //
+   // Esses valores serão definidos
+   // exclusivamente pelo backend.
+   acao String
+
+   // Resultado da operação:
+   //
+   // SUCESSO
+   // FALHA
+   resultado String
+
+   // ========================================
+   // DADOS OPERACIONAIS
+   // ========================================
+
+   // Data da agenda relacionada ao evento.
+   // Não é a data de criação do log.
+   dataAgenda DateString?
+
+   // Horários relacionados à operação.
+   horaInicio String?
+   horaFim String?
+
+   // ========================================
+   // RASTREABILIDADE
+   // ========================================
+
+   // Identificador de requisição HTTP.
+   // Inicialmente pode permanecer null.
+   requisicaoId String?
+
+   // Momento exato do registro.
+   // Preenchido automaticamente pelo banco.
+   createdAt TimestamptzString @default(now())
+
+   // ========================================
+   // ÍNDICES
+   // ========================================
+
+   // Consultar atividades recentes.
+   @@index([createdAt])
+
+   // Filtrar por médico e período.
+   @@index([medicoId, createdAt])
+
+   // Filtrar por usuário responsável.
+   @@index([usuarioId, createdAt])
+
+   // Consultar atividades por ação.
+   @@index([acao, createdAt])
+
+   // Histórico de uma disponibilidade.
+   @@index([disponibilidadeId, createdAt])
+
+   // Histórico de um agendamento.
+   @@index([agendamentoId, createdAt])
+
+ }
+
+ // ========================================
+ // AUDITORIA DE PACIENTES
+ // ========================================
+
+ // Histórico administrativo das operações
+ // realizadas pelos médicos nos cadastros
+ // de pacientes.
+ //
+ // Não armazena CPF, e-mail, telefone
+ // nem dados clínicos.
+ //
+ // Não utilizamos chaves estrangeiras
+ // obrigatórias porque os registros de
+ // auditoria devem permanecer disponíveis
+ // mesmo que um paciente seja excluído.
+
+ model AuditoriaPaciente {
+
+   // Identificador único do evento.
+   id Int @id @default(autoincrement())
+
+   // Usuário autenticado responsável.
+   usuarioId Int?
+
+   // Médico relacionado à operação.
+   medicoId Int?
+
+   // Paciente afetado.
+   pacienteId Int?
+
+   // Exemplo: CADASTRAR_PACIENTE.
+   acao String
+
+   // Exemplo: SUCESSO ou FALHA.
+   resultado String
+
+   // Identificador opcional da requisição.
+   requisicaoId String?
+
+   // Momento da operação.
+   createdAt TimestamptzString @default(now())
+
+   // Índices para consultas administrativas.
+   @@index([createdAt])
+   @@index([medicoId, createdAt])
+   @@index([usuarioId, createdAt])
+   @@index([pacienteId, createdAt])
+   @@index([acao, createdAt])
+ }
+// ========================================
+// AUDITORIA DE LOGIN E SEGURANÇA
+// ========================================
+
+// Registra operações de autenticação.
+//
+// Não armazena:
+// - Senhas
+// - Tokens JWT
+// - Cookies
+// - Códigos de recuperação
+//
+// usuarioId não possui chave estrangeira,
+// permitindo preservar o histórico mesmo
+// se uma conta for excluída.
+//
+// Em tentativas de login com e-mail
+// desconhecido, usuarioId será null.
+
+model AuditoriaLogin {
+
+  // Identificador único do evento.
+  id Int @id @default(autoincrement())
+
+  // Usuário relacionado ao evento.
+  usuarioId Int?
+
+  // Perfil identificado.
+  // ADMIN, MEDICO ou PACIENTE.
+  perfil String?
+
+  // Tipo da operação:
+  // LOGIN_SUCESSO
+  // LOGIN_FALHA
+  // LOGOUT
+  // LOGIN_BLOQUEADO
+  acao String
+
+  // SUCESSO ou FALHA.
+  resultado String
+
+  // IP de origem da requisição.
+  ip String?
+
+  // Identificador opcional da requisição.
+  requisicaoId String?
+
+  // Momento do evento.
+  createdAt TimestamptzString @default(now())
+
+  // Índices para consultas administrativas.
+  @@index([createdAt])
+  @@index([usuarioId, createdAt])
+  @@index([acao, createdAt])
+  @@index([resultado, createdAt])
+}

@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 
 import {
@@ -592,19 +592,7 @@ export default function FormularioProntuario({
   // RESET AO TROCAR PACIENTE
   // ========================================
 
-  useEffect(() => {
-    setDados({ ...DADOS_INICIAIS });
-    setRespostas({});
-    setSinais({ ...SINAIS_INICIAIS });
-    setAlergias("");
-    setCid("");
-    setProntuarioAnteriorId(null);
-    setVisualizando(false);
-    setModalCarregarAberto(false);
-    setComecouEmBranco(false);
-    setErro("");
-    setMensagem("");
-  }, [paciente.id]);
+
 
   // ========================================
   // ALTERAR CAMPOS
@@ -1706,6 +1694,16 @@ export default function FormularioProntuario({
           </SecaoRecolhivel>
 
           <div className="formulario-prontuario-acoes">
+
+            {/* Volta ao painel sem salvar o prontuário. */}
+            <button
+              type="button"
+              className="formulario-prontuario-secundario"
+              onClick={onCancelar}
+              disabled={salvando}
+            >
+              Cancelar e voltar
+            </button>
 
             <button
               type="button"

@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../../config/api";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/pacientes.css";
@@ -78,7 +79,7 @@ export default function NovoPaciente() {
 
 
       const resposta = await fetch(
-        "http://localhost:3000/pacientes",
+        `${API_ORIGIN}/pacientes`,
         {
           method: "POST",
 

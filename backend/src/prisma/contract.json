@@ -12,6 +12,18 @@
       "model": "Agendamento",
       "namespace": "public"
     },
+    "auditoriaAgenda": {
+      "model": "AuditoriaAgenda",
+      "namespace": "public"
+    },
+    "auditoriaLogin": {
+      "model": "AuditoriaLogin",
+      "namespace": "public"
+    },
+    "auditoriaPaciente": {
+      "model": "AuditoriaPaciente",
+      "namespace": "public"
+    },
     "auditoriaProntuario": {
       "model": "AuditoriaProntuario",
       "namespace": "public"
@@ -46,6 +58,10 @@
     },
     "remarcacaoAgendamento": {
       "model": "RemarcacaoAgendamento",
+      "namespace": "public"
+    },
+    "sessaoRevogada": {
+      "model": "SessaoRevogada",
       "namespace": "public"
     },
     "usuario": {
@@ -354,6 +370,319 @@
               },
               "namespaceId": "public",
               "table": "agendamento"
+            }
+          },
+          "AuditoriaAgenda": {
+            "fields": {
+              "acao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "agendamentoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "dataAgenda": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/date-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "disponibilidadeId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaFim": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "horaInicio": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "requisicaoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "resultado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "acao": {
+                  "column": "acao"
+                },
+                "agendamentoId": {
+                  "column": "agendamentoId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dataAgenda": {
+                  "column": "dataAgenda"
+                },
+                "disponibilidadeId": {
+                  "column": "disponibilidadeId"
+                },
+                "horaFim": {
+                  "column": "horaFim"
+                },
+                "horaInicio": {
+                  "column": "horaInicio"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "requisicaoId": {
+                  "column": "requisicaoId"
+                },
+                "resultado": {
+                  "column": "resultado"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auditoriaAgenda"
+            }
+          },
+          "AuditoriaLogin": {
+            "fields": {
+              "acao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ip": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "perfil": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "requisicaoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "resultado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "acao": {
+                  "column": "acao"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "ip": {
+                  "column": "ip"
+                },
+                "perfil": {
+                  "column": "perfil"
+                },
+                "requisicaoId": {
+                  "column": "requisicaoId"
+                },
+                "resultado": {
+                  "column": "resultado"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auditoriaLogin"
+            }
+          },
+          "AuditoriaPaciente": {
+            "fields": {
+              "acao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "medicoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "pacienteId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "requisicaoId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "resultado": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "acao": {
+                  "column": "acao"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "medicoId": {
+                  "column": "medicoId"
+                },
+                "pacienteId": {
+                  "column": "pacienteId"
+                },
+                "requisicaoId": {
+                  "column": "requisicaoId"
+                },
+                "resultado": {
+                  "column": "resultado"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auditoriaPaciente"
             }
           },
           "AuditoriaProntuario": {
@@ -1449,6 +1778,57 @@
               "table": "remarcacaoAgendamento"
             }
           },
+          "SessaoRevogada": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
+                "tokenHash": {
+                  "column": "tokenHash"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "sessaoRevogada"
+            }
+          },
           "Usuario": {
             "fields": {
               "ativo": {
@@ -1517,6 +1897,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "versaoSessao": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               }
@@ -1611,6 +1998,9 @@
                 },
                 "updatedAt": {
                   "column": "updatedAt"
+                },
+                "versaoSessao": {
+                  "column": "versaoSessao"
                 }
               },
               "namespaceId": "public",
@@ -1848,6 +2238,341 @@
                   ],
                   "name": "agendamento_pacienteId_idx_8734dc3f",
                   "prefix": "agendamento_pacienteId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "auditoriaAgenda": {
+              "columns": {
+                "acao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "agendamentoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "dataAgenda": {
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
+                  "nullable": true
+                },
+                "disponibilidadeId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "horaFim": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "horaInicio": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "requisicaoId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "resultado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "acao",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_acao_createdAt_idx_1bb6e007",
+                  "prefix": "auditoriaAgenda_acao_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "agendamentoId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9",
+                  "prefix": "auditoriaAgenda_agendamentoId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_createdAt_idx_9575dbd7",
+                  "prefix": "auditoriaAgenda_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "disponibilidadeId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99",
+                  "prefix": "auditoriaAgenda_disponibilidadeId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_medicoId_createdAt_idx_d972e011",
+                  "prefix": "auditoriaAgenda_medicoId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd",
+                  "prefix": "auditoriaAgenda_usuarioId_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "auditoriaLogin": {
+              "columns": {
+                "acao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "ip": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "perfil": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "requisicaoId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "resultado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "acao",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaLogin_acao_createdAt_idx_1bb6e007",
+                  "prefix": "auditoriaLogin_acao_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "auditoriaLogin_createdAt_idx_9575dbd7",
+                  "prefix": "auditoriaLogin_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "resultado",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaLogin_resultado_createdAt_idx_f789afcc",
+                  "prefix": "auditoriaLogin_resultado_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd",
+                  "prefix": "auditoriaLogin_usuarioId_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "auditoriaPaciente": {
+              "columns": {
+                "acao": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "medicoId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "pacienteId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "requisicaoId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "resultado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "acao",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaPaciente_acao_createdAt_idx_1bb6e007",
+                  "prefix": "auditoriaPaciente_acao_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "auditoriaPaciente_createdAt_idx_9575dbd7",
+                  "prefix": "auditoriaPaciente_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "medicoId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaPaciente_medicoId_createdAt_idx_d972e011",
+                  "prefix": "auditoriaPaciente_medicoId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "pacienteId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10",
+                  "prefix": "auditoriaPaciente_pacienteId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId",
+                    "createdAt"
+                  ],
+                  "name": "auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd",
+                  "prefix": "auditoriaPaciente_usuarioId_createdAt_idx",
                   "unique": false
                 }
               ],
@@ -2787,6 +3512,59 @@
               },
               "uniques": []
             },
+            "sessaoRevogada": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "tokenHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "sessaoRevogada_expiresAt_idx_6b6b8c10",
+                  "prefix": "sessaoRevogada_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuarioId"
+                  ],
+                  "name": "sessaoRevogada_usuarioId_idx_5f01c7d6",
+                  "prefix": "sessaoRevogada_usuarioId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "tokenHash"
+                ]
+              },
+              "uniques": []
+            },
             "usuario": {
               "checks": [
                 {
@@ -2862,6 +3640,15 @@
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "versaoSessao": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
                 }
               },
               "foreignKeys": [],
@@ -2915,7 +3702,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c55f8c5d46a82a479e9ba609f5da6e9eeb7689159f055988a40c71f333ef6f95"
+    "storageHash": "262d9014fd79fd6570d42e23c5c465a2c6afc07dc6a0627f78d6387e4ef74e67"
   },
   "execution": {
     "executionHash": "f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27",

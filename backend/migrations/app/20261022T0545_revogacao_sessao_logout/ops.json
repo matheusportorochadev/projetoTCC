@@ -1,0 +1,119 @@
+[
+  {
+    "id": "table.sessaoRevogada",
+    "label": "Create table \"sessaoRevogada\"",
+    "summary": "Creates table \"sessaoRevogada\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "sessaoRevogada"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"sessaoRevogada\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"sessaoRevogada\"",
+        "sql": "CREATE TABLE \"public\".\"sessaoRevogada\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"expiresAt\" timestamptz NOT NULL,\n  \"tokenHash\" text NOT NULL,\n  \"usuarioId\" int4 NOT NULL,\n  PRIMARY KEY (\"tokenHash\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"sessaoRevogada\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sessaoRevogada.sessaoRevogada_expiresAt_idx_6b6b8c10",
+    "label": "Create index \"sessaoRevogada_expiresAt_idx_6b6b8c10\" on \"sessaoRevogada\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sessaoRevogada_expiresAt_idx_6b6b8c10",
+        "table": "sessaoRevogada"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sessaoRevogada_expiresAt_idx_6b6b8c10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sessaoRevogada_expiresAt_idx_6b6b8c10\"",
+        "sql": "CREATE INDEX \"sessaoRevogada_expiresAt_idx_6b6b8c10\" ON \"public\".\"sessaoRevogada\" (\"expiresAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sessaoRevogada_expiresAt_idx_6b6b8c10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sessaoRevogada.sessaoRevogada_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"sessaoRevogada_usuarioId_idx_5f01c7d6\" on \"sessaoRevogada\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sessaoRevogada_usuarioId_idx_5f01c7d6",
+        "table": "sessaoRevogada"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sessaoRevogada_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sessaoRevogada_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"sessaoRevogada_usuarioId_idx_5f01c7d6\" ON \"public\".\"sessaoRevogada\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sessaoRevogada_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessaoRevogada_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  }
+]

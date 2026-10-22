@@ -802,4 +802,196 @@ body.modo-escuro
   color: #86efac;
   background: #14532d;
   border-color: #166534;
+}\n
+
+/* ========================================
+   PESQUISA MODERNA DE PACIENTES
+======================================== */
+
+.pc-pesquisa-container {
+  width: 100%;
+  max-width: 650px;
+}
+
+.pc-pesquisa-campo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border: 1px solid #94a3b8;
+  border-radius: 12px;
+  background: var(--pc-fundo, #ffffff);
+  color: var(--pc-texto, #0f172a);
+}
+
+.pc-pesquisa-campo:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.pc-pesquisa-campo > span {
+  font-size: 26px;
+  color: #64748b;
+}
+
+.pc-pesquisa-campo input {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.pc-pesquisa-resultados {
+  margin-top: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--pc-fundo, #ffffff);
+  color: var(--pc-texto, #0f172a);
+}
+
+.pc-pesquisa-cabecalho {
+  padding: 12px 16px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.pc-pesquisa-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 290px;
+  overflow-y: auto;
+}
+
+.pc-pesquisa-lista li + li {
+  border-top: 1px solid rgba(148, 163, 184, .22);
+}
+
+.pc-pesquisa-opcao {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 12px 16px;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pc-pesquisa-opcao:hover,
+.pc-pesquisa-opcao:focus-visible {
+  background: rgba(37, 99, 235, .09);
+}
+
+.pc-paciente-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.pc-pesquisa-nome,
+.pc-paciente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pc-pesquisa-nome strong,
+.pc-paciente-info strong {
+  overflow-wrap: anywhere;
+}
+
+.pc-pesquisa-nome small,
+.pc-paciente-status {
+  font-size: .78rem;
+  color: #64748b;
+}
+
+.pc-pesquisa-vazia,
+.pc-pesquisa-dica {
+  margin: 0;
+  padding: 16px;
+  font-size: .88rem;
+  color: #64748b;
+}
+
+.pc-paciente-selecionado {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 650px;
+  padding: 16px;
+  border: 1px solid #93c5fd;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, .05);
+}
+
+.pc-paciente-info {
+  flex: 1;
+}
+
+.pc-paciente-alterar,
+.pc-pesquisa-cancelar {
+  border: 1px solid #93c5fd;
+  background: transparent;
+  color: #2563eb;
+  border-radius: 9px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.pc-paciente-alterar:disabled,
+.pc-pesquisa-cancelar:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.pc-pesquisa-cancelar {
+  margin-top: 10px;
+}
+
+body.modo-escuro .pc-pesquisa-campo,
+body.modo-escuro .pc-pesquisa-resultados {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+body.modo-escuro .pc-paciente-selecionado {
+  background: rgba(37, 99, 235, .12);
+  border-color: #475569;
+}
+
+body.modo-escuro .pc-paciente-alterar,
+body.modo-escuro .pc-pesquisa-cancelar {
+  color: #93c5fd;
+}
+
+@media (max-width: 600px) {
+  .pc-paciente-selecionado {
+    flex-wrap: wrap;
+  }
+
+  .pc-paciente-alterar {
+    width: 100%;
+  }
 }

@@ -7,7 +7,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:integration": "playwright test --config=playwright.integration.config.ts",
+    "test:all": "node scripts/testar-tudo.mjs",
+    "test:typecheck": "tsc -p tsconfig.tests.json",
+    "test:secrets": "node --test ../scripts/verificar-segredos.test.mjs && node ../scripts/verificar-segredos.mjs",
+    "security:scan": "node ../scripts/verificar-segredos.mjs",
+    "security:staged": "node ../scripts/verificar-segredos.mjs --staged"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -16,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

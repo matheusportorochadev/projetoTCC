@@ -1,3 +1,9 @@
+
+// ========================================
+// ROTAS DE AUTENTICAÇÃO
+// ========================================
+
+
 // ========================================
 // IMPORTAÇÕES
 // ========================================
@@ -47,6 +53,24 @@ import {
 
 
 // ========================================
+// AUDITORIA DE LOGIN E SEGURANÇA
+// ========================================
+
+// NOVO:
+//
+// Serviço responsável por registrar
+// eventos de autenticação no PostgreSQL.
+//
+// Nesta etapa, será utilizado para
+// registrar tentativas bloqueadas pelo
+// limitador de requisições.
+
+import {
+  registrarAuditoriaLogin
+} from "../services/auditoria-login.service";
+
+
+// ========================================
 // ROUTER
 // ========================================
 
@@ -67,16 +91,37 @@ const authRoutes =
 
   Logins bem-sucedidos
   deixam de contar.
+
+  NOVO:
+
+  Quando o limite for ultrapassado,
+  registramos LOGIN_BLOQUEADO
+  na tabela auditoriaLogin.
 */
 
 const loginLimiter =
   rateLimit({
 
+    // ========================================
+    // JANELA DE TEMPO
+    // ========================================
+
+    // 15 minutos.
     windowMs:
       15 * 60 * 1000,
 
+
+    // ========================================
+    // LIMITE DE TENTATIVAS
+    // ========================================
+
     limit:
       10,
+
+
+    // ========================================
+    // HEADERS
+    // ========================================
 
     standardHeaders:
       "draft-7",
@@ -84,13 +129,123 @@ const loginLimiter =
     legacyHeaders:
       false,
 
+
+    // ========================================
+    // IGNORAR LOGINS BEM-SUCEDIDOS
+    // ========================================
+
+    /*
+      Quando uma requisição recebe
+      uma resposta HTTP bem-sucedida,
+      ela não permanece contabilizada
+      no limite.
+
+      Tentativas malsucedidas
+      continuam contando.
+    */
+
     skipSuccessfulRequests:
       true,
 
-    message: {
 
-      mensagem:
-        "Muitas tentativas de login. Aguarde alguns minutos e tente novamente."
+    // ========================================
+    // HANDLER DE BLOQUEIO
+    // ========================================
+
+    /*
+      O handler é executado quando
+      uma requisição ultrapassa
+      o limite permitido.
+
+      IMPORTANTE:
+
+      O bloqueio acontece antes
+      do loginController.
+
+      Por isso, precisamos registrar
+      LOGIN_BLOQUEADO diretamente
+      neste middleware.
+    */
+
+    handler: async (
+      req,
+      res
+    ) => {
+
+      // ========================================
+      // AUDITORIA — LOGIN BLOQUEADO
+      // ========================================
+
+      try {
+
+        await registrarAuditoriaLogin({
+
+          // Não existe autenticação
+          // concluída nesta requisição.
+          usuarioId:
+            null,
+
+          // Não associamos um perfil
+          // a uma identidade não validada.
+          perfil:
+            null,
+
+          // Ação de segurança.
+          acao:
+            "LOGIN_BLOQUEADO",
+
+          // A requisição foi bloqueada.
+          resultado:
+            "FALHA",
+
+          // Endereço IP da requisição.
+          ip:
+            req.ip ?? null
+
+        });
+
+      } catch (erroAuditoria) {
+
+        /*
+          Se o PostgreSQL apresentar
+          um problema durante o registro,
+          o bloqueio continua funcionando.
+
+          O erro fica registrado somente
+          no servidor.
+
+          Não expomos informações
+          internas ao usuário.
+        */
+
+        console.error(
+          "[AUDITORIA LOGIN] Erro ao registrar bloqueio:",
+          erroAuditoria
+        );
+
+      }
+
+
+      // ========================================
+      // RESPOSTA HTTP 429
+      // ========================================
+
+      /*
+        Mantemos a mensagem originalmente
+        utilizada pelo sistema.
+
+        HTTP 429 significa que muitas
+        requisições foram realizadas.
+      */
+
+      return res
+        .status(429)
+        .json({
+
+          mensagem:
+            "Muitas tentativas de login. Aguarde alguns minutos e tente novamente."
+
+        });
 
     }
 
@@ -109,6 +264,8 @@ const loginLimiter =
   5 solicitações
   a cada 15 minutos
   por endereço IP.
+
+  Nenhuma regra anterior foi alterada.
 */
 
 const esqueciSenhaLimiter =
@@ -149,6 +306,8 @@ const esqueciSenhaLimiter =
   10 tentativas
   a cada 15 minutos
   por endereço IP.
+
+  Nenhuma regra anterior foi alterada.
 */
 
 const redefinirSenhaLimiter =
@@ -185,23 +344,35 @@ const redefinirSenhaLimiter =
 
   POST /auth/login
 
-        ↓
+       ↓
 
-  rate limit
+  Rate limit
 
-        ↓
+       ↓
 
   Zod valida:
 
-  - e-mail;
-  - senha;
-  - tipos;
-  - tamanho;
-  - campos extras.
+  - E-mail;
+  - Senha;
+  - Tipos;
+  - Tamanho;
+  - Campos extras.
 
-        ↓
+       ↓
 
-  controller
+  Controller
+
+       ↓
+
+  Serviço de autenticação
+
+       ↓
+
+  Auditoria de LOGIN_SUCESSO
+  ou LOGIN_FALHA.
+
+  Se o rate limit bloquear a requisição,
+  registramos LOGIN_BLOQUEADO.
 */
 
 authRoutes.post(
@@ -224,7 +395,10 @@ authRoutes.post(
 // ========================================
 
 /*
-  Remove o cookie HttpOnly.
+  POST /auth/logout
+
+  Remove o cookie HttpOnly principal
+  e a autorização dos prontuários.
 
   Não exige autenticação porque até
   um cookie expirado ou inválido deve
@@ -232,6 +406,10 @@ authRoutes.post(
 
   Também não existe body obrigatório,
   então não precisamos de schema Zod.
+
+  O controller agora também registra
+  LOGOUT quando identifica uma sessão
+  autenticada válida.
 */
 
 authRoutes.post(
@@ -286,10 +464,10 @@ authRoutes.post(
 
   O Zod valida:
 
-  - e-mail;
-  - código de 6 números;
-  - nova senha;
-  - política de senha.
+  - E-mail;
+  - Código de 6 números;
+  - Nova senha;
+  - Política de senha.
 */
 
 authRoutes.post(

@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 // ========================================
 // TELA DE LOGIN
 // ========================================
@@ -140,7 +141,7 @@ export default function Login() {
 
       const resposta =
         await fetch(
-          "http://localhost:3000/auth/login",
+          `${API_ORIGIN}/auth/login`,
           {
 
             method:

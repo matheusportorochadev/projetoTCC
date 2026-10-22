@@ -1,5 +1,7 @@
+import { API_ORIGIN } from "../../config/api";
 import {
   useEffect,
+  useCallback,
   useMemo,
   useState
 } from "react";
@@ -172,50 +174,27 @@ export default function Pacientes() {
   // CARREGAMENTO INICIAL
   // ========================================
 
-  useEffect(() => {
-    carregarPacientes();
-  }, []);
+
 
 
   // ========================================
   // CARREGAR PACIENTES
   // ========================================
 
-  async function carregarPacientes() {
-    try {
-      setCarregando(true);
-      setErro("");
+  const carregarPacientes = useCallback(() => {
+    return fetch(`${API_ORIGIN}/pacientes`, { credentials: "include" })
+      .then(async resposta => {
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.mensagem || "Erro ao carregar pacientes.");
+        setErro(""); setPacientes(dados);
+      })
+      .catch((erro: unknown) => setErro(erro instanceof Error ? erro.message : "Erro ao carregar pacientes."))
+      .finally(() => setCarregando(false));
+  }, []);
 
-
-      const resposta =
-        await fetch(
-          "http://localhost:3000/pacientes",
-          {
-            credentials: "include"
-          }
-        );
-
-      const dados =
-        await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(
-          dados.mensagem ||
-            "Erro ao carregar pacientes."
-        );
-      }
-
-      setPacientes(dados);
-    } catch (erro) {
-      setErro(
-        erro instanceof Error
-          ? erro.message
-          : "Erro ao carregar pacientes."
-      );
-    } finally {
-      setCarregando(false);
-    }
-  }
+  useEffect(() => {
+    void carregarPacientes();
+  }, [carregarPacientes]);
 
 
   // ========================================
@@ -305,7 +284,7 @@ export default function Pacientes() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/pacientes/${pacienteSelecionado.id}/acesso`,
+          `${API_ORIGIN}/pacientes/${pacienteSelecionado.id}/acesso`,
           {
             method: "PATCH",
 
@@ -369,7 +348,7 @@ export default function Pacientes() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/pacientes/${pacienteSelecionado.id}/status`,
+          `${API_ORIGIN}/pacientes/${pacienteSelecionado.id}/status`,
           {
             method: "PATCH",
 
@@ -453,7 +432,7 @@ export default function Pacientes() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/pacientes/${pacienteSelecionado.id}`,
+          `${API_ORIGIN}/pacientes/${pacienteSelecionado.id}`,
           {
             method: "DELETE",
 

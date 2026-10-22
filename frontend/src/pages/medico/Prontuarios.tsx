@@ -285,66 +285,19 @@ export default function Prontuarios() {
   // VERIFICAR ACESSO AO ENTRAR
   // ========================================
 
-  const carregarAcesso = useCallback(
-    async () => {
-
-      setEstado("carregando");
-
-      setVisaoClinica("inicio");
-
-      setErro("");
-      setMensagem("");
-
+  const carregarAcesso = useCallback(() => {
+    return buscarSituacaoProntuario().then(async situacao => {
+      if (!situacao.senhaCadastrada) { setEstado("cadastrar"); return; }
       try {
-
-        // Consulta o backend para saber
-        // se a senha adicional já existe.
-        const situacao =
-          await buscarSituacaoProntuario();
-
-        if (!situacao.senhaCadastrada) {
-
-          setEstado("cadastrar");
-
-          return;
-        }
-
-        // Verifica se o médico ainda
-        // possui uma sessão autorizada.
-        try {
-
-          const sessao =
-            await buscarSessaoProntuario();
-
-          if (sessao.autorizado) {
-
-            setEstado("liberado");
-
-            return;
-          }
-
-        } catch {
-
-          // Sessão ausente ou expirada.
-          // Será solicitada a senha.
-        }
-
-        setEstado("desbloquear");
-
-      } catch (falha) {
-
-        setErro(
-          falha instanceof Error
-            ? falha.message
-            : "Não foi possível verificar o acesso."
-        );
-
-        setEstado("erro");
-      }
-
-    },
-    []
-  );
+        const sessao = await buscarSessaoProntuario();
+        if (sessao.autorizado) { setEstado("liberado"); return; }
+      } catch { /* Cookie clínico ausente: solicitar desbloqueio. */ }
+      setEstado("desbloquear");
+    }).catch((falha: unknown) => {
+      setErro(falha instanceof Error ? falha.message : "Não foi possível verificar o acesso.");
+      setEstado("erro");
+    });
+  }, []);
 
   // ========================================
   // CARREGAMENTO INICIAL
@@ -959,6 +912,7 @@ export default function Prontuarios() {
             type="button"
             className="prontuario-botao"
             onClick={() => {
+              setEstado("carregando"); setVisaoClinica("inicio"); setErro(""); setMensagem("");
               void carregarAcesso();
             }}
           >

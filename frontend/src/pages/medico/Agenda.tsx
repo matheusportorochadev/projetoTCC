@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../../config/api";
 import {
   useCallback,
   useEffect,
@@ -124,7 +125,7 @@ type ConfirmacaoRemarcacao = {
 // ========================================
 
 const API_URL =
-  "http://localhost:3000";
+  API_ORIGIN;
 
 
 const nomesMeses = [
@@ -281,7 +282,7 @@ const [
 const [
   carregandoAgendamentos,
   setCarregandoAgendamentos
-] = useState(false);
+] = useState(true);
 
   const [
     salvando,
@@ -526,118 +527,44 @@ const [
   // CARREGAR DISPONIBILIDADES
   // ========================================
 
-  const carregarDisponibilidades =
-    useCallback(
-      async (): Promise<Disponibilidade[]> => {
-        try {
-          setCarregando(true);
-          setErro("");
-
-
-          const resposta =
-            await fetch(
-              `${API_URL}/agenda/disponibilidades`,
-              {
-                credentials: "include"
-              }
-            );
-
-          const dados =
-            await resposta.json();
-
-          if (!resposta.ok) {
-            throw new Error(
-              dados.mensagem ||
-                "Erro ao carregar agenda."
-            );
-          }
-
-          const lista: Disponibilidade[] =
-            Array.isArray(dados)
-              ? dados
-              : [];
-
-          setDisponibilidades(
-            lista
-          );
-
-          return lista;
-
-        } catch (error) {
-          setErro(
-            error instanceof Error
-              ? error.message
-              : "Erro ao carregar agenda."
-          );
-
-          return [];
-
-        } finally {
-          setCarregando(false);
-        }
-      },
-      []
-    );
+  const carregarDisponibilidades = useCallback(() => {
+    return fetch(`${API_URL}/agenda/disponibilidades`, { credentials: "include" })
+      .then(async resposta => {
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.mensagem || "Erro ao carregar agenda.");
+        setErro("");
+        const lista: Disponibilidade[] = Array.isArray(dados) ? dados : [];
+        setDisponibilidades(lista);
+        return lista;
+      })
+      .catch((falha: unknown) => {
+        setErro(falha instanceof Error ? falha.message : "Erro ao carregar agenda.");
+        return [];
+      })
+      .finally(() => setCarregando(false));
+  }, []);
 
 
   // ========================================
   // CARREGAR AGENDAMENTOS
   // ========================================
 
-  const carregarAgendamentos =
-    useCallback(
-      async () => {
-        try {
-          setCarregandoAgendamentos(
-            true
-          );
+  const carregarAgendamentos = useCallback(() => {
+    return fetch(`${API_URL}/agendamentos/medico`, { credentials: "include" })
+      .then(async resposta => {
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.mensagem || "Erro ao carregar agendamentos.");
+        setErroAgendamentos("");
+        const lista = Array.isArray(dados.agendamentos) ? dados.agendamentos : [];
+        setAgendamentos(lista);
 
-          setErroAgendamentos("");
+      })
+      .catch((falha: unknown) => {
+        setErroAgendamentos(falha instanceof Error ? falha.message : "Erro ao carregar agendamentos.");
 
-
-          const resposta =
-            await fetch(
-              `${API_URL}/agendamentos/medico`,
-              {
-                method: "GET",
-
-                credentials: "include"
-              }
-            );
-
-          const dados =
-            await resposta.json();
-
-          if (!resposta.ok) {
-            throw new Error(
-              dados.mensagem ||
-                "Erro ao carregar agendamentos."
-            );
-          }
-
-          setAgendamentos(
-            Array.isArray(
-              dados.agendamentos
-            )
-              ? dados.agendamentos
-              : []
-          );
-
-        } catch (error) {
-          setErroAgendamentos(
-            error instanceof Error
-              ? error.message
-              : "Erro ao carregar agendamentos."
-          );
-
-        } finally {
-          setCarregandoAgendamentos(
-            false
-          );
-        }
-      },
-      []
-    );
+      })
+      .finally(() => setCarregandoAgendamentos(false));
+  }, []);
 
 
   // ========================================
@@ -698,56 +625,22 @@ const [
   // CARREGAR REMARCAÇÕES PENDENTES
   // ========================================
 
-  const carregarRemarcacoesPendentes =
-    useCallback(
-      async () => {
-        try {
-          setCarregandoRemarcacoes(
-            true
-          );
+  const carregarRemarcacoesPendentes = useCallback(() => {
+    return fetch(`${API_URL}/agendamentos/remarcacoes/pendentes`, { credentials: "include" })
+      .then(async resposta => {
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.mensagem || "Erro ao carregar solicitações de remarcação.");
+        setErroAgendamentos("");
+        const lista = Array.isArray(dados.remarcacoes) ? dados.remarcacoes : [];
+        setRemarcacoesPendentes(lista);
 
+      })
+      .catch((falha: unknown) => {
+        setErroAgendamentos(falha instanceof Error ? falha.message : "Erro ao carregar solicitações de remarcação.");
 
-          const resposta =
-            await fetch(
-              `${API_URL}/agendamentos/remarcacoes/pendentes`,
-              {
-                credentials: "include"
-              }
-            );
-
-          const dados =
-            await resposta.json();
-
-          if (!resposta.ok) {
-            throw new Error(
-              dados.mensagem ||
-                "Erro ao carregar solicitações de remarcação."
-            );
-          }
-
-          setRemarcacoesPendentes(
-            Array.isArray(
-              dados.remarcacoes
-            )
-              ? dados.remarcacoes
-              : []
-          );
-
-        } catch (error) {
-          setErroAgendamentos(
-            error instanceof Error
-              ? error.message
-              : "Erro ao carregar solicitações de remarcação."
-          );
-
-        } finally {
-          setCarregandoRemarcacoes(
-            false
-          );
-        }
-      },
-      []
-    );
+      })
+      .finally(() => setCarregandoRemarcacoes(false));
+  }, []);
 
 
   // ========================================

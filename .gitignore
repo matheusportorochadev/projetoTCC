@@ -1,0 +1,33 @@
+# Ambientes e evidências locais; arquivos já rastreados exigem revisão própria.
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules/
+**/dist/
+**/playwright-report*/
+**/test-results/
+**/test-results-resumo.json
+**/cookies*.txt
+*.dump
+*.backup
+*.bak
+*.save
+*.log
+.DS_Store
+# Análises e scripts pontuais: preservados em disco, fora da proposta de commit.
+/analise_backend_prontuarios.txt
+/aplicar_auditoria_agendamentos.py
+/frontend/atualizar_admin_login.py
+
+# Estados e capturas de autenticação (não ignorar código de auth).
+/backend/cookies.txt
+/frontend/tests/.auth/
+/frontend/playwright/.auth/
+**/cookies*.json
+**/storageState*.json
+**/storage-state*.json
+**/auth-state*.json
+**/trace.zip
+**/trace-*.zip
+**/*.trace.zip
+**/*.har

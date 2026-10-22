@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 
 // ========================================
 // API DE ACESSO AOS PRONTUÁRIOS
@@ -10,7 +11,7 @@
 // credentials: "include" para enviar
 // os cookies HttpOnly do sistema.
 
-const API_URL = "http://localhost:3000";
+const API_URL = API_ORIGIN;
 
 
 // ========================================

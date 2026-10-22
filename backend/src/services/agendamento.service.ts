@@ -1,7 +1,13 @@
 // Dependências do serviço de agendamento
 import { db } from "../prisma/db";
 
+// ========================================
+// AUDITORIA DE AGENDAMENTOS
+// ========================================
 
+import {
+  registrarAuditoriaAgendamento
+} from "./auditoria-agendamento.service";
 // ========================================
 // TIPOS
 // ========================================
@@ -104,6 +110,7 @@ export type RemarcacaoPacienteRegistro =
 // medicoId, pacienteId e horaFim são
 // definidos pelo backend.
 type CriarAgendamentoDados = {
+  usuarioId:number;
   medicoId: number;
   pacienteId: number;
   data: string;
@@ -723,10 +730,55 @@ export function gerarSlotsDasDisponibilidades(
 // criadas diretamente pelo médico com
 // duração diferente dos slots publicados.
 
+
+// ========================================
+// VERIFICAR SE O MÉDICO ESTÁ ATIVO
+// ========================================
+//
+// A situação do médico pertence ao
+// Usuario associado ao registro Medico.
+//
+// Esta consulta impede agendamentos com
+// contas desativadas administrativamente.
+
+async function verificarMedicoAtivoParaAgendamento(
+  medicoId: number
+): Promise<boolean> {
+
+  const medico =
+    await db.orm.public.Medico
+      .where({ id: medicoId })
+      .first();
+
+  if (!medico) {
+    return false;
+  }
+
+  const usuario =
+    await db.orm.public.Usuario
+      .where({
+        id: medico.usuarioId,
+        ativo: true
+      })
+      .first();
+
+  return usuario !== null;
+}
+
 export async function listarHorariosDisponiveis(
   medicoId: number,
   data: string
 ): Promise<SlotDisponivel[]> {
+  // Médico bloqueado não oferece horários.
+  const medicoAtivo =
+    await verificarMedicoAtivoParaAgendamento(
+      medicoId
+    );
+
+  if (!medicoAtivo) {
+    return [];
+  }
+
   const disponibilidades =
     await buscarDisponibilidadesDoMedico(
       medicoId,
@@ -839,19 +891,25 @@ export async function horarioEstaDisponivel(
 //
 // "gravar agendamento".
 
+// Erros esperados têm tradução HTTP explícita; falhas internas continuam distintas.
+export class ErroAgendamento extends Error {
+  constructor(message: string, readonly status: 400 | 409) { super(message); }
+}
+
+export function validarDataNovaConsulta(data: string): void {
+  if (!dataPossuiFormatoValido(data)) {
+    throw new ErroAgendamento("Data inválida.", 400);
+  }
+  if (data < obterHoje()) {
+    throw new ErroAgendamento("Não é possível agendar uma consulta em uma data passada.", 400);
+  }
+}
+
 export async function criarAgendamento(
   dados: CriarAgendamentoDados
 ): Promise<AgendamentoRegistro> {
 
-  if (
-    !dataPossuiFormatoValido(
-      dados.data
-    )
-  ) {
-    throw new Error(
-      "Data inválida."
-    );
-  }
+  validarDataNovaConsulta(dados.data);
 
   if (
     !horarioPossuiFormatoValido(
@@ -881,6 +939,38 @@ export async function criarAgendamento(
 
   return executarTransacaoSerializavel(
     async (tx) => {
+
+      // ========================================
+      // IMPEDIR AGENDAMENTO COM MÉDICO INATIVO
+      // ========================================
+
+      const medico =
+        await tx.orm.public.Medico
+          .where({
+            id: dados.medicoId
+          })
+          .first();
+
+      if (!medico) {
+        throw new Error(
+          "O médico não está disponível para agendamentos."
+        );
+      }
+
+      const usuarioMedico =
+        await tx.orm.public.Usuario
+          .where({
+            id: medico.usuarioId,
+            ativo: true
+          })
+          .first();
+
+      if (!usuarioMedico) {
+        throw new Error(
+          "O médico não está disponível para agendamentos."
+        );
+      }
+
 
       // ========================================
       // CONFIRMAR QUE O SLOT FOI PUBLICADO
@@ -915,8 +1005,8 @@ export async function criarAgendamento(
         );
 
       if (!slot) {
-        throw new Error(
-          "O horário selecionado não está mais disponível."
+        throw new ErroAgendamento(
+          "O horário selecionado não está mais disponível.", 409
         );
       }
 
@@ -959,8 +1049,8 @@ export async function criarAgendamento(
       if (
         conflitoAgendamento
       ) {
-        throw new Error(
-          "O horário selecionado não está mais disponível."
+        throw new ErroAgendamento(
+          "O horário selecionado não está mais disponível.", 409
         );
       }
 
@@ -1016,15 +1106,15 @@ export async function criarAgendamento(
         if (
           conflitoRemarcacao
         ) {
-          throw new Error(
-            "O horário selecionado não está mais disponível."
+          throw new ErroAgendamento(
+            "O horário selecionado não está mais disponível.", 409
           );
         }
       }
 
 
       // ========================================
-      // CRIAR
+      // CRIAR AGENDAMENTO
       // ========================================
 
       const agendamento =
@@ -1049,9 +1139,43 @@ export async function criarAgendamento(
               "PENDENTE"
           });
 
+      // ========================================
+      // AUDITORIA — SOLICITAÇÃO DO PACIENTE
+      // ========================================
+
+      // Registra quem solicitou a consulta.
+      //
+      // A gravação acontece na mesma
+      // transação que cria o agendamento.
+      //
+      // Se a auditoria falhar, a operação
+      // inteira será revertida.
+
+      await registrarAuditoriaAgendamento(
+        tx,
+        {
+          usuarioId: dados.usuarioId,
+          medicoId: dados.medicoId,
+          agendamentoId: agendamento.id,
+          acao: "SOLICITAR_AGENDAMENTO",
+          resultado: "SUCESSO",
+          dataAgenda: agendamento.data,
+          horaInicio: agendamento.horaInicio,
+          horaFim: agendamento.horaFim
+        }
+      );
+
       return agendamento;
     }
-  );
+  ).catch((erro: unknown) => {
+    // Só conflitos transacionais conhecidos esgotados viram 409; outros erros
+    // (conexão, auditoria etc.) continuam sendo falhas internas e fazem rollback.
+    const sqlState = obterSqlState(erro);
+    if (sqlState === "40001" || sqlState === "40P01") {
+      throw new ErroAgendamento("Conflito ao reservar o horário. Tente novamente.", 409);
+    }
+    throw erro;
+  });
 }
 
 
@@ -1069,7 +1193,8 @@ export async function criarAgendamento(
 
 export async function criarAgendamentoPeloMedico(
   medicoId: number,
-  dados: CriarAgendamentoMedicoDados
+  dados: CriarAgendamentoMedicoDados,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
 
   if (
@@ -1269,7 +1394,7 @@ export async function criarAgendamentoPeloMedico(
       // CRIAR CONSULTA
       // ========================================
 
-      return tx.orm.public.Agendamento
+      const agendamento = await tx.orm.public.Agendamento
         .create({
           medicoId,
 
@@ -1287,6 +1412,20 @@ export async function criarAgendamentoPeloMedico(
           status:
             "CONFIRMADA"
         });
+
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: medicoId,
+        agendamentoId: agendamento.id,
+        acao: "CRIAR_AGENDAMENTO_MEDICO",
+        resultado: "SUCESSO",
+        dataAgenda: agendamento.data,
+        horaInicio: agendamento.horaInicio,
+        horaFim: agendamento.horaFim
+      });
+
+      return agendamento;
     }
   );
 }
@@ -1485,43 +1624,74 @@ export async function buscarAgendamentoDoPacientePorId(
 
 export async function confirmarAgendamento(
   id: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
-  const agendamento =
-    await buscarAgendamentoDoMedicoPorId(
-      id,
-      medicoId
-    );
+  // A validação, a alteração de status e a auditoria
+  // acontecem na mesma transação serializável.
+  return executarTransacaoSerializavel(
+    async (tx) => {
+      // Somente o médico responsável pode confirmar.
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .first();
 
-  if (
-    agendamento.status !==
-      "PENDENTE" &&
-    agendamento.status !==
-      "AGENDADA"
-  ) {
-    throw new Error(
-      "Somente agendamentos pendentes podem ser confirmados."
-    );
-  }
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
 
-  const atualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id,
-        medicoId
-      })
-      .update({
-        status:
-          "CONFIRMADA"
-      });
+      // Mantém a compatibilidade com AGENDADA.
+      if (
+        agendamento.status !== "PENDENTE" &&
+        agendamento.status !== "AGENDADA"
+      ) {
+        throw new Error(
+          "Somente agendamentos pendentes podem ser confirmados."
+        );
+      }
 
-  if (!atualizado) {
-    throw new Error(
-      "Não foi possível confirmar o agendamento."
-    );
-  }
+      // Altera o status da consulta.
+      const atualizado =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .update({
+            status: "CONFIRMADA"
+          });
 
-  return atualizado;
+      if (!atualizado) {
+        throw new Error(
+          "Não foi possível confirmar o agendamento."
+        );
+      }
+
+      // Grava quem confirmou, vinculando o log
+      // à mesma transação da atualização.
+      await registrarAuditoriaAgendamento(
+        tx,
+        {
+          usuarioId,
+          medicoId,
+          agendamentoId: atualizado.id,
+          acao: "CONFIRMAR_AGENDAMENTO",
+          resultado: "SUCESSO",
+          dataAgenda: atualizado.data,
+          horaInicio: atualizado.horaInicio,
+          horaFim: atualizado.horaFim
+        }
+      );
+
+      return atualizado;
+    }
+  );
 }
 
 
@@ -1531,43 +1701,72 @@ export async function confirmarAgendamento(
 
 export async function recusarAgendamento(
   id: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
-  const agendamento =
-    await buscarAgendamentoDoMedicoPorId(
-      id,
-      medicoId
-    );
+  // A recusa e seu log são atômicos.
+  return executarTransacaoSerializavel(
+    async (tx) => {
+      // Somente o médico responsável pode recusar.
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .first();
 
-  if (
-    agendamento.status !==
-      "PENDENTE" &&
-    agendamento.status !==
-      "AGENDADA"
-  ) {
-    throw new Error(
-      "Somente agendamentos pendentes podem ser recusados."
-    );
-  }
+      if (!agendamento) {
+        throw new Error(
+          "Agendamento não encontrado."
+        );
+      }
 
-  const atualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id,
-        medicoId
-      })
-      .update({
-        status:
-          "RECUSADA"
-      });
+      // Preserva as regras de status anteriores.
+      if (
+        agendamento.status !== "PENDENTE" &&
+        agendamento.status !== "AGENDADA"
+      ) {
+        throw new Error(
+          "Somente agendamentos pendentes podem ser recusados."
+        );
+      }
 
-  if (!atualizado) {
-    throw new Error(
-      "Não foi possível recusar o agendamento."
-    );
-  }
+      const atualizado =
+        await tx.orm.public.Agendamento
+          .where({
+            id,
+            medicoId
+          })
+          .update({
+            status: "RECUSADA"
+          });
 
-  return atualizado;
+      if (!atualizado) {
+        throw new Error(
+          "Não foi possível recusar o agendamento."
+        );
+      }
+
+      // O log não pode ser gravado separadamente
+      // da alteração que ele documenta.
+      await registrarAuditoriaAgendamento(
+        tx,
+        {
+          usuarioId,
+          medicoId,
+          agendamentoId: atualizado.id,
+          acao: "RECUSAR_AGENDAMENTO",
+          resultado: "SUCESSO",
+          dataAgenda: atualizado.data,
+          horaInicio: atualizado.horaInicio,
+          horaFim: atualizado.horaFim
+        }
+      );
+
+      return atualizado;
+    }
+  );
 }
 
 
@@ -1575,45 +1774,61 @@ export async function recusarAgendamento(
 // CANCELAR AGENDAMENTO PELO MÉDICO
 // ========================================
 
+// ========================================
+// CANCELAR AGENDAMENTO PELO MÉDICO
+// ========================================
+
 export async function cancelarAgendamento(
   id: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
-  const agendamento =
-    await buscarAgendamentoDoMedicoPorId(
-      id,
-      medicoId
-    );
+  // Status e auditoria são gravados juntos.
+  return executarTransacaoSerializavel(
+    async (tx) => {
+      // Impede que um médico altere consulta alheia.
+      const agendamento =
+        await tx.orm.public.Agendamento
+          .where({ id, medicoId })
+          .first();
 
-  if (
-    agendamento.status !==
-      "CONFIRMADA" &&
-    agendamento.status !==
-      "AGENDADA"
-  ) {
-    throw new Error(
-      "Somente consultas confirmadas podem ser canceladas."
-    );
-  }
+      if (!agendamento) {
+        throw new Error("Agendamento não encontrado.");
+      }
 
-  const atualizado =
-    await db.orm.public.Agendamento
-      .where({
-        id,
-        medicoId
-      })
-      .update({
-        status:
-          "CANCELADA"
+      // Preserva os status permitidos no sistema.
+      if (
+        agendamento.status !== "CONFIRMADA" &&
+        agendamento.status !== "AGENDADA"
+      ) {
+        throw new Error(
+          "Somente consultas confirmadas podem ser canceladas."
+        );
+      }
+
+      const atualizado =
+        await tx.orm.public.Agendamento
+          .where({ id, medicoId })
+          .update({ status: "CANCELADA" });
+
+      if (!atualizado) {
+        throw new Error("Não foi possível cancelar o agendamento.");
+      }
+
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId,
+        medicoId,
+        agendamentoId: atualizado.id,
+        acao: "CANCELAR_AGENDAMENTO",
+        resultado: "SUCESSO",
+        dataAgenda: atualizado.data,
+        horaInicio: atualizado.horaInicio,
+        horaFim: atualizado.horaFim
       });
 
-  if (!atualizado) {
-    throw new Error(
-      "Não foi possível cancelar o agendamento."
-    );
-  }
-
-  return atualizado;
+      return atualizado;
+    }
+  );
 }
 
 
@@ -1627,70 +1842,52 @@ export async function cancelarAgendamento(
 //
 // Por isso também utiliza transação.
 
+// ========================================
+// CANCELAR AGENDAMENTO PELO PACIENTE
+// ========================================
+// Mantém a recusa de remarcação pendente e a mudança de status
+// na mesma transação usada pela implementação original.
+
 export async function cancelarAgendamentoPaciente(
   id: number,
-  pacienteId: number
+  pacienteId: number,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
   return db.transaction(
     async (tx) => {
       const agendamento =
         await tx.orm.public.Agendamento
-          .where({
-            id,
-            pacienteId
-          })
+          .where({ id, pacienteId })
           .first();
 
       if (!agendamento) {
-        throw new Error(
-          "Agendamento não encontrado."
-        );
+        throw new Error("Agendamento não encontrado.");
       }
 
       if (
-        agendamento.status !==
-          "PENDENTE" &&
-        agendamento.status !==
-          "CONFIRMADA" &&
-        agendamento.status !==
-          "AGENDADA"
+        agendamento.status !== "PENDENTE" &&
+        agendamento.status !== "CONFIRMADA" &&
+        agendamento.status !== "AGENDADA"
       ) {
-        throw new Error(
-          "Este agendamento não pode ser cancelado."
-        );
+        throw new Error("Este agendamento não pode ser cancelado.");
       }
 
       const remarcacaoPendente =
         await tx.orm.public.RemarcacaoAgendamento
-          .where({
-            agendamentoId:
-              id,
-
-            status:
-              "PENDENTE"
-          })
+          .where({ agendamentoId: id, status: "PENDENTE" })
           .first();
 
-      if (
-        remarcacaoPendente
-      ) {
+      // Preserva o encerramento automático de remarcações pendentes.
+      if (remarcacaoPendente) {
         const remarcacaoAtualizada =
           await tx.orm.public.RemarcacaoAgendamento
-            .where({
-              id:
-                remarcacaoPendente.id
-            })
+            .where({ id: remarcacaoPendente.id })
             .update({
-              status:
-                "RECUSADA",
-
-              visualizadoPaciente:
-                false
+              status: "RECUSADA",
+              visualizadoPaciente: false
             });
 
-        if (
-          !remarcacaoAtualizada
-        ) {
+        if (!remarcacaoAtualizada) {
           throw new Error(
             "Não foi possível encerrar a solicitação de remarcação."
           );
@@ -1699,20 +1896,25 @@ export async function cancelarAgendamentoPaciente(
 
       const atualizado =
         await tx.orm.public.Agendamento
-          .where({
-            id,
-            pacienteId
-          })
-          .update({
-            status:
-              "CANCELADA"
-          });
+          .where({ id, pacienteId })
+          .update({ status: "CANCELADA" });
 
       if (!atualizado) {
-        throw new Error(
-          "Não foi possível cancelar o agendamento."
-        );
+        throw new Error("Não foi possível cancelar o agendamento.");
       }
+
+      // O medicoId vem do registro autorizado no banco;
+      // usuarioId identifica quem fez a ação via JWT.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId,
+        medicoId: agendamento.medicoId,
+        agendamentoId: atualizado.id,
+        acao: "CANCELAR_AGENDAMENTO_PACIENTE",
+        resultado: "SUCESSO",
+        dataAgenda: atualizado.data,
+        horaInicio: atualizado.horaInicio,
+        horaFim: atualizado.horaFim
+      });
 
       return atualizado;
     }
@@ -1735,18 +1937,11 @@ export async function cancelarAgendamentoPaciente(
 export async function solicitarRemarcacao(
   agendamentoId: number,
   pacienteId: number,
-  dados: SolicitarRemarcacaoDados
+  dados: SolicitarRemarcacaoDados,
+  usuarioId: number
 ): Promise<RemarcacaoRegistro> {
 
-  if (
-    !dataPossuiFormatoValido(
-      dados.data
-    )
-  ) {
-    throw new Error(
-      "Data inválida."
-    );
-  }
+  validarDataNovaConsulta(dados.data);
 
   if (
     !horarioPossuiFormatoValido(
@@ -1982,7 +2177,7 @@ export async function solicitarRemarcacao(
       // CRIAR SOLICITAÇÃO
       // ========================================
 
-      return tx.orm.public.RemarcacaoAgendamento
+      const criada = await tx.orm.public.RemarcacaoAgendamento
         .create({
           agendamentoId,
 
@@ -2001,6 +2196,20 @@ export async function solicitarRemarcacao(
           visualizadoPaciente:
             false
         });
+
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: agendamento.medicoId,
+        agendamentoId: agendamento.id,
+        acao: "SOLICITAR_REMARCACAO",
+        resultado: "SUCESSO",
+        dataAgenda: criada.novaData,
+        horaInicio: criada.novaHoraInicio,
+        horaFim: criada.novaHoraFim
+      });
+
+      return criada;
     }
   );
 }
@@ -2312,7 +2521,8 @@ async function buscarRemarcacaoDoMedico(
 
 export async function aceitarRemarcacao(
   remarcacaoId: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<RemarcacaoRegistro> {
   return executarTransacaoSerializavel(
     async (tx) => {
@@ -2561,6 +2771,18 @@ export async function aceitarRemarcacao(
         );
       }
 
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: medicoId,
+        agendamentoId: agendamento.id,
+        acao: "ACEITAR_REMARCACAO",
+        resultado: "SUCESSO",
+        dataAgenda: remarcacao.novaData,
+        horaInicio: remarcacao.novaHoraInicio,
+        horaFim: remarcacao.novaHoraFim
+      });
+
       return remarcacaoAtualizada;
     }
   );
@@ -2573,106 +2795,117 @@ export async function aceitarRemarcacao(
 
 export async function recusarRemarcacao(
   remarcacaoId: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<RemarcacaoRegistro> {
-  const {
-    remarcacao
-  } =
-    await buscarRemarcacaoDoMedico(
-      remarcacaoId,
-      medicoId
-    );
+  return db.transaction(async (tx) => {
+    // Confere a solicitação dentro da transação.
+    const remarcacao = await tx.orm.public.RemarcacaoAgendamento
+      .where({ id: remarcacaoId })
+      .first();
 
-  if (
-    remarcacao.status !==
-      "PENDENTE"
-  ) {
-    throw new Error(
-      "Esta solicitação de remarcação já foi respondida."
-    );
-  }
+    if (!remarcacao) {
+      throw new Error("Solicitação de remarcação não encontrada.");
+    }
 
-  const atualizada =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacaoId
-      })
+    // Somente o médico dono da consulta pode recusar.
+    const agendamento = await tx.orm.public.Agendamento
+      .where({ id: remarcacao.agendamentoId, medicoId })
+      .first();
+
+    if (!agendamento) {
+      throw new Error("Agendamento não encontrado.");
+    }
+
+    if (remarcacao.status !== "PENDENTE") {
+      throw new Error("Esta solicitação de remarcação já foi respondida.");
+    }
+
+    const atualizada = await tx.orm.public.RemarcacaoAgendamento
+      .where({ id: remarcacaoId })
       .update({
-        status:
-          "RECUSADA",
-
-        visualizadoPaciente:
-          false
+        status: "RECUSADA",
+        visualizadoPaciente: false
       });
 
-  if (!atualizada) {
-    throw new Error(
-      "Não foi possível recusar a remarcação."
-    );
-  }
+    if (!atualizada) {
+      throw new Error("Não foi possível recusar a remarcação.");
+    }
 
-  return atualizada;
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: medicoId,
+        agendamentoId: agendamento.id,
+        acao: "RECUSAR_REMARCACAO",
+        resultado: "SUCESSO",
+        dataAgenda: agendamento.data,
+        horaInicio: agendamento.horaInicio,
+        horaFim: agendamento.horaFim
+      });
+
+    return atualizada;
+  });
 }
-
-
 // ========================================
 // VISUALIZAR RESPOSTA DA REMARCAÇÃO
 // ========================================
 
 export async function marcarRemarcacaoComoVisualizada(
   remarcacaoId: number,
-  pacienteId: number
+  pacienteId: number,
+  usuarioId: number
 ): Promise<RemarcacaoRegistro> {
-  const remarcacao =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacaoId
-      })
+  return db.transaction(async (tx) => {
+    const remarcacao = await tx.orm.public.RemarcacaoAgendamento
+      .where({ id: remarcacaoId })
       .first();
 
-  if (!remarcacao) {
-    throw new Error(
-      "Solicitação de remarcação não encontrada."
-    );
-  }
+    if (!remarcacao) {
+      throw new Error("Solicitação de remarcação não encontrada.");
+    }
 
-  await buscarAgendamentoDoPacientePorId(
-    remarcacao.agendamentoId,
-    pacienteId
-  );
+    // Autoriza pelo agendamento do paciente, não pelo ID fornecido.
+    const agendamento = await tx.orm.public.Agendamento
+      .where({ id: remarcacao.agendamentoId, pacienteId })
+      .first();
 
-  if (
-    remarcacao.status ===
-      "PENDENTE"
-  ) {
-    throw new Error(
-      "Esta solicitação ainda não foi respondida."
-    );
-  }
+    if (!agendamento) {
+      throw new Error("Agendamento não encontrado.");
+    }
 
-  const atualizada =
-    await db.orm.public.RemarcacaoAgendamento
-      .where({
-        id:
-          remarcacaoId
-      })
-      .update({
-        visualizadoPaciente:
-          true
+    if (remarcacao.status === "PENDENTE") {
+      throw new Error("Esta solicitação ainda não foi respondida.");
+    }
+
+    // Se já está visualizada, não cria um segundo log de alteração.
+    if (remarcacao.visualizadoPaciente) {
+      return remarcacao;
+    }
+
+    const atualizada = await tx.orm.public.RemarcacaoAgendamento
+      .where({ id: remarcacaoId })
+      .update({ visualizadoPaciente: true });
+
+    if (!atualizada) {
+      throw new Error("Não foi possível atualizar a visualização.");
+    }
+
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: agendamento.medicoId,
+        agendamentoId: agendamento.id,
+        acao: "VISUALIZAR_RESPOSTA_REMARCACAO",
+        resultado: "SUCESSO",
+        dataAgenda: agendamento.data,
+        horaInicio: agendamento.horaInicio,
+        horaFim: agendamento.horaFim
       });
 
-  if (!atualizada) {
-    throw new Error(
-      "Não foi possível atualizar a visualização."
-    );
-  }
-
-  return atualizada;
+    return atualizada;
+  });
 }
-
-
 // ========================================
 // EXCLUIR CONSULTA DEFINITIVAMENTE
 // ========================================
@@ -2688,7 +2921,8 @@ export async function marcarRemarcacaoComoVisualizada(
 
 export async function excluirAgendamento(
   id: number,
-  medicoId: number
+  medicoId: number,
+  usuarioId: number
 ): Promise<void> {
   await db.transaction(
     async (tx) => {
@@ -2754,6 +2988,20 @@ export async function excluirAgendamento(
           "Não foi possível excluir o agendamento."
         );
       }
+
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: medicoId,
+        agendamentoId: agendamento.id,
+        acao: "EXCLUIR_AGENDAMENTO",
+        resultado: "SUCESSO",
+        dataAgenda: agendamento.data,
+        horaInicio: agendamento.horaInicio,
+        horaFim: agendamento.horaFim
+      });
+
+
     }
   );
 }
@@ -2775,7 +3023,8 @@ export async function remarcarAgendamento(
   id: number,
   medicoId: number,
   data: string,
-  horaInicio: string
+  horaInicio: string,
+  usuarioId: number
 ): Promise<AgendamentoRegistro> {
 
   // ========================================
@@ -3061,6 +3310,18 @@ export async function remarcarAgendamento(
           "Não foi possível remarcar o agendamento."
         );
       }
+
+      // Auditoria transacional: falha no log reverte esta operação.
+      await registrarAuditoriaAgendamento(tx, {
+        usuarioId: usuarioId,
+        medicoId: medicoId,
+        agendamentoId: atualizado.id,
+        acao: "REMARCAR_AGENDAMENTO",
+        resultado: "SUCESSO",
+        dataAgenda: atualizado.data,
+        horaInicio: atualizado.horaInicio,
+        horaFim: atualizado.horaFim
+      });
 
       return atualizado;
     }

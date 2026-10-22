@@ -5,6 +5,7 @@
 import bcrypt from "bcrypt";
 
 import jwt from "jsonwebtoken";
+import { randomUUID } from "node:crypto";
 
 import {
   db
@@ -285,7 +286,8 @@ export async function login({
 
       {
         tipo:
-          usuario.tipo
+          usuario.tipo,
+        versaoSessao: usuario.versaoSessao ?? 0
       },
 
       jwtSecret,
@@ -295,6 +297,9 @@ export async function login({
         // Algoritmo aceito pela aplicação.
         algorithm:
           "HS256",
+
+        // Distingue inclusive logins do mesmo usuário no mesmo segundo.
+        jwtid: randomUUID(),
 
 
         // Identificador do usuário.

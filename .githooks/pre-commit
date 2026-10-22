@@ -1,0 +1,3 @@
+#!/bin/sh
+# Somente leitura do índice; não modifica nem cria commits.
+exec node scripts/verificar-segredos.mjs --staged

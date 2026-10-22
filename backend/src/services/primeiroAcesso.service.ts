@@ -1,3 +1,12 @@
+
+// ========================================
+// AUDITORIA DE SEGURANÇA
+// ========================================
+
+import {
+  registrarAuditoriaLogin
+} from "./auditoria-login.service";
+
 // ========================================
 // DEPENDÊNCIAS
 // ========================================
@@ -164,11 +173,12 @@ function compararHashes(
 // Assim o usuário sempre possui no máximo
 // um código válido de primeiro acesso.
 async function invalidarCodigosAtivos(
-  usuarioId: number
+  usuarioId: number,
+  banco: Pick<typeof db, "orm"> = db
 ) {
 
   const codigos =
-    await db.orm.public
+    await banco.orm.public
       .CodigoPrimeiroAcesso
       .where({
         usuarioId,
@@ -184,7 +194,7 @@ async function invalidarCodigosAtivos(
     of codigos
   ) {
 
-    await db.orm.public
+    await banco.orm.public
       .CodigoPrimeiroAcesso
       .where({
         id:
@@ -210,10 +220,11 @@ async function invalidarCodigosAtivos(
 // - acesso liberado pelo médico.
 
 async function buscarPacienteDoUsuario(
-  usuarioId: number
+  usuarioId: number,
+  banco: Pick<typeof db, "orm"> = db
 ) {
 
-  return db.orm.public.Paciente
+  return banco.orm.public.Paciente
     .where({
       usuarioId
     })
@@ -233,10 +244,11 @@ async function buscarPacienteDoUsuario(
 // controlado por Usuario.ativo.
 
 async function buscarMedicoDoUsuario(
-  usuarioId: number
+  usuarioId: number,
+  banco: Pick<typeof db, "orm"> = db
 ) {
 
-  return db.orm.public.Medico
+  return banco.orm.public.Medico
     .where({
       usuarioId
     })
@@ -266,7 +278,8 @@ async function buscarMedicoDoUsuario(
 
 async function perfilAptoPrimeiroAcesso(
   usuarioId: number,
-  tipo: string
+  tipo: string,
+  banco: Pick<typeof db, "orm"> = db
 ): Promise<boolean> {
 
   // ========================================
@@ -280,7 +293,7 @@ async function perfilAptoPrimeiroAcesso(
 
     const paciente =
       await buscarPacienteDoUsuario(
-        usuarioId
+        usuarioId, banco
       );
 
 
@@ -303,7 +316,7 @@ async function perfilAptoPrimeiroAcesso(
 
     const medico =
       await buscarMedicoDoUsuario(
-        usuarioId
+        usuarioId, banco
       );
 
 
@@ -618,278 +631,65 @@ export async function concluirPrimeiroAcesso(
   // NORMALIZAR E-MAIL
   // ========================================
 
-  const emailFormatado =
-    email
-      .trim()
-      .toLowerCase();
+  const emailFormatado = email.trim().toLowerCase();
+  const resultado = await db.transaction(async (tx) => {
+    // Bloqueio da linha até o commit: concorrentes reavaliam código e conta.
+    await tx.execute(db.raw.sql`SELECT id FROM public.usuario WHERE email = ${emailFormatado} FOR UPDATE`
+      .affectedCount().build());
+    const usuario = await tx.orm.public.Usuario.where({ email: emailFormatado }).first();
+    const falha = { erro: "Código inválido ou expirado." };
+    if (!usuario || !usuario.ativo || !["PACIENTE", "MEDICO"].includes(usuario.tipo) ||
+        !usuario.primeiroAcesso || usuario.senha !== null ||
+        !await perfilAptoPrimeiroAcesso(usuario.id, usuario.tipo, tx)) return falha;
 
+    const registro = await tx.orm.public.CodigoPrimeiroAcesso
+      .where({ usuarioId: usuario.id, usado: false }).first();
+    if (!registro) return falha;
+    if (Date.now() >= new Date(registro.expiraEm).getTime() || registro.tentativas >= MAX_TENTATIVAS) {
+      await tx.orm.public.CodigoPrimeiroAcesso.where({ id: registro.id }).update({ usado: true });
+      return falha;
+    }
+    if (!compararHashes(gerarHashCodigo(usuario.id, codigo), registro.codigoHash)) {
+      const tentativas = registro.tentativas + 1;
+      await tx.orm.public.CodigoPrimeiroAcesso.where({ id: registro.id })
+        .update({ tentativas, usado: tentativas >= MAX_TENTATIVAS });
+      // Retornar (não lançar) preserva a contagem de falhas no commit.
+      return falha;
+    }
+    if (!novaSenha || novaSenha.length < 8) return { erro: "A senha deve possuir pelo menos 8 caracteres." };
+    const senha = await bcrypt.hash(novaSenha, 12);
+    const atualizado = await tx.orm.public.Usuario.where({ id: usuario.id })
+      .update({ senha, primeiroAcesso: false });
+    if (!atualizado) throw new Error("Erro ao concluir primeiro acesso.");
+    await invalidarCodigosAtivos(usuario.id, tx);
+    return { usuario };
+  });
+  if ("erro" in resultado) throw new Error(resultado.erro);
+  const { usuario } = resultado;
 
-  // ========================================
-  // BUSCAR USUÁRIO
-  // ========================================
+  try {
 
-  const usuario =
-    await db.orm.public.Usuario
-      .where({
-        email:
-          emailFormatado
-      })
-      .first();
+    await registrarAuditoriaLogin({
 
+      usuarioId: usuario.id,
 
-  // ========================================
-  // VALIDAR USUÁRIO
-  // ========================================
+      perfil: usuario.tipo,
 
-  if (
-    !usuario ||
-    !usuario.ativo ||
-    (
-      usuario.tipo !==
-        "PACIENTE" &&
-      usuario.tipo !==
-        "MEDICO"
-    ) ||
-    !usuario.primeiroAcesso ||
-    usuario.senha !== null
-  ) {
-    throw new Error(
-      "Código inválido ou expirado."
+      acao: "SENHA_CRIADA_PRIMEIRO_ACESSO",
+
+      resultado: "SUCESSO"
+
+    });
+
+  } catch (erroAuditoria) {
+
+    console.error(
+      "[AUDITORIA SEGURANÇA] Falha ao registrar SENHA_CRIADA_PRIMEIRO_ACESSO:",
+      erroAuditoria
     );
+
   }
 
-
-  // ========================================
-  // VALIDAR PERFIL
-  // ========================================
-
-  const perfilApto =
-    await perfilAptoPrimeiroAcesso(
-      usuario.id,
-      usuario.tipo
-    );
-
-
-  if (!perfilApto) {
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-  }
-
-
-  // ========================================
-  // BUSCAR CÓDIGO ATIVO
-  // ========================================
-
-  // Como códigos anteriores são
-  // invalidados, deve existir somente
-  // um código não utilizado.
-  const registro =
-    await db.orm.public
-      .CodigoPrimeiroAcesso
-      .where({
-        usuarioId:
-          usuario.id,
-
-        usado:
-          false
-      })
-      .first();
-
-
-  if (!registro) {
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-  }
-
-
-  // ========================================
-  // VERIFICAR EXPIRAÇÃO
-  // ========================================
-
-  const agora =
-    new Date();
-
-  const expiracao =
-    new Date(
-      registro.expiraEm
-    );
-
-
-  if (
-    agora >= expiracao
-  ) {
-
-    // Já invalida o registro expirado.
-    await db.orm.public
-      .CodigoPrimeiroAcesso
-      .where({
-        id:
-          registro.id
-      })
-      .update({
-        usado:
-          true
-      });
-
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-  }
-
-
-  // ========================================
-  // VERIFICAR TENTATIVAS
-  // ========================================
-
-  if (
-    registro.tentativas >=
-    MAX_TENTATIVAS
-  ) {
-
-    await db.orm.public
-      .CodigoPrimeiroAcesso
-      .where({
-        id:
-          registro.id
-      })
-      .update({
-        usado:
-          true
-      });
-
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-  }
-
-
-  // ========================================
-  // GERAR HASH DO CÓDIGO INFORMADO
-  // ========================================
-
-  const codigoHashRecebido =
-    gerarHashCodigo(
-      usuario.id,
-      codigo
-    );
-
-
-  // ========================================
-  // COMPARAR CÓDIGO
-  // ========================================
-
-  const codigoCorreto =
-    compararHashes(
-      codigoHashRecebido,
-      registro.codigoHash
-    );
-
-
-  // ========================================
-  // CÓDIGO INCORRETO
-  // ========================================
-
-  if (!codigoCorreto) {
-
-    const novasTentativas =
-      registro.tentativas + 1;
-
-
-    await db.orm.public
-      .CodigoPrimeiroAcesso
-      .where({
-        id:
-          registro.id
-      })
-      .update({
-
-        tentativas:
-          novasTentativas,
-
-        // Na quinta tentativa errada,
-        // o código já é invalidado.
-        usado:
-          novasTentativas >=
-          MAX_TENTATIVAS
-      });
-
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-  }
-
-
-  // ========================================
-  // VALIDAR SENHA
-  // ========================================
-
-  // O schema/controller possui
-  // validação mais completa,
-  // mas mantemos proteção mínima
-  // também no service.
-  if (
-    !novaSenha ||
-    novaSenha.length < 8
-  ) {
-    throw new Error(
-      "A senha deve possuir pelo menos 8 caracteres."
-    );
-  }
-
-
-  // ========================================
-  // GERAR HASH DA SENHA
-  // ========================================
-
-  const senhaHash =
-    await bcrypt.hash(
-      novaSenha,
-      12
-    );
-
-
-  // ========================================
-  // ATUALIZAR USUÁRIO
-  // ========================================
-
-  const usuarioAtualizado =
-    await db.orm.public.Usuario
-      .where({
-        id:
-          usuario.id
-      })
-      .update({
-
-        senha:
-          senhaHash,
-
-        primeiroAcesso:
-          false
-      });
-
-
-  if (!usuarioAtualizado) {
-    throw new Error(
-      "Erro ao concluir primeiro acesso."
-    );
-  }
-
-
-  // ========================================
-  // INVALIDAR TODOS OS CÓDIGOS
-  // ========================================
-
-  // Depois que a senha foi criada,
-  // nenhum código de Primeiro Acesso
-  // daquele usuário poderá funcionar.
-  await invalidarCodigosAtivos(
-    usuario.id
-  );
 
 
   // ========================================

@@ -1,5 +1,14 @@
 
 // ========================================
+// AUDITORIA DE SEGURANÇA
+// ========================================
+
+import {
+  registrarAuditoriaLogin
+} from "./auditoria-login.service";
+
+
+// ========================================
 // SERVICE DE RECUPERAÇÃO DOS PRONTUÁRIOS
 // ========================================
 
@@ -168,11 +177,12 @@ function compararHashes(
 // Ao solicitar um novo código,
 // os anteriores deixam de funcionar.
 async function invalidarCodigosAtivos(
-  medicoId: number
+  medicoId: number,
+  banco: Pick<typeof db, "orm"> = db
 ): Promise<void> {
 
   const registros =
-    await db.orm.public.CodigoRecuperacaoProntuario
+    await banco.orm.public.CodigoRecuperacaoProntuario
       .where({
         medicoId,
         usado: false
@@ -181,7 +191,7 @@ async function invalidarCodigosAtivos(
 
   for (const registro of registros) {
 
-    await db.orm.public.CodigoRecuperacaoProntuario
+    await banco.orm.public.CodigoRecuperacaoProntuario
       .where({
         id: registro.id
       })
@@ -368,190 +378,68 @@ export async function concluirRecuperacaoProntuario(
   // IDENTIFICAR MÉDICO
   // ========================================
 
-  const medico =
-    await buscarMedicoPorUsuarioId(
-      usuarioId
-    );
-
-  const acesso =
-    await db.orm.public.AcessoProntuario
-      .where({
-        medicoId: medico.id
-      })
-      .first();
-
-  if (!acesso) {
-
-    throw new Error(
-      "Não foi possível redefinir a senha."
-    );
-
-  }
-
-  // ========================================
-  // BUSCAR CÓDIGO ATIVO
-  // ========================================
-
-  const registros =
-    await db.orm.public.CodigoRecuperacaoProntuario
-      .where({
-        medicoId: medico.id,
-        usado: false
-      })
-      .all();
-
-  // Trabalhamos com o registro ativo
-  // mais recente do médico.
-  const registro =
-    [...registros]
-      .sort(
-        (a, b) =>
-          b.id - a.id
-      )[0];
-
-  if (!registro) {
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-  // ========================================
-  // VERIFICAR EXPIRAÇÃO
-  // ========================================
-
-  if (
-    Date.now() >=
-    new Date(registro.expiraEm).getTime()
-  ) {
-
-    await db.orm.public.CodigoRecuperacaoProntuario
-      .where({
-        id: registro.id
-      })
-      .update({
-        usado: true
-      });
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-  // ========================================
-  // VERIFICAR LIMITE DE TENTATIVAS
-  // ========================================
-
-  if (
-    registro.tentativas >= MAX_TENTATIVAS
-  ) {
-
-    await db.orm.public.CodigoRecuperacaoProntuario
-      .where({
-        id: registro.id
-      })
-      .update({
-        usado: true
-      });
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-  // ========================================
-  // COMPARAR CÓDIGO
-  // ========================================
-
-  const codigoHashRecebido =
-    gerarHashCodigo(
-      medico.id,
-      codigo
-    );
-
-  const codigoCorreto =
-    compararHashes(
-      codigoHashRecebido,
-      registro.codigoHash
-    );
-
-  if (!codigoCorreto) {
-
-    const novasTentativas =
-      registro.tentativas + 1;
-
-    await db.orm.public.CodigoRecuperacaoProntuario
-      .where({
-        id: registro.id
-      })
-      .update({
-
-        tentativas: novasTentativas,
-
-        usado:
-          novasTentativas >= MAX_TENTATIVAS
-
-      });
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-  // ========================================
-  // GERAR HASH DA NOVA SENHA
-  // ========================================
-
-  const senhaHash =
-    await bcrypt.hash(
-      novaSenha,
-      BCRYPT_ROUNDS
-    );
-
-  // ========================================
-  // ATUALIZAR SENHA E INVALIDAR CÓDIGO
-  // ========================================
-
-  // A transação reúne a alteração
-  // da credencial e a marcação do código.
-  //
-  // A versão de autorização aumenta,
-  // permitindo rejeitar JWTs emitidos
-  // antes desta redefinição.
-  await db.transaction(async (tx) => {
-
-    await tx.orm.public.AcessoProntuario
-      .where({
-        id: acesso.id
-      })
-      .update({
-
-        senhaHash,
-
-        versaoAutorizacao:
-          acesso.versaoAutorizacao + 1
-
-      });
-
-    await tx.orm.public.CodigoRecuperacaoProntuario
-      .where({
-        id: registro.id
-      })
-      .update({
-        usado: true
-      });
-
+  const resultado = await db.transaction(async (tx) => {
+    // Mesmo bloqueio por usuário usado nos demais fluxos de credenciais.
+    await tx.execute(db.raw.sql`SELECT id FROM public.usuario WHERE id = ${usuarioId} FOR UPDATE`
+      .affectedCount().build());
+    const usuario = await tx.orm.public.Usuario.where({ id: usuarioId }).first();
+    const medico = await tx.orm.public.Medico.where({ usuarioId }).first();
+    const falha = { erro: "Código inválido ou expirado." };
+    if (!usuario?.ativo || usuario.tipo !== "MEDICO" || !medico) return falha;
+    const acesso = await tx.orm.public.AcessoProntuario.where({ medicoId: medico.id }).first();
+    if (!acesso) return { erro: "Não foi possível redefinir a senha." };
+    const registros = await tx.orm.public.CodigoRecuperacaoProntuario
+      .where({ medicoId: medico.id, usado: false }).all();
+    const registro = [...registros].sort((a, b) => b.id - a.id)[0];
+    if (!registro) return falha;
+    if (Date.now() >= new Date(registro.expiraEm).getTime() || registro.tentativas >= MAX_TENTATIVAS) {
+      await tx.orm.public.CodigoRecuperacaoProntuario.where({ id: registro.id }).update({ usado: true });
+      return falha;
+    }
+    if (!compararHashes(gerarHashCodigo(medico.id, codigo), registro.codigoHash)) {
+      const tentativas = registro.tentativas + 1;
+      await tx.orm.public.CodigoRecuperacaoProntuario.where({ id: registro.id })
+        .update({ tentativas, usado: tentativas >= MAX_TENTATIVAS });
+      return falha;
+    }
+    const senhaHash = await bcrypt.hash(novaSenha, BCRYPT_ROUNDS);
+    const atualizado = await tx.orm.public.AcessoProntuario.where({ id: acesso.id })
+      .update({ senhaHash, versaoAutorizacao: acesso.versaoAutorizacao + 1 });
+    if (!atualizado) throw new Error("Não foi possível redefinir a senha.");
+    await invalidarCodigosAtivos(medico.id, tx);
+    return { sucesso: true };
   });
+  if ("erro" in resultado) throw new Error(resultado.erro);
 
-  // Invalida quaisquer outros códigos
-  // de recuperação ainda ativos.
-  await invalidarCodigosAtivos(
-    medico.id
-  );
+  try {
+
+    await registrarAuditoriaLogin({
+
+      usuarioId,
+
+      perfil: "MEDICO",
+
+      acao:
+        "SENHA_PRONTUARIO_REDEFINIDA",
+
+      resultado:
+        "SUCESSO"
+
+    });
+
+  } catch (erroAuditoria) {
+
+    console.error(
+      "[AUDITORIA SEGURANÇA] Erro ao registrar redefinição da senha dos prontuários:",
+      erroAuditoria
+    );
+
+  }
+
+
+  // ========================================
+  // RETORNO
+  // ========================================
 
   return {
     mensagem:

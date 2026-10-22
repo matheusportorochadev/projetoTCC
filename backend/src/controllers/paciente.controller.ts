@@ -1,3 +1,8 @@
+
+// ========================================
+// CONTROLLER DE PACIENTES
+// ========================================
+
 // Tipos do Express
 import type {
   Request,
@@ -51,6 +56,11 @@ type RequestAutenticado =
 // Extrai o ID do usuário autenticado
 // que foi colocado na requisição
 // pelo middleware JWT.
+//
+// Esse mesmo identificador será utilizado
+// no log de cadastro de pacientes.
+//
+// Ele NÃO é recebido do frontend.
 function obterUsuarioId(
   req: Request
 ): number {
@@ -129,6 +139,26 @@ function obterId(
 // ========================================
 
 // POST /pacientes
+//
+// O usuário autenticado é identificado
+// pelo backend.
+//
+// O médico é obtido a partir desse
+// usuário, sem confiar em medicoId
+// enviado pelo navegador.
+//
+// NOVA AUDITORIA:
+//
+// O service registra o evento
+// CADASTRAR_PACIENTE contendo:
+//
+// - usuarioId;
+// - medicoId;
+// - pacienteId;
+// - resultado SUCESSO.
+//
+// A criação e o log acontecem
+// na mesma transação do banco.
 export async function criarPacienteController(
   req: Request,
   res: Response
@@ -184,13 +214,18 @@ export async function criarPacienteController(
 
 
     // ========================================
-    // CRIAR PACIENTE
+    // CRIAR PACIENTE COM AUDITORIA
     // ========================================
 
     const paciente =
       await criarPaciente({
         medicoId:
           medico.id,
+
+        // NOVO:
+        // Identifica o usuário que
+        // efetivamente realizou a ação.
+        usuarioId,
 
         nome,
 
@@ -211,6 +246,8 @@ export async function criarPacienteController(
       });
 
 
+    // Mantém o retorno utilizado
+    // atualmente pelo frontend.
     return res.status(201).json(
       paciente
     );

@@ -1,376 +1,854 @@
 
-// ========================================
-// CONTROLLER DE AUTENTICAÇÃO
-// ========================================
-
-
-// ========================================
-// DEPENDÊNCIAS
-// ========================================
-
-import type {
-  Request,
-  Response
-} from "express";
+ // ========================================
+ // CONTROLLER DE AUTENTICAÇÃO
+ // ========================================
 
-import {
-  login
-} from "../services/auth.service";
 
+ // ========================================
+ // DEPENDÊNCIAS
+ // ========================================
 
-// ========================================
-// CONFIGURAÇÃO DOS COOKIES
-// ========================================
+ import type {
+   Request,
+   Response
+ } from "express";
 
-// Cookie principal do sistema.
-// Armazena o JWT utilizado no login.
-const NOME_COOKIE =
-  "access_token";
+ import jwt from "jsonwebtoken";
+ import { identificadorSessaoValido, revogarSessao } from "../services/sessao.service";
 
-// NOVO:
-//
-// Cookie utilizado exclusivamente para
-// autorizar o acesso aos prontuários.
-//
-// O nome precisa ser igual ao utilizado
-// no controller de prontuários.
-const COOKIE_PRONTUARIO =
-  "prontuario_access";
+ import {
+   login
+ } from "../services/auth.service";
 
+ // Serviço responsável por registrar
+ // operações de autenticação no PostgreSQL.
 
-// ========================================
-// TEMPO DE VIDA DO COOKIE PRINCIPAL
-// ========================================
+ import {
+   registrarAuditoriaLogin
+ } from "../services/auditoria-login.service";
 
-/*
-  O JWT principal possui validade
-  de 8 horas.
 
-  Mantemos o cookie com o mesmo
-  tempo de validade.
-*/
-const TEMPO_COOKIE =
-  8 * 60 * 60 * 1000;
+ // ========================================
+ // CONFIGURAÇÃO DOS COOKIES
+ // ========================================
 
+ // Cookie principal do sistema.
+ // Armazena o JWT utilizado no login.
+ const NOME_COOKIE =
+   "access_token";
 
-// ========================================
-// VERIFICAR AMBIENTE
-// ========================================
+ // Cookie exclusivo para autorizar
+ // o acesso adicional aos prontuários.
+ //
+ // O nome precisa ser igual ao utilizado
+ // no controller de prontuários.
+ const COOKIE_PRONTUARIO =
+   "prontuario_access";
 
-function estaEmProducao() {
 
-  return (
-    process.env.NODE_ENV ===
-    "production"
-  );
+ // ========================================
+ // TEMPO DE VIDA DO COOKIE PRINCIPAL
+ // ========================================
 
-}
+ /*
+   O JWT principal possui validade
+   de 8 horas.
 
+   Mantemos o cookie com o mesmo
+   tempo de validade.
+ */
+ const TEMPO_COOKIE =
+   8 * 60 * 60 * 1000;
 
-// ========================================
-// REMOVER AUTORIZAÇÃO DOS PRONTUÁRIOS
-// ========================================
 
-// NOVO:
-//
-// Esta função remove o cookie adicional
-// utilizado para acessar prontuários.
-//
-// IMPORTANTE:
-//
-// O cookie foi criado com:
-//
-// path: "/prontuarios"
-//
-// Portanto, precisamos usar o mesmo
-// path ao removê-lo.
-//
-// Não alteramos o cookie principal.
-function removerCookieProntuario(
-  res: Response
-) {
+ // ========================================
+ // CONFIGURAÇÃO DE VERIFICAÇÃO DO JWT
+ // ========================================
 
-  res.clearCookie(
-    COOKIE_PRONTUARIO,
-    {
+ // Os valores precisam ser iguais aos
+ // utilizados no auth.service.ts.
 
-      httpOnly:
-        true,
+ const JWT_ISSUER =
+   "tcc-consultorio-api";
 
-      secure:
-        estaEmProducao(),
+ const JWT_AUDIENCE =
+   "tcc-consultorio-web";
 
-      sameSite:
-        "lax",
 
-      path:
-        "/prontuarios"
+ // ========================================
+ // VERIFICAR AMBIENTE
+ // ========================================
 
-    }
-  );
+ function estaEmProducao() {
 
-}
+   return (
+     process.env.NODE_ENV ===
+     "production"
+   );
 
+ }
 
-// ========================================
-// LOGIN
-// ========================================
 
-export async function loginController(
-  req: Request,
-  res: Response
-) {
+ // ========================================
+ // REMOVER AUTORIZAÇÃO DOS PRONTUÁRIOS
+ // ========================================
 
-  try {
+ /*
+   Esta função remove o cookie adicional
+   utilizado para acessar prontuários.
 
-    // ========================================
-    // RECEBER DADOS
-    // ========================================
+   IMPORTANTE:
 
-    const {
-      email,
-      senha
-    } =
-      req.body;
+   O cookie foi criado com:
 
+   path: "/prontuarios"
 
-    // ========================================
-    // VALIDAR CAMPOS
-    // ========================================
+   Portanto, precisamos usar o mesmo
+   path ao removê-lo.
 
-    if (
-      typeof email !== "string" ||
-      typeof senha !== "string" ||
-      !email.trim() ||
-      !senha
-    ) {
+   Não alteramos o cookie principal.
+ */
 
-      return res
-        .status(400)
-        .json({
+ function removerCookieProntuario(
+   res: Response
+ ) {
 
-          mensagem:
-            "E-mail e senha são obrigatórios."
+   res.clearCookie(
+     COOKIE_PRONTUARIO,
+     {
 
-        });
+       httpOnly:
+         true,
 
-    }
+       secure:
+         estaEmProducao(),
 
+       sameSite:
+         "lax",
 
-    // ========================================
-    // EXECUTAR LOGIN
-    // ========================================
+       path:
+         "/prontuarios"
 
-    const resultado =
-      await login({
+     }
+   );
 
-        email:
-          email.trim(),
+ }
 
-        senha
 
-      });
+ // ========================================
+ // LOGIN
+ // ========================================
 
+ export async function loginController(
+   req: Request,
+   res: Response
+ ) {
 
-    // ========================================
-    // NOVO — LIMPAR ACESSO ANTIGO
-    // ========================================
+   try {
 
-    /*
-      Depois que as credenciais principais
-      são validadas, removemos qualquer
-      autorização anterior de prontuários.
+     // ========================================
+     // RECEBER DADOS
+     // ========================================
 
-      Assim, um novo login no navegador
-      não reutiliza o desbloqueio anterior
-      do módulo clínico.
+     const {
+       email,
+       senha
+     } =
+       req.body;
 
-      O médico precisará informar novamente
-      a senha adicional dos prontuários.
-    */
 
-    removerCookieProntuario(res);
+     // ========================================
+     // VALIDAR CAMPOS
+     // ========================================
 
+     if (
+       typeof email !== "string" ||
+       typeof senha !== "string" ||
+       !email.trim() ||
+       !senha
+     ) {
 
-    // ========================================
-    // CRIAR COOKIE HTTPONLY
-    // ========================================
+       return res
+         .status(400)
+         .json({
 
-    /*
-      Quando o login é concluído
-      normalmente, o service gera JWT.
+           mensagem:
+             "E-mail e senha são obrigatórios."
 
-      O JWT é armazenado exclusivamente
-      no cookie HttpOnly.
+         });
 
-      Ele NÃO será devolvido no JSON.
-    */
+     }
 
-    if (
-      resultado.token
-    ) {
 
-      res.cookie(
+     // ========================================
+     // EXECUTAR LOGIN
+     // ========================================
 
-        NOME_COOKIE,
+     /*
+       O serviço de autenticação:
 
-        resultado.token,
+       - Localiza o usuário.
+       - Verifica se a conta está ativa.
+       - Compara a senha com bcrypt.
+       - Verifica o primeiro acesso.
+       - Gera o JWT quando permitido.
 
-        {
+       Não alteramos essas regras.
+     */
 
-          // JavaScript do frontend
-          // não consegue acessar o JWT.
-          httpOnly:
-            true,
+     const resultado =
+       await login({
 
+         email:
+           email.trim(),
 
-          // Em produção exige HTTPS.
-          secure:
-            estaEmProducao(),
+         senha
 
+       });
 
-          // Proteção inicial contra
-          // requisições cross-site.
-          sameSite:
-            "lax",
 
+     // ========================================
+     // AUDITORIA — LOGIN BEM-SUCEDIDO
+     // ========================================
 
-          // Cookie disponível para
-          // todas as rotas da API.
-          path:
-            "/",
+     /*
+       Registramos LOGIN_SUCESSO somente
+       quando o serviço realmente gera
+       um token JWT.
 
+       Isso é importante porque o fluxo
+       legado de primeiro acesso pode
+       retornar token = null.
 
-          // 8 horas.
-          maxAge:
-            TEMPO_COOKIE
+       Nesse caso, o usuário ainda não
+       recebeu uma sessão autenticada.
 
-        }
+       Registramos a auditoria antes
+       de enviar o cookie.
+     */
 
-      );
+     if (
+       resultado.token
+     ) {
 
-    }
+       await registrarAuditoriaLogin({
 
+         // Identificação do usuário.
+         usuarioId:
+           resultado.usuario.id,
 
-    // ========================================
-    // RESPOSTA DO LOGIN
-    // ========================================
+         // ADMIN, MEDICO ou PACIENTE.
+         perfil:
+           resultado.usuario.tipo,
 
-    /*
-      O frontend recebe somente
-      informações do usuário.
+         // Ação registrada.
+         acao:
+           "LOGIN_SUCESSO",
 
-      O JWT permanece exclusivamente
-      dentro do cookie HttpOnly.
-    */
+         // Resultado da autenticação.
+         resultado:
+           "SUCESSO",
 
-    return res
-      .status(200)
-      .json({
+         // IP da requisição.
+         ip:
+           req.ip ?? null
 
-        usuario:
-          resultado.usuario
+       });
 
-      });
+     }
 
-  } catch (erro) {
 
-    // ========================================
-    // TRATAMENTO DE ERRO
-    // ========================================
+     // ========================================
+     // LIMPAR ACESSO ANTIGO AOS PRONTUÁRIOS
+     // ========================================
 
-    const mensagem =
-      erro instanceof Error
-        ? erro.message
-        : "Erro interno do servidor.";
+     /*
+       Depois que as credenciais principais
+       são validadas, removemos qualquer
+       autorização anterior de prontuários.
 
+       Assim, um novo login no navegador
+       não reutiliza o desbloqueio anterior
+       do módulo clínico.
 
-    return res
-      .status(401)
-      .json({
+       O médico precisará informar novamente
+       a senha adicional dos prontuários.
+     */
 
-        mensagem
+     removerCookieProntuario(res);
 
-      });
 
-  }
-}
+     // ========================================
+     // CRIAR COOKIE HTTPONLY
+     // ========================================
 
+     /*
+       Quando o login é concluído
+       normalmente, o service gera JWT.
 
-// ========================================
-// LOGOUT
-// ========================================
+       O JWT é armazenado exclusivamente
+       no cookie HttpOnly.
 
-export async function logoutController(
-  req: Request,
-  res: Response
-) {
+       Ele NÃO será devolvido no JSON.
+     */
 
-  /*
-    O cookie HttpOnly não pode ser
-    apagado diretamente pelo frontend.
+     if (
+       resultado.token
+     ) {
 
-    Por isso o backend remove o cookie
-    de autenticação principal.
-  */
+       res.cookie(
 
-  res.clearCookie(
+         NOME_COOKIE,
 
-    NOME_COOKIE,
+         resultado.token,
 
-    {
+         {
 
-      httpOnly:
-        true,
+           // JavaScript do frontend
+           // não consegue acessar o JWT.
+           httpOnly:
+             true,
 
-      secure:
-        estaEmProducao(),
 
-      sameSite:
-        "lax",
+           // Em produção exige HTTPS.
+           secure:
+             estaEmProducao(),
 
-      path:
-        "/"
 
-    }
+           // Proteção inicial contra
+           // requisições cross-site.
+           sameSite:
+             "lax",
 
-  );
 
+           // Cookie disponível para
+           // todas as rotas da API.
+           path:
+             "/",
 
-  // ========================================
-  // NOVO — BLOQUEAR PRONTUÁRIOS NO LOGOUT
-  // ========================================
 
-  /*
-    Ao sair do sistema, também removemos
-    o cookie adicional dos prontuários.
+           // Validade de 8 horas.
+           maxAge:
+             TEMPO_COOKIE
 
-    Assim, o navegador deixa de enviar
-    essa autorização nas próximas
-    requisições.
+         }
 
-    Isso não modifica a senha cadastrada
-    no PostgreSQL.
+       );
 
-    Quando o médico fizer login novamente,
-    precisará informar sua senha adicional
-    para desbloquear os prontuários.
-  */
+     }
 
-  removerCookieProntuario(res);
 
+     // ========================================
+     // RESPOSTA DO LOGIN
+     // ========================================
 
-  // ========================================
-  // RESPOSTA DO LOGOUT
-  // ========================================
+     /*
+       O frontend recebe somente
+       informações do usuário.
 
-  return res
-    .status(200)
-    .json({
+       O JWT permanece exclusivamente
+       dentro do cookie HttpOnly.
 
-      mensagem:
-        "Logout realizado com sucesso."
+       O primeiro acesso legado continua
+       funcionando sem gerar sessão.
+     */
 
-    });
+     return res
+       .status(200)
+       .json({
 
-}
+         usuario:
+           resultado.usuario
+
+       });
+
+   } catch (erro) {
+
+     // ========================================
+     // IDENTIFICAR ERRO
+     // ========================================
+
+     const mensagem =
+       erro instanceof Error
+         ? erro.message
+         : "Erro interno do servidor.";
+
+
+     // ========================================
+     // IDENTIFICAR CREDENCIAIS INVÁLIDAS
+     // ========================================
+
+     /*
+       O auth.service utiliza mensagens
+       iniciadas com:
+
+       "E-mail ou senha inválidos."
+
+       para rejeitar credenciais inválidas,
+       contas desativadas e contas que
+       ainda não possuem senha.
+
+       Erros internos não devem ser
+       classificados como senha incorreta.
+     */
+
+     const credenciaisInvalidas =
+       mensagem.startsWith(
+         "E-mail ou senha inválidos."
+       );
+
+
+     // ========================================
+     // AUDITORIA — LOGIN COM FALHA
+     // ========================================
+
+     if (
+       credenciaisInvalidas
+     ) {
+
+       try {
+
+         await registrarAuditoriaLogin({
+
+           // Não existe usuário autenticado.
+           //
+           // Evitamos consultar novamente
+           // o e-mail para descobrir se
+           // existe uma conta cadastrada.
+
+           usuarioId:
+             null,
+
+           perfil:
+             null,
+
+           acao:
+             "LOGIN_FALHA",
+
+           resultado:
+             "FALHA",
+
+           ip:
+             req.ip ?? null
+
+         });
+
+       } catch (erroAuditoria) {
+
+         /*
+           Um erro na gravação da auditoria
+           deve ser identificado como
+           problema interno do servidor.
+
+           Não expomos detalhes do banco
+           na resposta enviada ao usuário.
+         */
+
+         console.error(
+           "[AUDITORIA LOGIN] Erro ao registrar tentativa:",
+           erroAuditoria
+         );
+
+         return res
+           .status(500)
+           .json({
+
+             mensagem:
+               "Não foi possível concluir a autenticação."
+
+           });
+
+       }
+
+
+       // ========================================
+       // RESPOSTA PARA CREDENCIAIS INVÁLIDAS
+       // ========================================
+
+       return res
+         .status(401)
+         .json({
+
+           mensagem
+
+         });
+
+     }
+
+
+     // ========================================
+     // TRATAMENTO DE ERROS INTERNOS
+     // ========================================
+
+     /*
+       Problemas de conexão com o banco,
+       geração de JWT ou gravação de
+       LOGIN_SUCESSO chegam aqui.
+
+       Não utilizamos status 401 porque
+       esses problemas não representam
+       credenciais incorretas.
+     */
+
+     console.error(
+       "[AUTENTICAÇÃO] Erro interno:",
+       erro
+     );
+
+     return res
+       .status(500)
+       .json({
+
+         mensagem:
+           "Não foi possível concluir a autenticação."
+
+       });
+
+   }
+
+ }
+
+
+ // ========================================
+ // LOGOUT
+ // ========================================
+
+ export async function logoutController(
+   req: Request,
+   res: Response
+ ) {
+
+   // ========================================
+   // IDENTIFICAR USUÁRIO PELO JWT
+   // ========================================
+
+   /*
+     Antes de remover os cookies,
+     verificamos se existe uma sessão
+     autenticada válida.
+
+     O JWT fica armazenado no cookie
+     HttpOnly chamado access_token.
+
+     Não exigimos autenticação nesta rota,
+     pois cookies expirados ou inválidos
+     também precisam ser removidos.
+   */
+
+   let usuarioId: number | null =
+     null;
+
+   let perfil: string | null =
+     null;
+
+   let expiracaoSessao: number | null = null;
+
+
+   // ========================================
+   // LER COOKIE DE AUTENTICAÇÃO
+   // ========================================
+
+   /*
+     O cookie-parser disponibiliza
+     os cookies em req.cookies.
+
+     Verificamos se o valor encontrado
+     realmente é uma string.
+   */
+
+   const token =
+     req.cookies?.[NOME_COOKIE];
+
+
+   // ========================================
+   // VALIDAR JWT EXISTENTE
+   // ========================================
+
+   if (
+     typeof token === "string"
+   ) {
+
+     try {
+
+       // ========================================
+       // VERIFICAR SEGREDO JWT
+       // ========================================
+
+       const segredo =
+         process.env.JWT_SECRET;
+
+       if (
+         !segredo ||
+         segredo.length < 32
+       ) {
+
+         throw new Error(
+           "JWT_SECRET não configurado corretamente."
+         );
+
+       }
+
+
+       // ========================================
+       // VERIFICAR ASSINATURA E VALIDADE
+       // ========================================
+
+       /*
+         Validamos:
+
+         - Assinatura do token.
+         - Algoritmo HS256.
+         - Prazo de validade.
+         - Emissor.
+         - Destinatário.
+
+         Não basta decodificar o JWT.
+         Precisamos verificar sua
+         autenticidade antes de confiar
+         no usuário identificado.
+       */
+
+       const dados =
+         jwt.verify(
+
+           token,
+
+           segredo,
+
+           {
+
+             algorithms:
+               ["HS256"],
+
+             issuer:
+               JWT_ISSUER,
+
+             audience:
+               JWT_AUDIENCE
+
+           }
+
+         );
+
+
+       // ========================================
+       // IDENTIFICAR USUÁRIO
+       // ========================================
+
+       /*
+         O JWT principal contém:
+
+         sub  = ID do usuário
+         tipo = Perfil do usuário
+
+         Não utilizamos nome, e-mail
+         ou informações sensíveis.
+       */
+
+       if (
+         typeof dados !== "string" &&
+         typeof dados.sub === "string" &&
+         typeof dados.tipo === "string"
+       ) {
+
+         const id =
+           Number(dados.sub);
+
+
+         // Aceita somente identificadores
+         // inteiros positivos e seguros.
+         if (
+           Number.isSafeInteger(id) &&
+           id > 0
+         ) {
+
+           usuarioId =
+             id;
+
+           perfil =
+             dados.tipo;
+
+           if (identificadorSessaoValido(dados.jti) && Number.isSafeInteger(dados.exp)) {
+             expiracaoSessao = dados.exp!;
+           }
+
+         }
+
+       }
+
+     } catch {
+
+       // ========================================
+       // TOKEN EXPIRADO OU INVÁLIDO
+       // ========================================
+
+       /*
+         Um token expirado ou inválido
+         não impede o logout.
+
+         Não registramos o conteúdo
+         do JWT em logs.
+
+         Também não atribuímos o evento
+         a um usuário não autenticado.
+       */
+
+       console.warn(
+         "[LOGOUT] Sessão ausente ou inválida para auditoria."
+       );
+
+     }
+
+   }
+
+
+   // ========================================
+   // REMOVER COOKIE PRINCIPAL
+   // ========================================
+
+   /*
+     O cookie HttpOnly não pode ser
+     apagado diretamente pelo frontend.
+
+     Por isso o backend remove o cookie
+     de autenticação principal.
+   */
+
+   // Confirma a revogação antes de limpar cookies e anunciar sucesso.
+   // Em falha, mantém o cookie para permitir que o cliente repita o logout.
+   if (usuarioId !== null && expiracaoSessao !== null && typeof token === "string") {
+     try {
+       await revogarSessao(token, usuarioId, expiracaoSessao);
+     } catch {
+       return res.status(503).json({
+         mensagem: "Não foi possível encerrar a sessão com segurança. Tente novamente."
+       });
+     }
+   }
+
+   res.clearCookie(
+
+     NOME_COOKIE,
+
+     {
+
+       httpOnly:
+         true,
+
+       secure:
+         estaEmProducao(),
+
+       sameSite:
+         "lax",
+
+       path:
+         "/"
+
+     }
+
+   );
+
+
+   // ========================================
+   // REMOVER AUTORIZAÇÃO DOS PRONTUÁRIOS
+   // ========================================
+
+   /*
+     Ao sair do sistema, também removemos
+     o cookie adicional dos prontuários.
+
+     Assim, o navegador deixa de enviar
+     essa autorização nas próximas
+     requisições.
+
+     Isso não modifica a senha cadastrada
+     no PostgreSQL.
+
+     Quando o médico fizer login novamente,
+     precisará informar sua senha adicional
+     para desbloquear os prontuários.
+   */
+
+   removerCookieProntuario(res);
+
+
+   // ========================================
+   // AUDITORIA — LOGOUT
+   // ========================================
+
+   /*
+     Registramos LOGOUT somente quando
+     conseguimos identificar uma sessão
+     autenticada válida.
+
+     Isso evita atribuir um logout a
+     um usuário com token expirado,
+     inválido ou ausente.
+
+     Caso a auditoria falhe, os cookies
+     ainda devem ser removidos.
+   */
+
+   if (
+     usuarioId !== null
+   ) {
+
+     try {
+
+       await registrarAuditoriaLogin({
+
+         // Usuário que encerrou a sessão.
+         usuarioId,
+
+         // Perfil obtido do JWT validado.
+         perfil,
+
+         // Ação realizada.
+         acao:
+           "LOGOUT",
+
+         // Solicitação processada.
+         resultado:
+           "SUCESSO",
+
+         // IP da requisição.
+         ip:
+           req.ip ?? null
+
+       });
+
+     } catch (erroAuditoria) {
+
+       /*
+         Não bloqueamos o logout
+         se o banco de auditoria
+         apresentar algum problema.
+
+         O erro fica registrado
+         apenas no backend.
+       */
+
+       console.error(
+         "[AUDITORIA LOGIN] Erro ao registrar logout:",
+         erroAuditoria
+       );
+
+     }
+
+   }
+
+
+   // ========================================
+   // RESPOSTA DO LOGOUT
+   // ========================================
+
+   return res
+     .status(200)
+     .json({
+
+       mensagem:
+         "Logout realizado com sucesso."
+
+     });
+
+ }

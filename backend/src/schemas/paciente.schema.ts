@@ -1,3 +1,4 @@
+import { normalizarCpf } from "../utils/cpf";
 // ========================================
 // SCHEMAS DE PACIENTE
 // ========================================
@@ -176,7 +177,7 @@ const cpfPacienteSchema =
       (cpf) =>
         cpf === ""
           ? undefined
-          : cpf
+          : cpf === undefined ? undefined : normalizarCpf(cpf)
     );
 
 

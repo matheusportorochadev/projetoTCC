@@ -15,3 +15,9 @@ corrigir-senha-paciente.ts
 excluir-paciente-teste.ts
 testar-senha-paciente.ts
 verificar-login-paciente.ts
+
+# Ambiente de testes
+.env.test
+
+# Cookie jar local; nunca é recurso da aplicação.
+/cookies.txt

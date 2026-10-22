@@ -15,11 +15,11 @@
 // IMPORTANTE:
 //
 // Este teste cria um prontuário fictício
-// no banco de desenvolvimento.
+// somente no banco isolado confirmado.
 //
 // Não utiliza dados clínicos reais.
 // Não modifica prontuários anteriores.
-// Não exclui nenhum registro.
+// Remove apenas a fixture criada por esta execução.
 
 import "dotenv/config";
 
@@ -38,16 +38,28 @@ import {
 // IDENTIFICADORES DO AMBIENTE DE TESTE
 // ========================================
 //
-// Obtidos após consultar o banco.
+// Obtidos dinamicamente da fixture própria.
 //
-// Usuario 34 -> Medico 16
-// Paciente 19 -> Medico 16
+// Nenhum identificador de desenvolvimento é reutilizado.
 
-const USUARIO_MEDICO_ID = 34;
-
-const MEDICO_ID = 16;
-
-const PACIENTE_ID = 20;
+// @ts-expect-error Guarda JavaScript compartilhada com os executores.
+import { validarBancoDeTestes } from "../../scripts/protecao-banco-testes.mjs";
+import { randomUUID } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+validarBancoDeTestes();
+const identidade = randomUUID();
+function fixture(acao: "criar" | "limpar") {
+  const saida = execFileSync(process.execPath, ["--env-file=.env.test", "--import", "tsx", "scripts/fixture-negocio.ts", acao, identidade], {
+    cwd: fileURLToPath(new URL("../../", import.meta.url)),
+    env: { ...process.env, NODE_ENV: "test" }, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]
+  });
+  if (acao === "criar") return JSON.parse(saida.trim().split("\n").at(-1)!);
+}
+const cenario = fixture("criar");
+const USUARIO_MEDICO_ID: number = cenario.contas.medicoA.id;
+const MEDICO_ID: number = cenario.medicoA.id;
+const PACIENTE_ID: number = cenario.pacienteA.id;
 
 
 // ========================================
@@ -446,4 +458,6 @@ executarTeste()
 
     process.exitCode = 1;
 
+  }).finally(async () => {
+    try { await db.close(); } finally { fixture("limpar"); }
   });

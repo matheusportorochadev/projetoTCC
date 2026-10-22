@@ -1,9 +1,11 @@
+import { API_ORIGIN } from "../../config/api";
 // ========================================
 // MEUS AGENDAMENTOS
 // ========================================
 
 import {
   useEffect,
+  useCallback,
   useState
 } from "react";
 
@@ -512,28 +514,15 @@ export default function MeusAgendamentos() {
   // BUSCAR AGENDAMENTOS
   // ========================================
 
-  async function buscarAgendamentos() {
-
-    try {
-
-      setCarregando(true);
-
-      setErro("");
-
-
-
-
-
-
-      const resposta =
-        await fetch(
-          "http://localhost:3000/agendamentos/meus",
+  const buscarAgendamentos = useCallback(() => {
+    return fetch(
+          `${API_ORIGIN}/agendamentos/meus`,
           {
             method: "GET",
 
             credentials: "include"
           }
-        );
+        ).then(async (resposta) => {
 
 
       const dados =
@@ -567,7 +556,7 @@ export default function MeusAgendamentos() {
 
       }
 
-    } catch (error) {
+    }).catch((error: unknown) => {
 
       console.error(
         "Erro ao buscar agendamentos:",
@@ -579,35 +568,27 @@ export default function MeusAgendamentos() {
         "Não foi possível conectar ao servidor."
       );
 
-    } finally {
+    }).finally(() => {
 
       setCarregando(false);
 
-    }
-  }
+    });
+  }, []);
 
 
   // ========================================
   // BUSCAR REMARCAÇÕES
   // ========================================
 
-  async function buscarRemarcacoes() {
-
-    try {
-
-
-
-
-
-      const resposta =
-        await fetch(
-          "http://localhost:3000/agendamentos/remarcacoes/minhas",
+  const buscarRemarcacoes = useCallback(() => {
+    return fetch(
+          `${API_ORIGIN}/agendamentos/remarcacoes/minhas`,
           {
             method: "GET",
 
             credentials: "include"
           }
-        );
+        ).then(async (resposta) => {
 
 
       const dados =
@@ -643,7 +624,7 @@ export default function MeusAgendamentos() {
 
       }
 
-    } catch (error) {
+    }).catch((error: unknown) => {
 
       console.error(
         "Erro ao buscar remarcações:",
@@ -653,21 +634,21 @@ export default function MeusAgendamentos() {
 
       setRemarcacoes([]);
 
-    }
-  }
+    });
+  }, []);
 
 
   // ========================================
   // ATUALIZAR TELA
   // ========================================
 
-  async function atualizarDados() {
+  const atualizarDados = useCallback(async () => {
 
     await Promise.all([
       buscarAgendamentos(),
       buscarRemarcacoes()
     ]);
-  }
+  }, [buscarAgendamentos, buscarRemarcacoes]);
 
 
   // ========================================
@@ -725,7 +706,7 @@ export default function MeusAgendamentos() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/agendamentos/${agendamento.id}/cancelar-paciente`,
+          `${API_ORIGIN}/agendamentos/${agendamento.id}/cancelar-paciente`,
           {
             method: "PATCH",
 
@@ -823,7 +804,7 @@ export default function MeusAgendamentos() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+          `${API_ORIGIN}/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
             data
           )}`,
           {
@@ -953,7 +934,7 @@ export default function MeusAgendamentos() {
 
                 const resposta =
                   await fetch(
-                    `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+                    `${API_ORIGIN}/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
                       data
                     )}`,
                     {
@@ -1439,7 +1420,7 @@ export default function MeusAgendamentos() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/agendamentos/${agendamentoRemarcacao.id}/remarcacoes`,
+          `${API_ORIGIN}/agendamentos/${agendamentoRemarcacao.id}/remarcacoes`,
           {
             method: "POST",
 
@@ -1571,7 +1552,7 @@ export default function MeusAgendamentos() {
 
     void atualizarDados();
 
-  }, []);
+  }, [atualizarDados]);
 
 
   // ========================================

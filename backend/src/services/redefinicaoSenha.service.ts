@@ -1,3 +1,12 @@
+
+// ========================================
+// AUDITORIA DE SEGURANÇA
+// ========================================
+
+import {
+  registrarAuditoriaLogin
+} from "./auditoria-login.service";
+
 // ========================================
 // DEPENDÊNCIAS
 // ========================================
@@ -112,11 +121,12 @@ function gerarHashCodigo(
 // Ao solicitar outro código,
 // os anteriores deixam de funcionar.
 async function invalidarCodigosAtivos(
-  usuarioId: number
+  usuarioId: number,
+  banco: Pick<typeof db, "orm"> = db
 ) {
 
   const codigos =
-    await db.orm.public
+    await banco.orm.public
       .CodigoRedefinicaoSenha
       .where({
         usuarioId,
@@ -130,7 +140,7 @@ async function invalidarCodigosAtivos(
     of codigos
   ) {
 
-    await db.orm.public
+    await banco.orm.public
       .CodigoRedefinicaoSenha
       .where({
         id:
@@ -358,265 +368,57 @@ export async function redefinirSenha(
   novaSenha: string
 ) {
 
-  const emailFormatado =
-    email
-      .trim()
-      .toLowerCase();
+  if (!/^\d{6}$/.test(codigo)) throw new Error("Código inválido ou expirado.");
+  if (novaSenha.length < 8) throw new Error("A nova senha deve possuir pelo menos 8 caracteres.");
+  const emailFormatado = email.trim().toLowerCase();
+  const resultado = await db.transaction(async (tx) => {
+    // Senha, geração de sessão e consumo dos códigos são um único commit.
+    await tx.execute(db.raw.sql`SELECT id FROM public.usuario WHERE email = ${emailFormatado} FOR UPDATE`
+      .affectedCount().build());
+    const usuario = await tx.orm.public.Usuario.where({ email: emailFormatado }).first();
+    const falha = { erro: "Código inválido ou expirado." };
+    if (!usuario || !usuario.ativo || usuario.senha === null) return falha;
+    const registro = await tx.orm.public.CodigoRedefinicaoSenha.where({
+      usuarioId: usuario.id, codigo: gerarHashCodigo(usuario.id, codigo), usado: false,
+    }).first();
+    if (!registro) return falha;
+    if (Date.now() >= new Date(registro.expiraEm).getTime()) {
+      await tx.orm.public.CodigoRedefinicaoSenha.where({ id: registro.id }).update({ usado: true });
+      return falha;
+    }
+    const senha = await bcrypt.hash(novaSenha, 12);
+    const atualizado = await tx.orm.public.Usuario.where({ id: usuario.id })
+      .update({ senha, primeiroAcesso: false, versaoSessao: usuario.versaoSessao + 1 });
+    if (!atualizado) throw new Error("Erro ao atualizar senha.");
+    await invalidarCodigosAtivos(usuario.id, tx);
+    return { usuario };
+  });
+  if ("erro" in resultado) throw new Error(resultado.erro);
+  const { usuario } = resultado;
 
+  try {
 
-  // ========================================
-  // BUSCAR USUÁRIO
-  // ========================================
+    await registrarAuditoriaLogin({
 
-  const usuario =
-    await db.orm.public.Usuario
-      .where({
-        email:
-          emailFormatado
-      })
-      .first();
+      usuarioId: usuario.id,
 
+      perfil: usuario.tipo,
 
-  // ========================================
-  // USUÁRIO INVÁLIDO
-  // ========================================
+      acao: "SENHA_REDEFINIDA",
 
-  /*
-    Não revelamos se:
+      resultado: "SUCESSO"
 
-    - usuário não existe;
-    - usuário está inativo.
+    });
 
-    Retornamos sempre uma mensagem
-    genérica relacionada ao código.
-  */
-  if (
-    !usuario ||
-    !usuario.ativo
-  ) {
+  } catch (erroAuditoria) {
 
-    throw new Error(
-      "Código inválido ou expirado."
+    console.error(
+      "[AUDITORIA SEGURANÇA] Falha ao registrar SENHA_REDEFINIDA:",
+      erroAuditoria
     );
 
   }
 
-
-  // ========================================
-  // PROTEÇÃO DO PRIMEIRO ACESSO
-  // ========================================
-
-  /*
-    Mesmo que alguém tente chamar
-    diretamente o endpoint:
-
-    POST /auth/redefinir-senha
-
-    um usuário que ainda não possui
-    senha NÃO poderá criar sua primeira
-    senha por este fluxo.
-
-    Esta é uma segunda camada
-    de proteção.
-
-    A primeira existe em:
-
-    solicitarRedefinicaoSenha()
-  */
-  if (
-    usuario.senha === null
-  ) {
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-
-  // ========================================
-  // VALIDAR FORMATO DO CÓDIGO
-  // ========================================
-
-  /*
-    Mesmo que o controller já valide
-    esse formato, fazemos uma proteção
-    adicional aqui no service.
-
-    Isso evita depender exclusivamente
-    da camada HTTP.
-  */
-  if (
-    !/^\d{6}$/.test(
-      codigo
-    )
-  ) {
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-
-  // ========================================
-  // VALIDAR NOVA SENHA
-  // ========================================
-
-  /*
-    O controller também pode validar,
-    mas o service não deve aceitar
-    uma senha muito curta caso seja
-    chamado por outro ponto do sistema.
-  */
-  if (
-    novaSenha.length < 8
-  ) {
-
-    throw new Error(
-      "A nova senha deve possuir pelo menos 8 caracteres."
-    );
-
-  }
-
-
-  // ========================================
-  // GERAR HMAC DO CÓDIGO RECEBIDO
-  // ========================================
-
-  const codigoHash =
-    gerarHashCodigo(
-      usuario.id,
-      codigo
-    );
-
-
-  // ========================================
-  // BUSCAR O HASH NO BANCO
-  // ========================================
-
-  const codigoRedefinicao =
-    await db.orm.public
-      .CodigoRedefinicaoSenha
-      .where({
-
-        usuarioId:
-          usuario.id,
-
-        codigo:
-          codigoHash,
-
-        usado:
-          false
-
-      })
-      .first();
-
-
-  // ========================================
-  // CÓDIGO INVÁLIDO
-  // ========================================
-
-  if (!codigoRedefinicao) {
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-
-  // ========================================
-  // VERIFICAR EXPIRAÇÃO
-  // ========================================
-
-  const agora =
-    new Date();
-
-
-  const expiracao =
-    new Date(
-      codigoRedefinicao.expiraEm
-    );
-
-
-  if (
-    agora >= expiracao
-  ) {
-
-    // Já aproveitamos para invalidá-lo.
-    await db.orm.public
-      .CodigoRedefinicaoSenha
-      .where({
-        id:
-          codigoRedefinicao.id
-      })
-      .update({
-        usado:
-          true
-      });
-
-
-    throw new Error(
-      "Código inválido ou expirado."
-    );
-
-  }
-
-
-  // ========================================
-  // GERAR HASH DA NOVA SENHA
-  // ========================================
-
-  const senhaHash =
-    await bcrypt.hash(
-      novaSenha,
-      12
-    );
-
-
-  // ========================================
-  // ATUALIZAR USUÁRIO
-  // ========================================
-
-  const usuarioAtualizado =
-    await db.orm.public.Usuario
-      .where({
-        id:
-          usuario.id
-      })
-      .update({
-
-        senha:
-          senhaHash,
-
-        primeiroAcesso:
-          false
-
-      });
-
-
-  if (!usuarioAtualizado) {
-
-    throw new Error(
-      "Erro ao atualizar senha."
-    );
-
-  }
-
-
-  // ========================================
-  // INVALIDAR TODOS OS CÓDIGOS
-  // ========================================
-
-  /*
-    Depois que a senha for alterada,
-    qualquer outro código desse usuário
-    deixa de ser válido.
-  */
-  await invalidarCodigosAtivos(
-    usuario.id
-  );
 
 
   // ========================================

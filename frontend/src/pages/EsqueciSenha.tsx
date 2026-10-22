@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 // ========================================
 // ESQUECI MINHA SENHA
 // ========================================
@@ -95,7 +96,7 @@ function EsqueciSenha() {
 
       const resposta =
         await fetch(
-          "http://localhost:3000/auth/esqueci-senha",
+          `${API_ORIGIN}/auth/esqueci-senha`,
           {
 
             method:

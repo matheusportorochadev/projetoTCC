@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 // ========================================
 // TELA DE REDEFINIÇÃO DE SENHA
 // ========================================
@@ -194,7 +195,7 @@ export default function RedefinirSenha() {
 
       const resposta =
         await fetch(
-          "http://localhost:3000/auth/redefinir-senha",
+          `${API_ORIGIN}/auth/redefinir-senha`,
           {
 
             method:

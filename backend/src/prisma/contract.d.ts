@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'c55f8c5d46a82a479e9ba609f5da6e9eeb7689159f055988a40c71f333ef6f95'>;
+  StorageHashBase<'262d9014fd79fd6570d42e23c5c465a2c6afc07dc6a0627f78d6387e4ef74e67'>;
 export type ExecutionHash =
   ExecutionHashBase<'f023a5b8bc56d974c465755ca54d12f2a30a9f5e7262d2dddff55e71bbbacc27'>;
 export type ProfileHash =
@@ -260,6 +260,40 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly AuditoriaAgenda: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly disponibilidadeId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly agendamentoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly dataAgenda: CodecTypes['pg/date-string@1']['output'] | null;
+      readonly horaInicio: CodecTypes['pg/text@1']['output'] | null;
+      readonly horaFim: CodecTypes['pg/text@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly AuditoriaLogin: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly perfil: CodecTypes['pg/text@1']['output'] | null;
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly ip: CodecTypes['pg/text@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly AuditoriaPaciente: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly AuditoriaProntuario: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
@@ -349,6 +383,12 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly SessaoRevogada: {
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly Usuario: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nome: CodecTypes['pg/text@1']['output'];
@@ -357,6 +397,7 @@ export type FieldOutputTypes = {
       readonly tipo: 'ADMIN' | 'MEDICO' | 'PACIENTE';
       readonly ativo: CodecTypes['pg/bool@1']['output'];
       readonly primeiroAcesso: CodecTypes['pg/bool@1']['output'];
+      readonly versaoSessao: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -383,6 +424,40 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
+    readonly AuditoriaAgenda: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly disponibilidadeId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly agendamentoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly dataAgenda: CodecTypes['pg/date-string@1']['input'] | null;
+      readonly horaInicio: CodecTypes['pg/text@1']['input'] | null;
+      readonly horaFim: CodecTypes['pg/text@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly AuditoriaLogin: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly perfil: CodecTypes['pg/text@1']['input'] | null;
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly ip: CodecTypes['pg/text@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly AuditoriaPaciente: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly AuditoriaProntuario: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
@@ -472,6 +547,12 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
+    readonly SessaoRevogada: {
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly Usuario: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nome: CodecTypes['pg/text@1']['input'];
@@ -480,6 +561,7 @@ export type FieldInputTypes = {
       readonly tipo: 'ADMIN' | 'MEDICO' | 'PACIENTE';
       readonly ativo: CodecTypes['pg/bool@1']['input'];
       readonly primeiroAcesso: CodecTypes['pg/bool@1']['input'];
+      readonly versaoSessao: CodecTypes['pg/int4@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -505,6 +587,40 @@ export type StorageColumnTypes = {
       readonly status:
         'AGENDADA' | 'PENDENTE' | 'CONFIRMADA' | 'REALIZADA' | 'RECUSADA' | 'CANCELADA' | 'FALTOU';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly auditoriaAgenda: {
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly agendamentoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly dataAgenda: CodecTypes['pg/date-string@1']['output'] | null;
+      readonly disponibilidadeId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly horaFim: CodecTypes['pg/text@1']['output'] | null;
+      readonly horaInicio: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+    };
+    readonly auditoriaLogin: {
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly ip: CodecTypes['pg/text@1']['output'] | null;
+      readonly perfil: CodecTypes['pg/text@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
+    };
+    readonly auditoriaPaciente: {
+      readonly acao: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly medicoId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['output'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'] | null;
     };
     readonly auditoriaProntuario: {
       readonly acao: CodecTypes['pg/text@1']['output'];
@@ -595,6 +711,12 @@ export type StorageColumnTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly visualizadoPaciente: CodecTypes['pg/bool@1']['output'];
     };
+    readonly sessaoRevogada: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['output'];
+    };
     readonly usuario: {
       readonly ativo: CodecTypes['pg/bool@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -605,6 +727,7 @@ export type StorageColumnTypes = {
       readonly senha: CodecTypes['pg/text@1']['output'] | null;
       readonly tipo: 'ADMIN' | 'MEDICO' | 'PACIENTE';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly versaoSessao: CodecTypes['pg/int4@1']['output'];
     };
   };
 };
@@ -628,6 +751,40 @@ export type StorageColumnInputTypes = {
       readonly status:
         'AGENDADA' | 'PENDENTE' | 'CONFIRMADA' | 'REALIZADA' | 'RECUSADA' | 'CANCELADA' | 'FALTOU';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly auditoriaAgenda: {
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly agendamentoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly dataAgenda: CodecTypes['pg/date-string@1']['input'] | null;
+      readonly disponibilidadeId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly horaFim: CodecTypes['pg/text@1']['input'] | null;
+      readonly horaInicio: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+    };
+    readonly auditoriaLogin: {
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly ip: CodecTypes['pg/text@1']['input'] | null;
+      readonly perfil: CodecTypes['pg/text@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
+    };
+    readonly auditoriaPaciente: {
+      readonly acao: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly medicoId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly pacienteId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly requisicaoId: CodecTypes['pg/text@1']['input'] | null;
+      readonly resultado: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'] | null;
     };
     readonly auditoriaProntuario: {
       readonly acao: CodecTypes['pg/text@1']['input'];
@@ -718,6 +875,12 @@ export type StorageColumnInputTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly visualizadoPaciente: CodecTypes['pg/bool@1']['input'];
     };
+    readonly sessaoRevogada: {
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+    };
     readonly usuario: {
       readonly ativo: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -728,6 +891,7 @@ export type StorageColumnInputTypes = {
       readonly senha: CodecTypes['pg/text@1']['input'] | null;
       readonly tipo: 'ADMIN' | 'MEDICO' | 'PACIENTE';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly versaoSessao: CodecTypes['pg/int4@1']['input'];
     };
   };
 };
@@ -921,6 +1085,278 @@ type ContractBase = Omit<
                   };
                 },
               ];
+            };
+            readonly auditoriaAgenda: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly usuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly disponibilidadeId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly agendamentoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly acao: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly resultado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly dataAgenda: {
+                  readonly nativeType: 'date';
+                  readonly codecId: 'pg/date-string@1';
+                  readonly nullable: true;
+                };
+                readonly horaInicio: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly horaFim: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly requisicaoId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auditoriaAgenda_createdAt_idx_9575dbd7';
+                  readonly prefix: 'auditoriaAgenda_createdAt_idx';
+                  readonly columns: readonly ['createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaAgenda_medicoId_createdAt_idx_d972e011';
+                  readonly prefix: 'auditoriaAgenda_medicoId_createdAt_idx';
+                  readonly columns: readonly ['medicoId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd';
+                  readonly prefix: 'auditoriaAgenda_usuarioId_createdAt_idx';
+                  readonly columns: readonly ['usuarioId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaAgenda_acao_createdAt_idx_1bb6e007';
+                  readonly prefix: 'auditoriaAgenda_acao_createdAt_idx';
+                  readonly columns: readonly ['acao', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99';
+                  readonly prefix: 'auditoriaAgenda_disponibilidadeId_createdAt_idx';
+                  readonly columns: readonly ['disponibilidadeId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9';
+                  readonly prefix: 'auditoriaAgenda_agendamentoId_createdAt_idx';
+                  readonly columns: readonly ['agendamentoId', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
+            readonly auditoriaLogin: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly usuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly perfil: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly acao: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly resultado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly ip: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly requisicaoId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auditoriaLogin_createdAt_idx_9575dbd7';
+                  readonly prefix: 'auditoriaLogin_createdAt_idx';
+                  readonly columns: readonly ['createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd';
+                  readonly prefix: 'auditoriaLogin_usuarioId_createdAt_idx';
+                  readonly columns: readonly ['usuarioId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaLogin_acao_createdAt_idx_1bb6e007';
+                  readonly prefix: 'auditoriaLogin_acao_createdAt_idx';
+                  readonly columns: readonly ['acao', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaLogin_resultado_createdAt_idx_f789afcc';
+                  readonly prefix: 'auditoriaLogin_resultado_createdAt_idx';
+                  readonly columns: readonly ['resultado', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
+            readonly auditoriaPaciente: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly usuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly medicoId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly pacienteId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly acao: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly resultado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly requisicaoId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auditoriaPaciente_createdAt_idx_9575dbd7';
+                  readonly prefix: 'auditoriaPaciente_createdAt_idx';
+                  readonly columns: readonly ['createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaPaciente_medicoId_createdAt_idx_d972e011';
+                  readonly prefix: 'auditoriaPaciente_medicoId_createdAt_idx';
+                  readonly columns: readonly ['medicoId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd';
+                  readonly prefix: 'auditoriaPaciente_usuarioId_createdAt_idx';
+                  readonly columns: readonly ['usuarioId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10';
+                  readonly prefix: 'auditoriaPaciente_pacienteId_createdAt_idx';
+                  readonly columns: readonly ['pacienteId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auditoriaPaciente_acao_createdAt_idx_1bb6e007';
+                  readonly prefix: 'auditoriaPaciente_acao_createdAt_idx';
+                  readonly columns: readonly ['acao', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
             };
             readonly auditoriaProntuario: {
               columns: {
@@ -1687,6 +2123,48 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly sessaoRevogada: {
+              columns: {
+                readonly tokenHash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly usuarioId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly expiresAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['tokenHash'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'sessaoRevogada_expiresAt_idx_6b6b8c10';
+                  readonly prefix: 'sessaoRevogada_expiresAt_idx';
+                  readonly columns: readonly ['expiresAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'sessaoRevogada_usuarioId_idx_5f01c7d6';
+                  readonly prefix: 'sessaoRevogada_usuarioId_idx';
+                  readonly columns: readonly ['usuarioId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
             readonly usuario: {
               columns: {
                 readonly id: {
@@ -1734,6 +2212,15 @@ type ContractBase = Omit<
                   readonly default: {
                     readonly kind: 'literal';
                     readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                };
+                readonly versaoSessao: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
                   };
                 };
                 readonly createdAt: {
@@ -1786,6 +2273,10 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly sessaoRevogada: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SessaoRevogada';
+    };
     readonly usuario: { readonly namespace: 'public' & NamespaceId; readonly model: 'Usuario' };
     readonly medico: { readonly namespace: 'public' & NamespaceId; readonly model: 'Medico' };
     readonly paciente: { readonly namespace: 'public' & NamespaceId; readonly model: 'Paciente' };
@@ -1824,6 +2315,18 @@ type ContractBase = Omit<
     readonly auditoriaProntuario: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'AuditoriaProntuario';
+    };
+    readonly auditoriaAgenda: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuditoriaAgenda';
+    };
+    readonly auditoriaPaciente: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuditoriaPaciente';
+    };
+    readonly auditoriaLogin: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuditoriaLogin';
     };
   };
   readonly domain: {
@@ -1974,6 +2477,188 @@ type ContractBase = Omit<
                 readonly status: { readonly column: 'status' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly AuditoriaAgenda: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly disponibilidadeId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly agendamentoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly acao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly resultado: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly dataAgenda: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-string@1' };
+              };
+              readonly horaInicio: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly horaFim: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly requisicaoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'auditoriaAgenda';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly medicoId: { readonly column: 'medicoId' };
+                readonly disponibilidadeId: { readonly column: 'disponibilidadeId' };
+                readonly agendamentoId: { readonly column: 'agendamentoId' };
+                readonly acao: { readonly column: 'acao' };
+                readonly resultado: { readonly column: 'resultado' };
+                readonly dataAgenda: { readonly column: 'dataAgenda' };
+                readonly horaInicio: { readonly column: 'horaInicio' };
+                readonly horaFim: { readonly column: 'horaFim' };
+                readonly requisicaoId: { readonly column: 'requisicaoId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
+          readonly AuditoriaLogin: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly perfil: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly acao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly resultado: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly ip: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly requisicaoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'auditoriaLogin';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly perfil: { readonly column: 'perfil' };
+                readonly acao: { readonly column: 'acao' };
+                readonly resultado: { readonly column: 'resultado' };
+                readonly ip: { readonly column: 'ip' };
+                readonly requisicaoId: { readonly column: 'requisicaoId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
+          readonly AuditoriaPaciente: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly medicoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly pacienteId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly acao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly resultado: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly requisicaoId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'auditoriaPaciente';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly medicoId: { readonly column: 'medicoId' };
+                readonly pacienteId: { readonly column: 'pacienteId' };
+                readonly acao: { readonly column: 'acao' };
+                readonly resultado: { readonly column: 'resultado' };
+                readonly requisicaoId: { readonly column: 'requisicaoId' };
+                readonly createdAt: { readonly column: 'createdAt' };
               };
             };
           };
@@ -2669,6 +3354,43 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly SessaoRevogada: {
+            readonly fields: {
+              readonly tokenHash: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly usuarioId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly expiresAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'sessaoRevogada';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly tokenHash: { readonly column: 'tokenHash' };
+                readonly usuarioId: { readonly column: 'usuarioId' };
+                readonly expiresAt: { readonly column: 'expiresAt' };
+                readonly createdAt: { readonly column: 'createdAt' };
+              };
+            };
+          };
           readonly Usuario: {
             readonly fields: {
               readonly id: {
@@ -2698,6 +3420,10 @@ type ContractBase = Omit<
               readonly primeiroAcesso: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly versaoSessao: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly createdAt: {
                 readonly nullable: false;
@@ -2771,6 +3497,7 @@ type ContractBase = Omit<
                 readonly tipo: { readonly column: 'tipo' };
                 readonly ativo: { readonly column: 'ativo' };
                 readonly primeiroAcesso: { readonly column: 'primeiroAcesso' };
+                readonly versaoSessao: { readonly column: 'versaoSessao' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

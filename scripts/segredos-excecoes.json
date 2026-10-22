@@ -1,0 +1,50 @@
+[
+  {
+    "arquivo": "frontend/tests/api-medicos-negocio.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "5fafc44dfb705917f0544f0c7eea51536f952301f86c90c053482e147df9a351",
+    "motivo": "Campo extra fictício rejeitado por schema strict no cadastro."
+  },
+  {
+    "arquivo": "frontend/tests/api-prontuarios-validacao.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "a97260d135bf4e4d556eb56c9106c5822142705e27c3e53a4a81d7729ece95ba",
+    "motivo": "Entrada negativa da política de complexidade; nunca autentica conta real."
+  },
+  {
+    "arquivo": "frontend/tests/api-prontuarios-validacao.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "4998bb25e6f92b705f0eb1c84386c8284423494dcd251e6e2890225d59cdc400",
+    "motivo": "Entrada negativa da política de complexidade; nunca autentica conta real."
+  },
+  {
+    "arquivo": "frontend/tests/api-prontuarios-validacao.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "41fb8e2a0d42e1b713ab3d07fe5167a5ac5ab4777e0d2250fb285d840a4a44d1",
+    "motivo": "Entrada negativa da política de complexidade; nunca autentica conta real."
+  },
+  {
+    "arquivo": "frontend/tests/api-prontuarios-validacao.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "de705049e8d2a68526138c26adc265aa9318c8bd7d092b9499e46cfc0a6c9358",
+    "motivo": "Entrada negativa da política de complexidade; nunca autentica conta real."
+  },
+  {
+    "arquivo": "frontend/tests/api-prontuarios-validacao.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "0886d82d1eb0614ea2d8508c028236664bf1e702a52ce32231ae3af0bd7a5daa",
+    "motivo": "Entrada negativa da política de complexidade; nunca autentica conta real."
+  },
+  {
+    "arquivo": "frontend/tests/api-seguranca-complementar.spec.ts",
+    "regra": "literal-credencial",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "motivo": "Corpo sintético repetido para testar teto HTTP; não autentica."
+  },
+  {
+    "arquivo": "frontend/tests/helpers/smtp-local.ts",
+    "regra": "literal-credencial",
+    "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d",
+    "motivo": "Credencial do receptor SMTP local sem relay; não é utilizada por serviço externo."
+  }
+]

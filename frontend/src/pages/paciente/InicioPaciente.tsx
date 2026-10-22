@@ -120,15 +120,7 @@ export default function InicioPaciente() {
 
           <article className="inicio-paciente-card">
 
-            <div className="inicio-paciente-card-topo">
 
-              <div className="inicio-paciente-icone">
-                <span>
-                  📅
-                </span>
-              </div>
-
-            </div>
 
 
             <div className="inicio-paciente-card-conteudo">
@@ -170,15 +162,7 @@ export default function InicioPaciente() {
 
           <article className="inicio-paciente-card">
 
-            <div className="inicio-paciente-card-topo">
 
-              <div className="inicio-paciente-icone">
-                <span>
-                  🩺
-                </span>
-              </div>
-
-            </div>
 
 
             <div className="inicio-paciente-card-conteudo">

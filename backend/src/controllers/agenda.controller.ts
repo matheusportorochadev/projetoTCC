@@ -1,3 +1,4 @@
+
 import type {
   Request,
   Response
@@ -5,10 +6,9 @@ import type {
 
 import {
   atualizarDisponibilidadeAgenda,
-  buscarDisponibilidadesPorData,
   buscarDisponibilidadeAgendaPorId,
   buscarMedicoAgendaPorUsuarioId,
-  criarDisponibilidadeAgenda,
+  criarDisponibilidadesAgendaEmLote,
   listarDisponibilidadesAgenda,
   removerDisponibilidadeAgenda
 } from "../services/agenda.service";
@@ -17,53 +17,127 @@ import {
 // FUNÇÕES AUXILIARES
 // ========================================
 
-// Verifica formato da data
-function dataValida(data: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(
-    data
+// ========================================
+// VALIDAR DATA
+// ========================================
+
+// Verifica se a data foi enviada no
+// formato YYYY-MM-DD e se existe
+// no calendário.
+function dataValida(data: string): boolean {
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+    return false;
+  }
+
+  const [ano, mes, dia] = data
+    .split("-")
+    .map(Number);
+
+  const dataConvertida = new Date(
+    Date.UTC(ano, mes - 1, dia)
+  );
+
+  return (
+    dataConvertida.getUTCFullYear() === ano &&
+    dataConvertida.getUTCMonth() === mes - 1 &&
+    dataConvertida.getUTCDate() === dia
   );
 }
 
-// Verifica formato do horário
+// ========================================
+// VALIDAR HORÁRIO
+// ========================================
+
+// Aceita horários entre 00:00 e 23:59.
 function horarioValido(
   horario: string
-) {
+): boolean {
+
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(
     horario
   );
 }
 
-// Verifica conflito de horário
-function possuiConflito(
-  horaInicio: string,
-  horaFim: string,
-  inicioExistente: string,
-  fimExistente: string
-) {
+// ========================================
+// VALIDAR DURAÇÃO
+// ========================================
+
+// Evita valores negativos, decimais,
+// zero ou valores que não sejam números.
+function duracaoValida(
+  valor: unknown
+): boolean {
+
+  const duracao = Number(valor);
+
   return (
-    horaInicio < fimExistente &&
-    horaFim > inicioExistente
+    valor !== null &&
+    valor !== undefined &&
+    valor !== "" &&
+    Number.isSafeInteger(duracao) &&
+    duracao > 0
   );
 }
 
 // ========================================
-// LISTAR
+// VALIDAR IDENTIFICADOR
 // ========================================
 
-// Lista disponibilidades do médico
+function idValido(id: number): boolean {
+
+  return (
+    Number.isSafeInteger(id) &&
+    id > 0
+  );
+}
+
+// ========================================
+// IDENTIFICAR CONFLITOS
+// ========================================
+
+// Utilizamos a mensagem da operação
+// para diferenciar um conflito de horário
+// de outros erros.
+//
+// A consulta definitiva é feita pelo
+// service dentro da transação.
+function erroDeConflito(
+  erro: unknown
+): boolean {
+
+  return (
+    erro instanceof Error &&
+    erro.message.includes(
+      "horário conflitante"
+    )
+  );
+}
+
+// ========================================
+// LISTAR DISPONIBILIDADES
+// ========================================
+
+// Lista disponibilidades ativas
+// do médico autenticado.
 export async function listarDisponibilidadesController(
   req: Request,
   res: Response
 ) {
+
   try {
+
+    // Obtém o ID diretamente da sessão.
     const usuarioId =
       req.usuario!.id;
 
+    // Identifica o médico proprietário.
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         usuarioId
       );
 
+    // Consulta as disponibilidades.
     const disponibilidades =
       await listarDisponibilidadesAgenda(
         medico.id
@@ -72,7 +146,9 @@ export async function listarDisponibilidadesController(
     return res.json(
       disponibilidades
     );
+
   } catch (error) {
+
     return res.status(400).json({
       mensagem:
         error instanceof Error
@@ -83,15 +159,27 @@ export async function listarDisponibilidadesController(
 }
 
 // ========================================
-// CRIAR
+// CRIAR DISPONIBILIDADES
 // ========================================
 
-// Cria uma ou várias disponibilidades
+// Permite cadastrar uma ou várias datas.
+//
+// Agora todas as datas são verificadas
+// antes de qualquer gravação.
+//
+// O service utiliza uma transação:
+// - ou todas são criadas;
+// - ou nenhuma é criada.
+//
+// Cada horário criado terá seu
+// próprio evento na AuditoriaAgenda.
 export async function criarDisponibilidadeController(
   req: Request,
   res: Response
 ) {
+
   try {
+
     const usuarioId =
       req.usuario!.id;
 
@@ -102,138 +190,173 @@ export async function criarDisponibilidadeController(
       duracaoConsulta
     } = req.body;
 
+    // ====================================
+    // VALIDAR LISTA DE DATAS
+    // ====================================
+
     if (
       !Array.isArray(datas) ||
       datas.length === 0
     ) {
+
       return res.status(400).json({
         mensagem:
           "Selecione pelo menos uma data."
       });
     }
 
+    // ====================================
+    // VALIDAR CAMPOS OBRIGATÓRIOS
+    // ====================================
+
     if (
       !horaInicio ||
       !horaFim ||
       !duracaoConsulta
     ) {
+
       return res.status(400).json({
         mensagem:
           "Preencha todos os campos."
       });
     }
 
+    // ====================================
+    // VALIDAR HORÁRIOS
+    // ====================================
+
     if (
+      typeof horaInicio !== "string" ||
+      typeof horaFim !== "string" ||
       !horarioValido(horaInicio) ||
       !horarioValido(horaFim)
     ) {
+
       return res.status(400).json({
         mensagem:
           "Horário inválido."
       });
     }
 
-    if (
-      horaInicio >= horaFim
-    ) {
+    if (horaInicio >= horaFim) {
+
       return res.status(400).json({
         mensagem:
           "O horário final deve ser maior que o horário inicial."
       });
     }
 
-    if (
-      Number(duracaoConsulta) <= 0
-    ) {
+    // ====================================
+    // VALIDAR DURAÇÃO
+    // ====================================
+
+    if (!duracaoValida(duracaoConsulta)) {
+
       return res.status(400).json({
         mensagem:
           "Duração da consulta inválida."
       });
     }
 
+    // ====================================
+    // VALIDAR TODAS AS DATAS
+    // ====================================
+
+    // Diferentemente da implementação
+    // anterior, não começamos a criar
+    // horários enquanto ainda existem
+    // datas não verificadas.
+    for (const data of datas) {
+
+      if (
+        typeof data !== "string" ||
+        !dataValida(data)
+      ) {
+
+        return res.status(400).json({
+          mensagem:
+            `Data inválida: ${String(data)}`
+        });
+      }
+    }
+
+    // ====================================
+    // IDENTIFICAR MÉDICO
+    // ====================================
+
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         usuarioId
       );
 
-    const criadas = [];
+    // ====================================
+    // CRIAR COM TRANSAÇÃO
+    // ====================================
 
-    for (const data of datas) {
-      if (
-        typeof data !== "string" ||
-        !dataValida(data)
-      ) {
-        return res.status(400).json({
-          mensagem:
-            `Data inválida: ${data}`
-        });
-      }
+    const criadas =
+      await criarDisponibilidadesAgendaEmLote({
+        usuarioId,
+        medicoId: medico.id,
+        datas,
+        horaInicio,
+        horaFim,
+        duracaoConsulta:
+          Number(duracaoConsulta)
+      });
 
-      const existentes =
-        await buscarDisponibilidadesPorData(
-          medico.id,
-          data
-        );
+    // ====================================
+    // RESPOSTA
+    // ====================================
 
-      const conflito =
-        existentes.some(
-          (item) =>
-            possuiConflito(
-              horaInicio,
-              horaFim,
-              item.horaInicio,
-              item.horaFim
-            )
-        );
-
-      if (conflito) {
-        return res.status(409).json({
-          mensagem:
-            `Já existe um horário conflitante em ${data}.`
-        });
-      }
-
-      const criada =
-        await criarDisponibilidadeAgenda({
-          medicoId: medico.id,
-          data,
-          horaInicio,
-          horaFim,
-          duracaoConsulta:
-            Number(
-              duracaoConsulta
-            )
-        });
-
-      criadas.push(criada);
-    }
-
+    // Preservamos o formato utilizado
+    // anteriormente pelo frontend.
     return res.status(201).json({
       mensagem:
         "Disponibilidades criadas com sucesso.",
       disponibilidades:
         criadas
     });
+
   } catch (error) {
+
+    if (erroDeConflito(error)) {
+      return res.status(409).json({
+        mensagem:
+          error instanceof Error
+            ? error.message
+            : "Existe um conflito de horário."
+      });
+    }
+
+    console.error(
+      "[AGENDA] Erro ao criar disponibilidade:",
+      error
+    );
+
     return res.status(400).json({
       mensagem:
-        error instanceof Error
-          ? error.message
-          : "Erro ao criar disponibilidade."
+        "Não foi possível criar as disponibilidades."
     });
   }
 }
 
 // ========================================
-// EDITAR
+// EDITAR DISPONIBILIDADE
 // ========================================
 
-// Edita uma disponibilidade
+// Atualiza um período pertencente
+// ao médico autenticado.
+//
+// O service agora registra a alteração
+// na AuditoriaAgenda e utiliza uma
+// transação para manter a consistência.
 export async function editarDisponibilidadeController(
   req: Request,
   res: Response
 ) {
+
   try {
+
     const usuarioId =
       req.usuario!.id;
 
@@ -247,78 +370,106 @@ export async function editarDisponibilidadeController(
       duracaoConsulta
     } = req.body;
 
+    // ====================================
+    // VALIDAR IDENTIFICADOR
+    // ====================================
+
+    if (!idValido(id)) {
+
+      return res.status(400).json({
+        mensagem:
+          "Identificador de horário inválido."
+      });
+    }
+
+    // ====================================
+    // VALIDAR CAMPOS
+    // ====================================
+
     if (
       !data ||
       !horaInicio ||
       !horaFim ||
       !duracaoConsulta
     ) {
+
       return res.status(400).json({
         mensagem:
           "Preencha todos os campos."
       });
     }
 
-    if (!dataValida(data)) {
+    // ====================================
+    // VALIDAR DATA
+    // ====================================
+
+    if (
+      typeof data !== "string" ||
+      !dataValida(data)
+    ) {
+
       return res.status(400).json({
         mensagem:
           "Data inválida."
       });
     }
 
+    // ====================================
+    // VALIDAR HORÁRIOS
+    // ====================================
+
     if (
+      typeof horaInicio !== "string" ||
+      typeof horaFim !== "string" ||
       !horarioValido(horaInicio) ||
       !horarioValido(horaFim)
     ) {
+
       return res.status(400).json({
         mensagem:
           "Horário inválido."
       });
     }
 
-    if (
-      horaInicio >= horaFim
-    ) {
+    if (horaInicio >= horaFim) {
+
       return res.status(400).json({
         mensagem:
           "O horário final deve ser maior que o horário inicial."
       });
     }
 
+    // ====================================
+    // VALIDAR DURAÇÃO
+    // ====================================
+
+    if (!duracaoValida(duracaoConsulta)) {
+
+      return res.status(400).json({
+        mensagem:
+          "Duração da consulta inválida."
+      });
+    }
+
+    // ====================================
+    // IDENTIFICAR MÉDICO
+    // ====================================
+
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         usuarioId
       );
 
+    // Verifica se o horário pertence
+    // ao médico autenticado.
     await buscarDisponibilidadeAgendaPorId(
       id,
       medico.id
     );
 
-    const existentes =
-      await buscarDisponibilidadesPorData(
-        medico.id,
-        data
-      );
-
-    const conflito =
-      existentes.some(
-        (item) =>
-          item.id !== id &&
-          possuiConflito(
-            horaInicio,
-            horaFim,
-            item.horaInicio,
-            item.horaFim
-          )
-      );
-
-    if (conflito) {
-      return res.status(409).json({
-        mensagem:
-          "Já existe outro horário conflitante nesta data."
-      });
-    }
+    // ====================================
+    // ATUALIZAR COM AUDITORIA
+    // ====================================
 
     const disponibilidade =
       await atualizarDisponibilidadeAgenda(
@@ -329,66 +480,120 @@ export async function editarDisponibilidadeController(
           horaInicio,
           horaFim,
           duracaoConsulta:
-            Number(
-              duracaoConsulta
-            )
-        }
+            Number(duracaoConsulta)
+        },
+        usuarioId
       );
 
+    // Mantém a resposta original
+    // utilizada pelo frontend.
     return res.json(
       disponibilidade
     );
+
   } catch (error) {
+
+    if (erroDeConflito(error)) {
+      return res.status(409).json({
+        mensagem:
+          error instanceof Error
+            ? error.message
+            : "Existe um conflito de horário."
+      });
+    }
+
+    console.error(
+      "[AGENDA] Erro ao editar disponibilidade:",
+      error
+    );
+
     return res.status(400).json({
       mensagem:
-        error instanceof Error
-          ? error.message
-          : "Erro ao editar disponibilidade."
+        "Não foi possível editar o horário."
     });
   }
 }
 
 // ========================================
-// REMOVER
+// REMOVER DISPONIBILIDADE
 // ========================================
 
-// Remove disponibilidade
+// Executa exclusão lógica:
+//
+// ativo = false
+//
+// A disponibilidade continua no banco,
+// preservando os dados administrativos.
+//
+// A exclusão também gera um log
+// na AuditoriaAgenda.
 export async function removerDisponibilidadeController(
   req: Request,
   res: Response
 ) {
+
   try {
+
     const usuarioId =
       req.usuario!.id;
 
     const id =
       Number(req.params.id);
 
+    // ====================================
+    // VALIDAR ID
+    // ====================================
+
+    if (!idValido(id)) {
+
+      return res.status(400).json({
+        mensagem:
+          "Identificador de horário inválido."
+      });
+    }
+
+    // ====================================
+    // IDENTIFICAR MÉDICO
+    // ====================================
+
     const medico =
       await buscarMedicoAgendaPorUsuarioId(
         usuarioId
       );
 
+    // Confirma que o horário existe
+    // e pertence ao médico.
     await buscarDisponibilidadeAgendaPorId(
       id,
       medico.id
     );
 
+    // ====================================
+    // REMOVER COM AUDITORIA
+    // ====================================
+
     await removerDisponibilidadeAgenda(
       id,
-      medico.id
+      medico.id,
+      usuarioId
     );
 
+    // Mantém a resposta original.
     return res.json({
       mensagem:
         "Horário removido com sucesso."
     });
+
   } catch (error) {
+
+    console.error(
+      "[AGENDA] Erro ao remover disponibilidade:",
+      error
+    );
+
     return res.status(400).json({
       mensagem:
-        error instanceof Error
-          ? error.message
-          : "Erro ao remover horário."
+        "Não foi possível remover o horário."
     });
   }
 }

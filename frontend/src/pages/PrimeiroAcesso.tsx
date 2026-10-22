@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 // ========================================
 // PRIMEIRO ACESSO
 // ========================================
@@ -229,7 +230,7 @@ import {
   
         const resposta =
           await fetch(
-            "http://localhost:3000/auth/primeiro-acesso/solicitar",
+            `${API_ORIGIN}/auth/primeiro-acesso/solicitar`,
             {
   
               method:
@@ -426,7 +427,7 @@ import {
   
         const resposta =
           await fetch(
-            "http://localhost:3000/auth/primeiro-acesso/concluir",
+            `${API_ORIGIN}/auth/primeiro-acesso/concluir`,
             {
   
               method:
@@ -562,7 +563,7 @@ import {
   
         const resposta =
           await fetch(
-            "http://localhost:3000/auth/primeiro-acesso/solicitar",
+            `${API_ORIGIN}/auth/primeiro-acesso/solicitar`,
             {
   
               method:
@@ -603,39 +604,9 @@ import {
         }
   
   
-        // ========================================
-        // VERIFICAR SE AINDA ESTÁ APTO
-        // ========================================
-  
-        if (
-          dados.apto !== true
-        ) {
-  
-          sessionStorage.removeItem(
-            "emailPrimeiroAcesso"
-          );
-  
-  
-          setCodigo("");
-  
-          setNovaSenha("");
-  
-          setConfirmarSenha("");
-  
-  
-          setEtapa(
-            "EMAIL"
-          );
-  
-  
-          throw new Error(
-            dados.mensagem ||
-            "Este e-mail não está disponível para primeiro acesso."
-          );
-  
-        }
-  
-  
+        // HTTP 200 é genérico: não inferir elegibilidade pela resposta.
+        // A conclusão continua validando o código e a conta no backend.
+
         // ========================================
         // LIMPAR CÓDIGO
         // ========================================
@@ -649,7 +620,7 @@ import {
   
   
         setSucesso(
-          "Um novo código foi enviado. Verifique seu e-mail."
+          dados.mensagem || "Se o e-mail estiver apto ao primeiro acesso, enviaremos um código."
         );
   
       } catch (erro) {

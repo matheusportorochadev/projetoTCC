@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 // ========================================
 // ROTA PROTEGIDA
 // ========================================
@@ -144,7 +145,7 @@ export default function RotaProtegida({
         */
         const resposta =
           await fetch(
-            "http://localhost:3000/perfil",
+            `${API_ORIGIN}/perfil`,
             {
 
               credentials:

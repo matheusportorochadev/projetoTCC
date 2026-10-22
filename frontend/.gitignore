@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Evidências locais podem conter cookies e dados fictícios.
+playwright-report*/
+test-results/
+
+test-results-resumo.json

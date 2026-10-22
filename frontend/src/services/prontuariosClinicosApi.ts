@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/api";
 
 // ========================================
 // API CLÍNICA DOS PRONTUÁRIOS
@@ -26,7 +27,7 @@
 // ========================================
 
 const API_BASE =
-  "http://localhost:3000/prontuarios/clinicos";
+  `${API_ORIGIN}/prontuarios/clinicos`;
 
 
 // ========================================

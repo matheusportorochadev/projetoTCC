@@ -1,3 +1,4 @@
+import { registrarAuditoriaLogin } from "./auditoria-login.service";
 
 // ========================================
 // SERVICE DE ACESSO AOS PRONTUÁRIOS
@@ -112,6 +113,31 @@ export async function cadastrarSenhaProntuario(
       medicoId: medico.id,
       senhaHash
     });
+
+  // ========================================
+  // AUDITORIA — CRIAÇÃO DA SENHA
+  // ========================================
+  // Registra a criação inicial da senha
+  // adicional dos prontuários.
+  //
+  // Utiliza o ID do usuário autenticado.
+  // Nunca armazena a senha ou seu hash.
+  //
+  // Uma eventual falha de auditoria não
+  // desfaz o cadastro já concluído.
+  try {
+    await registrarAuditoriaLogin({
+      usuarioId,
+      perfil: "MEDICO",
+      acao: "SENHA_PRONTUARIO_CRIADA",
+      resultado: "SUCESSO"
+    });
+  } catch (erroAuditoria) {
+    console.error(
+      "[AUDITORIA SEGURANÇA] Falha ao registrar criação da senha dos prontuários:",
+      erroAuditoria
+    );
+  }
 
   return {
     mensagem:

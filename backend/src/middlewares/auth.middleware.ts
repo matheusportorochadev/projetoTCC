@@ -14,6 +14,11 @@ import type {
 } from "express";
 
 import jwt from "jsonwebtoken";
+import {
+  identificadorSessaoValido,
+  sessaoFoiRevogada,
+  PersistenciaSessaoIndisponivel
+} from "../services/sessao.service";
 
 import {
   db
@@ -212,6 +217,12 @@ export async function authMiddleware(
     const dadosToken =
       payload as TokenPayload;
 
+    // Tokens anteriores à revogação por sessão exigem um novo login.
+    if (!identificadorSessaoValido(dadosToken.jti) ||
+        !Number.isSafeInteger(dadosToken.exp)) {
+      return res.status(401).json({ mensagem: "Sessão inválida ou expirada." });
+    }
+
 
     // ========================================
     // VALIDAR ID DO USUÁRIO
@@ -279,6 +290,12 @@ export async function authMiddleware(
       - perfil alterado;
       - primeiro acesso pendente.
     */
+    // A revogação é consultada antes do usuário e vale para todas as rotas,
+    // inclusive as clínicas, cujo router executa este middleware primeiro.
+    if (await sessaoFoiRevogada(token)) {
+      return res.status(401).json({ mensagem: "Sessão inválida ou expirada." });
+    }
+
     const usuario =
       await db.orm.public.Usuario
         .where({
@@ -371,6 +388,14 @@ export async function authMiddleware(
     }
 
 
+    // Tokens emitidos antes desta versão representam a geração zero.
+    // Não se usa iat: duas trocas no mesmo segundo também devem revogar.
+    const versaoToken = dadosToken.versaoSessao ?? 0;
+    if (!Number.isSafeInteger(versaoToken) || versaoToken < 0 ||
+        versaoToken !== (usuario.versaoSessao ?? 0)) {
+      return res.status(401).json({ mensagem: "Sessão inválida ou expirada." });
+    }
+
     // ========================================
     // USUÁRIO AUTENTICADO
     // ========================================
@@ -396,6 +421,11 @@ export async function authMiddleware(
     return next();
 
   } catch (erro) {
+
+    // Falha fechada: indisponibilidade não é confundida com sessão válida.
+    if (erro instanceof PersistenciaSessaoIndisponivel) {
+      return res.status(503).json({ mensagem: erro.message });
+    }
 
     // ========================================
     // ERRO DE CONFIGURAÇÃO

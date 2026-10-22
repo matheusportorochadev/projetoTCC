@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:test": "node --env-file=.env.test scripts/iniciar-backend-testes.mjs",
+    "test:seed": "NODE_ENV=test node --env-file=.env.test --import tsx scripts/criar-usuarios-teste.ts",
+    "test:sessions": "NODE_ENV=test node --env-file=.env.test --import tsx --test tests/sessoes-falhas.test.mjs",
+    "test:db:plan": "NODE_ENV=test node --env-file=.env.test scripts/aplicar-revogacao-testes.mjs",
+    "test:db:apply": "NODE_ENV=test node --env-file=.env.test scripts/aplicar-revogacao-testes.mjs --apply",
+    "test:scripts": "NODE_ENV=test node --env-file=.env.test --import tsx src/scripts/testar-criptografia-prontuario.ts && NODE_ENV=test node --env-file=.env.test --import tsx src/scripts/testar-integracao-prontuario.ts"
   },
   "keywords": [],
   "author": "",

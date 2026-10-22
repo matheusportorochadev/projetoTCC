@@ -228,52 +228,21 @@ export default function PacienteLayout() {
   // SAIR DO SISTEMA
   // ========================================
 
+  const [erroLogout, setErroLogout] = useState("");
+
   async function sair() {
-
+    setErroLogout("");
     try {
-
-      /*
-        O cookie HttpOnly não pode
-        ser removido diretamente
-        pelo JavaScript.
-
-        Por isso chamamos o backend.
-      */
       await fazerLogout();
-
-    } catch (erro) {
-
-      console.error(
-        "Erro ao realizar logout:",
-        erro
-      );
-
-    } finally {
-
-      /*
-        Limpeza dos dados antigos
-        usados durante a migração.
-      */
-      localStorage.removeItem(
-        "token"
-      );
-
-
-      localStorage.removeItem(
-        "usuario"
-      );
-
-
-      setMenuAberto(
-        false
-      );
-
-
-      navigate(
-        "/login"
-      );
-
+    } catch {
+      // Só anuncia a saída quando a revogação foi confirmada pelo backend.
+      setErroLogout("Não foi possível encerrar a sessão com segurança. Tente novamente.");
+      return;
     }
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setMenuAberto(false);
+    navigate("/login");
   }
 
 
@@ -283,6 +252,7 @@ export default function PacienteLayout() {
 
   return (
     <div className="paciente-layout">
+      {erroLogout && <p role="alert">{erroLogout}</p>}
 
       {/* NAVBAR */}
       <header className="paciente-navbar">

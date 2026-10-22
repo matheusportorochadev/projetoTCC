@@ -710,6 +710,14 @@ export default function PainelClinicoProntuarios({
   const [pacienteId, setPacienteId] =
     useState<number | null>(null);
 
+  // Texto informado no campo de pesquisa.
+  const [buscaPaciente, setBuscaPaciente] =
+    useState("");
+
+  // Controla a exibição da lista de resultados.
+  const [pesquisaAberta, setPesquisaAberta] =
+    useState(false);
+
   // ========================================
   // HISTÓRICO E DOCUMENTOS
   // ========================================
@@ -873,11 +881,111 @@ export default function PainelClinicoProntuarios({
     ) ?? null;
 
   // ========================================
+  // PESQUISA DE PACIENTES
+  // ========================================
+
+  // Ignora diferenças de acentos e letras
+  // maiúsculas/minúsculas durante a pesquisa.
+  function normalizarNome(texto: string): string {
+    return texto
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("pt-BR")
+      .trim();
+  }
+
+  const pacientesFiltrados = pacientes.filter(
+    (paciente) =>
+      normalizarNome(paciente.nome).includes(
+        normalizarNome(buscaPaciente)
+      )
+  );
+
+  // Limita a quantidade de opções renderizadas.
+  // A pesquisa continua considerando todos os
+  // pacientes devolvidos pela API autorizada.
+  const resultadosPesquisa =
+    pacientesFiltrados.slice(0, 30);
+
+  const selecaoBloqueada =
+    carregandoPacientes ||
+    carregandoRegistro ||
+    (modo === "novo" && formularioAberto);
+
+  // Selecionar um paciente continua utilizando
+  // a função original de carregamento.
+  function escolherPacientePesquisa(id: number) {
+    alterarPaciente(String(id));
+    setBuscaPaciente("");
+    setPesquisaAberta(false);
+  }
+
+  // ========================================
   // SEPARAR REGISTROS VISÍVEIS E OCULTOS
   // ========================================
 
   const registros =
     historico?.prontuarios ?? [];
+
+  // ========================================
+  // NÚMERO VISUAL DO PRONTUÁRIO
+  // ========================================
+
+  function numeroProntuario(
+    prontuarioId: number
+  ): number | null {
+
+    const todos = registros.map((item) => ({
+      id: item.id,
+      createdAt: item.createdAt
+    }));
+
+    // Considera o prontuário recém-criado,
+    // mesmo antes de atualizar o histórico.
+    if (
+      registro !== null &&
+      registro.pacienteId === pacienteId &&
+      !todos.some((item) => item.id === registro.id)
+    ) {
+      todos.push({
+        id: registro.id,
+        createdAt: registro.createdAt
+      });
+    }
+
+    // Do mais antigo para o mais recente.
+    // O ID desempata datas iguais.
+    todos.sort((a, b) => {
+      const dataA = new Date(a.createdAt).getTime();
+      const dataB = new Date(b.createdAt).getTime();
+
+      if (dataA !== dataB) {
+        return dataA - dataB;
+      }
+
+      return a.id - b.id;
+    });
+
+    const indice = todos.findIndex(
+      (item) => item.id === prontuarioId
+    );
+
+    return indice === -1 ? null : indice + 1;
+  }
+
+  // Gera o rótulo usado na interface.
+  // Nunca modifica o identificador real.
+  function rotuloProntuario(
+    prontuarioId: number
+  ): string {
+
+    const numero = numeroProntuario(prontuarioId);
+
+    return numero !== null
+      ? `Prontuário ${numero}`
+      : `Registro clínico (ID ${prontuarioId})`;
+  }
+
 
   const registrosVisiveis = registros.filter(
     (item) =>
@@ -1198,8 +1306,8 @@ export default function PainelClinicoProntuarios({
 
     setMensagem(
       persistiu
-        ? `Prontuário ${id} ocultado neste navegador.`
-        : `Prontuário ${id} ocultado nesta sessão.`
+        ? `${rotuloProntuario(id)} ocultado neste navegador.`
+        : `${rotuloProntuario(id)} ocultado nesta sessão.`
     );
   }
 
@@ -1227,7 +1335,7 @@ export default function PainelClinicoProntuarios({
     setOcultos(atualizados);
 
     setMensagem(
-      `Prontuário ${prontuarioId} restaurado na lista principal.`
+      `${rotuloProntuario(prontuarioId)} restaurado na lista principal.`
     );
   }
 
@@ -1278,7 +1386,7 @@ export default function PainelClinicoProntuarios({
     setErro("");
 
     setMensagem(
-      `Prontuário ${novoProntuario.id} salvo com sucesso.`
+      `${rotuloProntuario(novoProntuario.id)} salvo com sucesso.`
     );
   }
 
@@ -1372,51 +1480,160 @@ export default function PainelClinicoProntuarios({
       <div className="painel-clinico-selecao">
 
         <label
-          htmlFor="paciente-prontuario"
+          htmlFor="pesquisa-paciente-prontuario"
           className="painel-clinico-rotulo"
         >
           Paciente
         </label>
 
-        <select
-          id="paciente-prontuario"
-          value={pacienteId ?? ""}
-          onChange={(evento) => {
-            alterarPaciente(evento.target.value);
-          }}
-          disabled={
-            carregandoPacientes ||
-            carregandoRegistro ||
-            (modo === "novo" && formularioAberto)
-          }
-        >
-          <option value="">
-            Selecione um paciente
-          </option>
+        {/* ====================================
+            PACIENTE SELECIONADO
+        ==================================== */}
 
-          {pacientes.map((paciente) => (
-            <option
-              key={paciente.id}
-              value={paciente.id}
+        {pacienteSelecionado && !pesquisaAberta ? (
+
+          <div className="pc-paciente-selecionado">
+
+            <div className="pc-paciente-avatar">
+              {pacienteSelecionado.nome
+                .charAt(0)
+                .toLocaleUpperCase("pt-BR")}
+            </div>
+
+            <div className="pc-paciente-info">
+              <span className="pc-paciente-status">
+                Paciente selecionado
+              </span>
+
+              <strong>
+                {pacienteSelecionado.nome}
+              </strong>
+            </div>
+
+            <button
+              type="button"
+              className="pc-paciente-alterar"
+              disabled={selecaoBloqueada}
+              onClick={() => {
+                setBuscaPaciente("");
+                setPesquisaAberta(true);
+              }}
             >
-              {paciente.nome}
-            </option>
-          ))}
-        </select>
+              Alterar paciente
+            </button>
+
+          </div>
+
+        ) : (
+
+          <div className="pc-pesquisa-container">
+
+            {/* Campo de pesquisa. Digitar aqui
+                não altera o paciente atual. */}
+
+            <div className="pc-pesquisa-campo">
+              <span aria-hidden="true">
+                ⌕
+              </span>
+
+              <input
+                id="pesquisa-paciente-prontuario"
+                type="search"
+                autoComplete="off"
+                placeholder="Digite o nome do paciente..."
+                value={buscaPaciente}
+                disabled={selecaoBloqueada}
+                onChange={(evento) => {
+                  setBuscaPaciente(evento.target.value);
+                  setPesquisaAberta(true);
+                }}
+              />
+            </div>
+
+            {!carregandoPacientes && (
+              <div className="pc-pesquisa-resultados">
+
+                <div className="pc-pesquisa-cabecalho">
+                  <span>
+                    {pacientesFiltrados.length}
+                    {" "}
+                    {pacientesFiltrados.length === 1
+                      ? "paciente encontrado"
+                      : "pacientes encontrados"}
+                  </span>
+                </div>
+
+                {resultadosPesquisa.length === 0 ? (
+                  <p className="pc-pesquisa-vazia">
+                    Nenhum paciente encontrado.
+                  </p>
+                ) : (
+                  <ul className="pc-pesquisa-lista">
+                    {resultadosPesquisa.map((paciente) => (
+                      <li key={paciente.id}>
+                        <button
+                          type="button"
+                          className="pc-pesquisa-opcao"
+                          disabled={selecaoBloqueada}
+                          onClick={() => {
+                            escolherPacientePesquisa(
+                              paciente.id
+                            );
+                          }}
+                        >
+                          <span className="pc-paciente-avatar">
+                            {paciente.nome
+                              .charAt(0)
+                              .toLocaleUpperCase("pt-BR")}
+                          </span>
+
+                          <span className="pc-pesquisa-nome">
+                            <strong>
+                              {paciente.nome}
+                            </strong>
+
+                            <small>
+                              Selecionar paciente
+                            </small>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {pacientesFiltrados.length > 30 && (
+                  <p className="pc-pesquisa-dica">
+                    Digite mais letras para
+                    refinar os resultados.
+                  </p>
+                )}
+
+              </div>
+            )}
+
+            {pacienteSelecionado && (
+              <button
+                type="button"
+                className="pc-pesquisa-cancelar"
+                disabled={selecaoBloqueada}
+                onClick={() => {
+                  setPesquisaAberta(false);
+                  setBuscaPaciente("");
+                }}
+              >
+                Manter paciente atual
+              </button>
+            )}
+
+          </div>
+        )}
 
         {carregandoPacientes && (
           <p role="status">
             Carregando pacientes...
           </p>
         )}
-
-        {!carregandoPacientes &&
-          pacientes.length === 0 &&
-          !erro && (
-            <p>
-              Nenhum paciente encontrado.
-            </p>
-          )}
 
       </div>
 
@@ -1519,7 +1736,7 @@ export default function PainelClinicoProntuarios({
 
                       <span>
                         <strong>
-                          Prontuário {item.id}
+                          {rotuloProntuario(item.id)}
                         </strong>
 
                         {" — "}
@@ -1608,6 +1825,7 @@ export default function PainelClinicoProntuarios({
             )}
 
             <FormularioProntuario
+              key={pacienteSelecionado.id}
               paciente={{
                 id: pacienteSelecionado.id,
                 nome: pacienteSelecionado.nome
@@ -1661,7 +1879,7 @@ export default function PainelClinicoProntuarios({
             </h3>
 
             <p>
-              Prontuário {registro.id} registrado
+              {rotuloProntuario(registro.id)} registrado
               no histórico do paciente.
             </p>
 
@@ -1718,7 +1936,7 @@ export default function PainelClinicoProntuarios({
               </div>
 
               <span className="painel-clinico-status-salvo">
-                Prontuário {registro.id}
+                {rotuloProntuario(registro.id)}
               </span>
 
             </header>
@@ -1748,7 +1966,7 @@ export default function PainelClinicoProntuarios({
                   <span>Registro de referência</span>
 
                   <strong>
-                    Prontuário {registro.prontuarioAnteriorId}
+                    {rotuloProntuario(registro.prontuarioAnteriorId)}
                   </strong>
                 </div>
               )}
@@ -1886,7 +2104,11 @@ export default function PainelClinicoProntuarios({
             <p id="modal-ocultar-descricao">
               O prontuário{" "}
               <strong>
-                {modalOcultacao.prontuarioId}
+                {
+                  numeroProntuario(
+                    modalOcultacao.prontuarioId
+                  ) ?? `ID ${modalOcultacao.prontuarioId}`
+                }
               </strong>{" "}
               será retirado da lista principal
               deste navegador.

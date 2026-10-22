@@ -1,0 +1,2845 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.acessoProntuario",
+    "label": "Create table \"acessoProntuario\"",
+    "summary": "Creates table \"acessoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "acessoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"acessoProntuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"acessoProntuario\"",
+        "sql": "CREATE TABLE \"public\".\"acessoProntuario\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  \"senhaHash\" text NOT NULL,\n  \"versaoAutorizacao\" int4 DEFAULT 0 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"acessoProntuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.agendamento",
+    "label": "Create table \"agendamento\"",
+    "summary": "Creates table \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"agendamento\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"agendamento\"",
+        "sql": "CREATE TABLE \"public\".\"agendamento\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"data\" date NOT NULL,\n  \"horaFim\" text NOT NULL,\n  \"horaInicio\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  \"pacienteId\" int4 NOT NULL,\n  \"status\" text DEFAULT 'PENDENTE' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"agendamento_status_check_ea658e59\" CHECK (\"status\" IN ('AGENDADA', 'PENDENTE', 'CONFIRMADA', 'REALIZADA', 'RECUSADA', 'CANCELADA', 'FALTOU'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"agendamento\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auditoriaAgenda",
+    "label": "Create table \"auditoriaAgenda\"",
+    "summary": "Creates table \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auditoriaAgenda\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auditoriaAgenda\"",
+        "sql": "CREATE TABLE \"public\".\"auditoriaAgenda\" (\n  \"acao\" text NOT NULL,\n  \"agendamentoId\" int4,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"dataAgenda\" date,\n  \"disponibilidadeId\" int4,\n  \"horaFim\" text,\n  \"horaInicio\" text,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4,\n  \"requisicaoId\" text,\n  \"resultado\" text NOT NULL,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auditoriaAgenda\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auditoriaLogin",
+    "label": "Create table \"auditoriaLogin\"",
+    "summary": "Creates table \"auditoriaLogin\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auditoriaLogin"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auditoriaLogin\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auditoriaLogin\"",
+        "sql": "CREATE TABLE \"public\".\"auditoriaLogin\" (\n  \"acao\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"ip\" text,\n  \"perfil\" text,\n  \"requisicaoId\" text,\n  \"resultado\" text NOT NULL,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auditoriaLogin\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auditoriaPaciente",
+    "label": "Create table \"auditoriaPaciente\"",
+    "summary": "Creates table \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auditoriaPaciente\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auditoriaPaciente\"",
+        "sql": "CREATE TABLE \"public\".\"auditoriaPaciente\" (\n  \"acao\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4,\n  \"pacienteId\" int4,\n  \"requisicaoId\" text,\n  \"resultado\" text NOT NULL,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auditoriaPaciente\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auditoriaProntuario",
+    "label": "Create table \"auditoriaProntuario\"",
+    "summary": "Creates table \"auditoriaProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auditoriaProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auditoriaProntuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auditoriaProntuario\"",
+        "sql": "CREATE TABLE \"public\".\"auditoriaProntuario\" (\n  \"acao\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4,\n  \"pacienteId\" int4,\n  \"prontuarioId\" int4,\n  \"requisicaoId\" text,\n  \"resultado\" text NOT NULL,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auditoriaProntuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.codigoPrimeiroAcesso",
+    "label": "Create table \"codigoPrimeiroAcesso\"",
+    "summary": "Creates table \"codigoPrimeiroAcesso\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "codigoPrimeiroAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"codigoPrimeiroAcesso\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"codigoPrimeiroAcesso\"",
+        "sql": "CREATE TABLE \"public\".\"codigoPrimeiroAcesso\" (\n  \"codigoHash\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"expiraEm\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"tentativas\" int4 DEFAULT 0 NOT NULL,\n  \"usado\" bool DEFAULT false NOT NULL,\n  \"usuarioId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"codigoPrimeiroAcesso\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.codigoRecuperacaoProntuario",
+    "label": "Create table \"codigoRecuperacaoProntuario\"",
+    "summary": "Creates table \"codigoRecuperacaoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "codigoRecuperacaoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"codigoRecuperacaoProntuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"codigoRecuperacaoProntuario\"",
+        "sql": "CREATE TABLE \"public\".\"codigoRecuperacaoProntuario\" (\n  \"codigoHash\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"expiraEm\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  \"tentativas\" int4 DEFAULT 0 NOT NULL,\n  \"usado\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"codigoRecuperacaoProntuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.codigoRedefinicaoSenha",
+    "label": "Create table \"codigoRedefinicaoSenha\"",
+    "summary": "Creates table \"codigoRedefinicaoSenha\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "codigoRedefinicaoSenha"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"codigoRedefinicaoSenha\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRedefinicaoSenha\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"codigoRedefinicaoSenha\"",
+        "sql": "CREATE TABLE \"public\".\"codigoRedefinicaoSenha\" (\n  \"codigo\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"expiraEm\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"usado\" bool DEFAULT false NOT NULL,\n  \"usuarioId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"codigoRedefinicaoSenha\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRedefinicaoSenha\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.disponibilidadeAgenda",
+    "label": "Create table \"disponibilidadeAgenda\"",
+    "summary": "Creates table \"disponibilidadeAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "disponibilidadeAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"disponibilidadeAgenda\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"disponibilidadeAgenda\"",
+        "sql": "CREATE TABLE \"public\".\"disponibilidadeAgenda\" (\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"data\" date NOT NULL,\n  \"duracaoConsulta\" int4 DEFAULT 30 NOT NULL,\n  \"horaFim\" text NOT NULL,\n  \"horaInicio\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"disponibilidadeAgenda\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.medico",
+    "label": "Create table \"medico\"",
+    "summary": "Creates table \"medico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "medico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"medico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"medico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"medico\"",
+        "sql": "CREATE TABLE \"public\".\"medico\" (\n  \"crm\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"usuarioId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"medico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"medico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.paciente",
+    "label": "Create table \"paciente\"",
+    "summary": "Creates table \"paciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"paciente\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"paciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"paciente\"",
+        "sql": "CREATE TABLE \"public\".\"paciente\" (\n  \"acessoLiberado\" bool DEFAULT false NOT NULL,\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"cpf\" text,\n  \"email\" text,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  \"nome\" text NOT NULL,\n  \"telefone\" text,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"paciente\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"paciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.prontuario",
+    "label": "Create table \"prontuario\"",
+    "summary": "Creates table \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"prontuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"prontuario\"",
+        "sql": "CREATE TABLE \"public\".\"prontuario\" (\n  \"conduta\" text,\n  \"conteudoCriptografado\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"exameFisico\" text,\n  \"examesComplementares\" text,\n  \"historiaMolestiaAtual\" text,\n  \"historiaPatologicaPregressa\" text,\n  \"id\" SERIAL NOT NULL,\n  \"medicoId\" int4 NOT NULL,\n  \"pacienteId\" int4 NOT NULL,\n  \"prontuarioAnteriorId\" int4,\n  \"queixaPrincipal\" text,\n  \"versaoChave\" int4 DEFAULT 1 NOT NULL,\n  \"versaoSchema\" int4 DEFAULT 1 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"prontuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.remarcacaoAgendamento",
+    "label": "Create table \"remarcacaoAgendamento\"",
+    "summary": "Creates table \"remarcacaoAgendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "remarcacaoAgendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"remarcacaoAgendamento\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"remarcacaoAgendamento\"",
+        "sql": "CREATE TABLE \"public\".\"remarcacaoAgendamento\" (\n  \"agendamentoId\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"novaData\" date NOT NULL,\n  \"novaHoraFim\" text NOT NULL,\n  \"novaHoraInicio\" text NOT NULL,\n  \"status\" text DEFAULT 'PENDENTE' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"visualizadoPaciente\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"remarcacaoAgendamento_status_check_1b3b9d6e\" CHECK (\"status\" IN ('PENDENTE', 'ACEITA', 'RECUSADA'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"remarcacaoAgendamento\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.usuario",
+    "label": "Create table \"usuario\"",
+    "summary": "Creates table \"usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"usuario\"",
+        "sql": "CREATE TABLE \"public\".\"usuario\" (\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"nome\" text NOT NULL,\n  \"primeiroAcesso\" bool DEFAULT true NOT NULL,\n  \"senha\" text,\n  \"tipo\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"usuario_tipo_check_bfb6584f\" CHECK (\"tipo\" IN ('ADMIN', 'MEDICO', 'PACIENTE'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.acessoProntuario.acessoProntuario_medicoId_key",
+    "label": "Add unique constraint on \"acessoProntuario\" (medicoId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "acessoProntuario_medicoId_key",
+        "table": "acessoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"acessoProntuario_medicoId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "acessoProntuario_medicoId_key",
+          "public",
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"acessoProntuario_medicoId_key\"",
+        "sql": "ALTER TABLE \"public\".\"acessoProntuario\" ADD CONSTRAINT \"acessoProntuario_medicoId_key\" UNIQUE (\"medicoId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"acessoProntuario_medicoId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "acessoProntuario_medicoId_key",
+          "public",
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.medico.medico_usuarioId_key",
+    "label": "Add unique constraint on \"medico\" (usuarioId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "medico_usuarioId_key",
+        "table": "medico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"medico_usuarioId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_usuarioId_key",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"medico_usuarioId_key\"",
+        "sql": "ALTER TABLE \"public\".\"medico\" ADD CONSTRAINT \"medico_usuarioId_key\" UNIQUE (\"usuarioId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"medico_usuarioId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_usuarioId_key",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.medico.medico_crm_key",
+    "label": "Add unique constraint on \"medico\" (crm)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "medico_crm_key",
+        "table": "medico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"medico_crm_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_crm_key",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"medico_crm_key\"",
+        "sql": "ALTER TABLE \"public\".\"medico\" ADD CONSTRAINT \"medico_crm_key\" UNIQUE (\"crm\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"medico_crm_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_crm_key",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.paciente.paciente_usuarioId_key",
+    "label": "Add unique constraint on \"paciente\" (usuarioId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "paciente_usuarioId_key",
+        "table": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"paciente_usuarioId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_usuarioId_key",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"paciente_usuarioId_key\"",
+        "sql": "ALTER TABLE \"public\".\"paciente\" ADD CONSTRAINT \"paciente_usuarioId_key\" UNIQUE (\"usuarioId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"paciente_usuarioId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_usuarioId_key",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.paciente.paciente_cpf_key",
+    "label": "Add unique constraint on \"paciente\" (cpf)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "paciente_cpf_key",
+        "table": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"paciente_cpf_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_cpf_key",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"paciente_cpf_key\"",
+        "sql": "ALTER TABLE \"public\".\"paciente\" ADD CONSTRAINT \"paciente_cpf_key\" UNIQUE (\"cpf\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"paciente_cpf_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_cpf_key",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.usuario.usuario_email_key",
+    "label": "Add unique constraint on \"usuario\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "usuario_email_key",
+        "table": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usuario_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuario_email_key",
+          "public",
+          "\"public\".\"usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"usuario_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"usuario\" ADD CONSTRAINT \"usuario_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"usuario_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuario_email_key",
+          "public",
+          "\"public\".\"usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agendamento.agendamento_medicoId_data_horaInicio_idx_1b9f7301",
+    "label": "Create index \"agendamento_medicoId_data_horaInicio_idx_1b9f7301\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agendamento_medicoId_data_horaInicio_idx_1b9f7301",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agendamento_medicoId_data_horaInicio_idx_1b9f7301\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_data_horaInicio_idx_1b9f7301\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agendamento_medicoId_data_horaInicio_idx_1b9f7301\"",
+        "sql": "CREATE INDEX \"agendamento_medicoId_data_horaInicio_idx_1b9f7301\" ON \"public\".\"agendamento\" (\"medicoId\", \"data\", \"horaInicio\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agendamento_medicoId_data_horaInicio_idx_1b9f7301\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_data_horaInicio_idx_1b9f7301\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agendamento.agendamento_medicoId_data_idx_20edd9d1",
+    "label": "Create index \"agendamento_medicoId_data_idx_20edd9d1\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agendamento_medicoId_data_idx_20edd9d1",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agendamento_medicoId_data_idx_20edd9d1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_data_idx_20edd9d1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agendamento_medicoId_data_idx_20edd9d1\"",
+        "sql": "CREATE INDEX \"agendamento_medicoId_data_idx_20edd9d1\" ON \"public\".\"agendamento\" (\"medicoId\", \"data\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agendamento_medicoId_data_idx_20edd9d1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_data_idx_20edd9d1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agendamento.agendamento_medicoId_idx_cef7d96a",
+    "label": "Create index \"agendamento_medicoId_idx_cef7d96a\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agendamento_medicoId_idx_cef7d96a",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agendamento_medicoId_idx_cef7d96a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agendamento_medicoId_idx_cef7d96a\"",
+        "sql": "CREATE INDEX \"agendamento_medicoId_idx_cef7d96a\" ON \"public\".\"agendamento\" (\"medicoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agendamento_medicoId_idx_cef7d96a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agendamento.agendamento_pacienteId_data_idx_4b9c5eee",
+    "label": "Create index \"agendamento_pacienteId_data_idx_4b9c5eee\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agendamento_pacienteId_data_idx_4b9c5eee",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agendamento_pacienteId_data_idx_4b9c5eee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_pacienteId_data_idx_4b9c5eee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agendamento_pacienteId_data_idx_4b9c5eee\"",
+        "sql": "CREATE INDEX \"agendamento_pacienteId_data_idx_4b9c5eee\" ON \"public\".\"agendamento\" (\"pacienteId\", \"data\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agendamento_pacienteId_data_idx_4b9c5eee\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_pacienteId_data_idx_4b9c5eee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agendamento.agendamento_pacienteId_idx_8734dc3f",
+    "label": "Create index \"agendamento_pacienteId_idx_8734dc3f\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agendamento_pacienteId_idx_8734dc3f",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agendamento_pacienteId_idx_8734dc3f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_pacienteId_idx_8734dc3f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agendamento_pacienteId_idx_8734dc3f\"",
+        "sql": "CREATE INDEX \"agendamento_pacienteId_idx_8734dc3f\" ON \"public\".\"agendamento\" (\"pacienteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agendamento_pacienteId_idx_8734dc3f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agendamento_pacienteId_idx_8734dc3f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_acao_createdAt_idx_1bb6e007",
+    "label": "Create index \"auditoriaAgenda_acao_createdAt_idx_1bb6e007\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_acao_createdAt_idx_1bb6e007",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_acao_createdAt_idx_1bb6e007\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_acao_createdAt_idx_1bb6e007\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_acao_createdAt_idx_1bb6e007\" ON \"public\".\"auditoriaAgenda\" (\"acao\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_acao_createdAt_idx_1bb6e007\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9",
+    "label": "Create index \"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\" ON \"public\".\"auditoriaAgenda\" (\"agendamentoId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_agendamentoId_createdAt_idx_aba1c0f9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_createdAt_idx_9575dbd7",
+    "label": "Create index \"auditoriaAgenda_createdAt_idx_9575dbd7\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_createdAt_idx_9575dbd7",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_createdAt_idx_9575dbd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_createdAt_idx_9575dbd7\" ON \"public\".\"auditoriaAgenda\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99",
+    "label": "Create index \"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\" ON \"public\".\"auditoriaAgenda\" (\"disponibilidadeId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_disponibilidadeId_createdAt_idx_71c80c99\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_medicoId_createdAt_idx_d972e011",
+    "label": "Create index \"auditoriaAgenda_medicoId_createdAt_idx_d972e011\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_medicoId_createdAt_idx_d972e011",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_medicoId_createdAt_idx_d972e011\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_medicoId_createdAt_idx_d972e011\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_medicoId_createdAt_idx_d972e011\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_medicoId_createdAt_idx_d972e011\" ON \"public\".\"auditoriaAgenda\" (\"medicoId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_medicoId_createdAt_idx_d972e011\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_medicoId_createdAt_idx_d972e011\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaAgenda.auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd",
+    "label": "Create index \"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\" on \"auditoriaAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd",
+        "table": "auditoriaAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\"",
+        "sql": "CREATE INDEX \"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\" ON \"public\".\"auditoriaAgenda\" (\"usuarioId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaAgenda_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaLogin.auditoriaLogin_acao_createdAt_idx_1bb6e007",
+    "label": "Create index \"auditoriaLogin_acao_createdAt_idx_1bb6e007\" on \"auditoriaLogin\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaLogin_acao_createdAt_idx_1bb6e007",
+        "table": "auditoriaLogin"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaLogin_acao_createdAt_idx_1bb6e007\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaLogin_acao_createdAt_idx_1bb6e007\"",
+        "sql": "CREATE INDEX \"auditoriaLogin_acao_createdAt_idx_1bb6e007\" ON \"public\".\"auditoriaLogin\" (\"acao\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaLogin_acao_createdAt_idx_1bb6e007\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaLogin.auditoriaLogin_createdAt_idx_9575dbd7",
+    "label": "Create index \"auditoriaLogin_createdAt_idx_9575dbd7\" on \"auditoriaLogin\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaLogin_createdAt_idx_9575dbd7",
+        "table": "auditoriaLogin"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaLogin_createdAt_idx_9575dbd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaLogin_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"auditoriaLogin_createdAt_idx_9575dbd7\" ON \"public\".\"auditoriaLogin\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaLogin_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaLogin.auditoriaLogin_resultado_createdAt_idx_f789afcc",
+    "label": "Create index \"auditoriaLogin_resultado_createdAt_idx_f789afcc\" on \"auditoriaLogin\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaLogin_resultado_createdAt_idx_f789afcc",
+        "table": "auditoriaLogin"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaLogin_resultado_createdAt_idx_f789afcc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_resultado_createdAt_idx_f789afcc\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaLogin_resultado_createdAt_idx_f789afcc\"",
+        "sql": "CREATE INDEX \"auditoriaLogin_resultado_createdAt_idx_f789afcc\" ON \"public\".\"auditoriaLogin\" (\"resultado\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaLogin_resultado_createdAt_idx_f789afcc\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_resultado_createdAt_idx_f789afcc\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaLogin.auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd",
+    "label": "Create index \"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\" on \"auditoriaLogin\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd",
+        "table": "auditoriaLogin"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\"",
+        "sql": "CREATE INDEX \"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\" ON \"public\".\"auditoriaLogin\" (\"usuarioId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaLogin_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaPaciente.auditoriaPaciente_acao_createdAt_idx_1bb6e007",
+    "label": "Create index \"auditoriaPaciente_acao_createdAt_idx_1bb6e007\" on \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaPaciente_acao_createdAt_idx_1bb6e007",
+        "table": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaPaciente_acao_createdAt_idx_1bb6e007\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaPaciente_acao_createdAt_idx_1bb6e007\"",
+        "sql": "CREATE INDEX \"auditoriaPaciente_acao_createdAt_idx_1bb6e007\" ON \"public\".\"auditoriaPaciente\" (\"acao\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaPaciente_acao_createdAt_idx_1bb6e007\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaPaciente.auditoriaPaciente_createdAt_idx_9575dbd7",
+    "label": "Create index \"auditoriaPaciente_createdAt_idx_9575dbd7\" on \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaPaciente_createdAt_idx_9575dbd7",
+        "table": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaPaciente_createdAt_idx_9575dbd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaPaciente_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"auditoriaPaciente_createdAt_idx_9575dbd7\" ON \"public\".\"auditoriaPaciente\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaPaciente_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaPaciente.auditoriaPaciente_medicoId_createdAt_idx_d972e011",
+    "label": "Create index \"auditoriaPaciente_medicoId_createdAt_idx_d972e011\" on \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaPaciente_medicoId_createdAt_idx_d972e011",
+        "table": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaPaciente_medicoId_createdAt_idx_d972e011\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_medicoId_createdAt_idx_d972e011\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaPaciente_medicoId_createdAt_idx_d972e011\"",
+        "sql": "CREATE INDEX \"auditoriaPaciente_medicoId_createdAt_idx_d972e011\" ON \"public\".\"auditoriaPaciente\" (\"medicoId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaPaciente_medicoId_createdAt_idx_d972e011\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_medicoId_createdAt_idx_d972e011\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaPaciente.auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10",
+    "label": "Create index \"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\" on \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10",
+        "table": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\"",
+        "sql": "CREATE INDEX \"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\" ON \"public\".\"auditoriaPaciente\" (\"pacienteId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_pacienteId_createdAt_idx_4c3fde10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaPaciente.auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd",
+    "label": "Create index \"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\" on \"auditoriaPaciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd",
+        "table": "auditoriaPaciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\"",
+        "sql": "CREATE INDEX \"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\" ON \"public\".\"auditoriaPaciente\" (\"usuarioId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaPaciente_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaProntuario.auditoriaProntuario_acao_createdAt_idx_1bb6e007",
+    "label": "Create index \"auditoriaProntuario_acao_createdAt_idx_1bb6e007\" on \"auditoriaProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaProntuario_acao_createdAt_idx_1bb6e007",
+        "table": "auditoriaProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaProntuario_acao_createdAt_idx_1bb6e007\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaProntuario_acao_createdAt_idx_1bb6e007\"",
+        "sql": "CREATE INDEX \"auditoriaProntuario_acao_createdAt_idx_1bb6e007\" ON \"public\".\"auditoriaProntuario\" (\"acao\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaProntuario_acao_createdAt_idx_1bb6e007\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_acao_createdAt_idx_1bb6e007\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaProntuario.auditoriaProntuario_createdAt_idx_9575dbd7",
+    "label": "Create index \"auditoriaProntuario_createdAt_idx_9575dbd7\" on \"auditoriaProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaProntuario_createdAt_idx_9575dbd7",
+        "table": "auditoriaProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaProntuario_createdAt_idx_9575dbd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaProntuario_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"auditoriaProntuario_createdAt_idx_9575dbd7\" ON \"public\".\"auditoriaProntuario\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaProntuario_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_createdAt_idx_9575dbd7\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaProntuario.auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea",
+    "label": "Create index \"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\" on \"auditoriaProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea",
+        "table": "auditoriaProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\"",
+        "sql": "CREATE INDEX \"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\" ON \"public\".\"auditoriaProntuario\" (\"prontuarioId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_prontuarioId_createdAt_idx_7fa2c1ea\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditoriaProntuario.auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd",
+    "label": "Create index \"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\" on \"auditoriaProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd",
+        "table": "auditoriaProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\"",
+        "sql": "CREATE INDEX \"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\" ON \"public\".\"auditoriaProntuario\" (\"usuarioId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditoriaProntuario_usuarioId_createdAt_idx_7f0b6cbd\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.codigoPrimeiroAcesso.codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\" on \"codigoPrimeiroAcesso\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6",
+        "table": "codigoPrimeiroAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\" ON \"public\".\"codigoPrimeiroAcesso\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.codigoPrimeiroAcesso.codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520",
+    "label": "Create index \"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\" on \"codigoPrimeiroAcesso\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520",
+        "table": "codigoPrimeiroAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\"",
+        "sql": "CREATE INDEX \"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\" ON \"public\".\"codigoPrimeiroAcesso\" (\"usuarioId\", \"usado\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoPrimeiroAcesso_usuarioId_usado_idx_564cb520\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.codigoRecuperacaoProntuario.codigoRecuperacaoProntuario_medicoId_idx_cef7d96a",
+    "label": "Create index \"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\" on \"codigoRecuperacaoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "codigoRecuperacaoProntuario_medicoId_idx_cef7d96a",
+        "table": "codigoRecuperacaoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\"",
+        "sql": "CREATE INDEX \"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\" ON \"public\".\"codigoRecuperacaoProntuario\" (\"medicoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.codigoRecuperacaoProntuario.codigoRecuperacaoProntuario_medicoId_usado_idx_44145758",
+    "label": "Create index \"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\" on \"codigoRecuperacaoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "codigoRecuperacaoProntuario_medicoId_usado_idx_44145758",
+        "table": "codigoRecuperacaoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\"",
+        "sql": "CREATE INDEX \"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\" ON \"public\".\"codigoRecuperacaoProntuario\" (\"medicoId\", \"usado\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRecuperacaoProntuario_medicoId_usado_idx_44145758\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.codigoRedefinicaoSenha.codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\" on \"codigoRedefinicaoSenha\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6",
+        "table": "codigoRedefinicaoSenha"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\" ON \"public\".\"codigoRedefinicaoSenha\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"codigoRedefinicaoSenha_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.disponibilidadeAgenda.disponibilidadeAgenda_medicoId_data_idx_20edd9d1",
+    "label": "Create index \"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\" on \"disponibilidadeAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "disponibilidadeAgenda_medicoId_data_idx_20edd9d1",
+        "table": "disponibilidadeAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\"",
+        "sql": "CREATE INDEX \"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\" ON \"public\".\"disponibilidadeAgenda\" (\"medicoId\", \"data\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda_medicoId_data_idx_20edd9d1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.disponibilidadeAgenda.disponibilidadeAgenda_medicoId_idx_cef7d96a",
+    "label": "Create index \"disponibilidadeAgenda_medicoId_idx_cef7d96a\" on \"disponibilidadeAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "disponibilidadeAgenda_medicoId_idx_cef7d96a",
+        "table": "disponibilidadeAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"disponibilidadeAgenda_medicoId_idx_cef7d96a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"disponibilidadeAgenda_medicoId_idx_cef7d96a\"",
+        "sql": "CREATE INDEX \"disponibilidadeAgenda_medicoId_idx_cef7d96a\" ON \"public\".\"disponibilidadeAgenda\" (\"medicoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"disponibilidadeAgenda_medicoId_idx_cef7d96a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"disponibilidadeAgenda_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.paciente.paciente_medicoId_idx_cef7d96a",
+    "label": "Create index \"paciente_medicoId_idx_cef7d96a\" on \"paciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "paciente_medicoId_idx_cef7d96a",
+        "table": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"paciente_medicoId_idx_cef7d96a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"paciente_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"paciente_medicoId_idx_cef7d96a\"",
+        "sql": "CREATE INDEX \"paciente_medicoId_idx_cef7d96a\" ON \"public\".\"paciente\" (\"medicoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"paciente_medicoId_idx_cef7d96a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"paciente_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.prontuario.prontuario_medicoId_idx_cef7d96a",
+    "label": "Create index \"prontuario_medicoId_idx_cef7d96a\" on \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "prontuario_medicoId_idx_cef7d96a",
+        "table": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"prontuario_medicoId_idx_cef7d96a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"prontuario_medicoId_idx_cef7d96a\"",
+        "sql": "CREATE INDEX \"prontuario_medicoId_idx_cef7d96a\" ON \"public\".\"prontuario\" (\"medicoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"prontuario_medicoId_idx_cef7d96a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_medicoId_idx_cef7d96a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.prontuario.prontuario_pacienteId_createdAt_idx_4c3fde10",
+    "label": "Create index \"prontuario_pacienteId_createdAt_idx_4c3fde10\" on \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "prontuario_pacienteId_createdAt_idx_4c3fde10",
+        "table": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"prontuario_pacienteId_createdAt_idx_4c3fde10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_pacienteId_createdAt_idx_4c3fde10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"prontuario_pacienteId_createdAt_idx_4c3fde10\"",
+        "sql": "CREATE INDEX \"prontuario_pacienteId_createdAt_idx_4c3fde10\" ON \"public\".\"prontuario\" (\"pacienteId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"prontuario_pacienteId_createdAt_idx_4c3fde10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_pacienteId_createdAt_idx_4c3fde10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.prontuario.prontuario_pacienteId_idx_8734dc3f",
+    "label": "Create index \"prontuario_pacienteId_idx_8734dc3f\" on \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "prontuario_pacienteId_idx_8734dc3f",
+        "table": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"prontuario_pacienteId_idx_8734dc3f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_pacienteId_idx_8734dc3f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"prontuario_pacienteId_idx_8734dc3f\"",
+        "sql": "CREATE INDEX \"prontuario_pacienteId_idx_8734dc3f\" ON \"public\".\"prontuario\" (\"pacienteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"prontuario_pacienteId_idx_8734dc3f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"prontuario_pacienteId_idx_8734dc3f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.remarcacaoAgendamento.remarcacaoAgendamento_agendamentoId_idx_b943086d",
+    "label": "Create index \"remarcacaoAgendamento_agendamentoId_idx_b943086d\" on \"remarcacaoAgendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "remarcacaoAgendamento_agendamentoId_idx_b943086d",
+        "table": "remarcacaoAgendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"remarcacaoAgendamento_agendamentoId_idx_b943086d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento_agendamentoId_idx_b943086d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"remarcacaoAgendamento_agendamentoId_idx_b943086d\"",
+        "sql": "CREATE INDEX \"remarcacaoAgendamento_agendamentoId_idx_b943086d\" ON \"public\".\"remarcacaoAgendamento\" (\"agendamentoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"remarcacaoAgendamento_agendamentoId_idx_b943086d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento_agendamentoId_idx_b943086d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.remarcacaoAgendamento.remarcacaoAgendamento_status_idx_e98638ab",
+    "label": "Create index \"remarcacaoAgendamento_status_idx_e98638ab\" on \"remarcacaoAgendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "remarcacaoAgendamento_status_idx_e98638ab",
+        "table": "remarcacaoAgendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"remarcacaoAgendamento_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"remarcacaoAgendamento_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"remarcacaoAgendamento_status_idx_e98638ab\" ON \"public\".\"remarcacaoAgendamento\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"remarcacaoAgendamento_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"remarcacaoAgendamento_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.acessoProntuario.acessoProntuario_medicoId_fkey",
+    "label": "Add foreign key \"acessoProntuario_medicoId_fkey\" on \"acessoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "acessoProntuario_medicoId_fkey",
+        "table": "acessoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"acessoProntuario_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "acessoProntuario_medicoId_fkey",
+          "public",
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"acessoProntuario_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"acessoProntuario\"\nADD CONSTRAINT \"acessoProntuario_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"acessoProntuario_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "acessoProntuario_medicoId_fkey",
+          "public",
+          "\"public\".\"acessoProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.agendamento.agendamento_medicoId_fkey",
+    "label": "Add foreign key \"agendamento_medicoId_fkey\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "agendamento_medicoId_fkey",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"agendamento_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agendamento_medicoId_fkey",
+          "public",
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"agendamento_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"agendamento\"\nADD CONSTRAINT \"agendamento_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"agendamento_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agendamento_medicoId_fkey",
+          "public",
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.agendamento.agendamento_pacienteId_fkey",
+    "label": "Add foreign key \"agendamento_pacienteId_fkey\" on \"agendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "agendamento_pacienteId_fkey",
+        "table": "agendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"agendamento_pacienteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agendamento_pacienteId_fkey",
+          "public",
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"agendamento_pacienteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"agendamento\"\nADD CONSTRAINT \"agendamento_pacienteId_fkey\"\nFOREIGN KEY (\"pacienteId\")\nREFERENCES \"public\".\"paciente\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"agendamento_pacienteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agendamento_pacienteId_fkey",
+          "public",
+          "\"public\".\"agendamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.codigoPrimeiroAcesso.codigoPrimeiroAcesso_usuarioId_fkey",
+    "label": "Add foreign key \"codigoPrimeiroAcesso_usuarioId_fkey\" on \"codigoPrimeiroAcesso\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "codigoPrimeiroAcesso_usuarioId_fkey",
+        "table": "codigoPrimeiroAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"codigoPrimeiroAcesso_usuarioId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoPrimeiroAcesso_usuarioId_fkey",
+          "public",
+          "\"public\".\"codigoPrimeiroAcesso\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"codigoPrimeiroAcesso_usuarioId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"codigoPrimeiroAcesso\"\nADD CONSTRAINT \"codigoPrimeiroAcesso_usuarioId_fkey\"\nFOREIGN KEY (\"usuarioId\")\nREFERENCES \"public\".\"usuario\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"codigoPrimeiroAcesso_usuarioId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoPrimeiroAcesso_usuarioId_fkey",
+          "public",
+          "\"public\".\"codigoPrimeiroAcesso\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.codigoRecuperacaoProntuario.codigoRecuperacaoProntuario_medicoId_fkey",
+    "label": "Add foreign key \"codigoRecuperacaoProntuario_medicoId_fkey\" on \"codigoRecuperacaoProntuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "codigoRecuperacaoProntuario_medicoId_fkey",
+        "table": "codigoRecuperacaoProntuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"codigoRecuperacaoProntuario_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoRecuperacaoProntuario_medicoId_fkey",
+          "public",
+          "\"public\".\"codigoRecuperacaoProntuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"codigoRecuperacaoProntuario_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"codigoRecuperacaoProntuario\"\nADD CONSTRAINT \"codigoRecuperacaoProntuario_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"codigoRecuperacaoProntuario_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoRecuperacaoProntuario_medicoId_fkey",
+          "public",
+          "\"public\".\"codigoRecuperacaoProntuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.codigoRedefinicaoSenha.codigoRedefinicaoSenha_usuarioId_fkey",
+    "label": "Add foreign key \"codigoRedefinicaoSenha_usuarioId_fkey\" on \"codigoRedefinicaoSenha\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "codigoRedefinicaoSenha_usuarioId_fkey",
+        "table": "codigoRedefinicaoSenha"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"codigoRedefinicaoSenha_usuarioId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoRedefinicaoSenha_usuarioId_fkey",
+          "public",
+          "\"public\".\"codigoRedefinicaoSenha\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"codigoRedefinicaoSenha_usuarioId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"codigoRedefinicaoSenha\"\nADD CONSTRAINT \"codigoRedefinicaoSenha_usuarioId_fkey\"\nFOREIGN KEY (\"usuarioId\")\nREFERENCES \"public\".\"usuario\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"codigoRedefinicaoSenha_usuarioId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "codigoRedefinicaoSenha_usuarioId_fkey",
+          "public",
+          "\"public\".\"codigoRedefinicaoSenha\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.disponibilidadeAgenda.disponibilidadeAgenda_medicoId_fkey",
+    "label": "Add foreign key \"disponibilidadeAgenda_medicoId_fkey\" on \"disponibilidadeAgenda\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "disponibilidadeAgenda_medicoId_fkey",
+        "table": "disponibilidadeAgenda"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"disponibilidadeAgenda_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "disponibilidadeAgenda_medicoId_fkey",
+          "public",
+          "\"public\".\"disponibilidadeAgenda\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"disponibilidadeAgenda_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"disponibilidadeAgenda\"\nADD CONSTRAINT \"disponibilidadeAgenda_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"disponibilidadeAgenda_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "disponibilidadeAgenda_medicoId_fkey",
+          "public",
+          "\"public\".\"disponibilidadeAgenda\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.medico.medico_usuarioId_fkey",
+    "label": "Add foreign key \"medico_usuarioId_fkey\" on \"medico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "medico_usuarioId_fkey",
+        "table": "medico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"medico_usuarioId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_usuarioId_fkey",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"medico_usuarioId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"medico\"\nADD CONSTRAINT \"medico_usuarioId_fkey\"\nFOREIGN KEY (\"usuarioId\")\nREFERENCES \"public\".\"usuario\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"medico_usuarioId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "medico_usuarioId_fkey",
+          "public",
+          "\"public\".\"medico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.paciente.paciente_medicoId_fkey",
+    "label": "Add foreign key \"paciente_medicoId_fkey\" on \"paciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "paciente_medicoId_fkey",
+        "table": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"paciente_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_medicoId_fkey",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"paciente_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"paciente\"\nADD CONSTRAINT \"paciente_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"paciente_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_medicoId_fkey",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.paciente.paciente_usuarioId_fkey",
+    "label": "Add foreign key \"paciente_usuarioId_fkey\" on \"paciente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "paciente_usuarioId_fkey",
+        "table": "paciente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"paciente_usuarioId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_usuarioId_fkey",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"paciente_usuarioId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"paciente\"\nADD CONSTRAINT \"paciente_usuarioId_fkey\"\nFOREIGN KEY (\"usuarioId\")\nREFERENCES \"public\".\"usuario\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"paciente_usuarioId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "paciente_usuarioId_fkey",
+          "public",
+          "\"public\".\"paciente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.prontuario.prontuario_pacienteId_fkey",
+    "label": "Add foreign key \"prontuario_pacienteId_fkey\" on \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "prontuario_pacienteId_fkey",
+        "table": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"prontuario_pacienteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "prontuario_pacienteId_fkey",
+          "public",
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"prontuario_pacienteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"prontuario\"\nADD CONSTRAINT \"prontuario_pacienteId_fkey\"\nFOREIGN KEY (\"pacienteId\")\nREFERENCES \"public\".\"paciente\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"prontuario_pacienteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "prontuario_pacienteId_fkey",
+          "public",
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.prontuario.prontuario_medicoId_fkey",
+    "label": "Add foreign key \"prontuario_medicoId_fkey\" on \"prontuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "prontuario_medicoId_fkey",
+        "table": "prontuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"prontuario_medicoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "prontuario_medicoId_fkey",
+          "public",
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"prontuario_medicoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"prontuario\"\nADD CONSTRAINT \"prontuario_medicoId_fkey\"\nFOREIGN KEY (\"medicoId\")\nREFERENCES \"public\".\"medico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"prontuario_medicoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "prontuario_medicoId_fkey",
+          "public",
+          "\"public\".\"prontuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.remarcacaoAgendamento.remarcacaoAgendamento_agendamentoId_fkey",
+    "label": "Add foreign key \"remarcacaoAgendamento_agendamentoId_fkey\" on \"remarcacaoAgendamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "remarcacaoAgendamento_agendamentoId_fkey",
+        "table": "remarcacaoAgendamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"remarcacaoAgendamento_agendamentoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "remarcacaoAgendamento_agendamentoId_fkey",
+          "public",
+          "\"public\".\"remarcacaoAgendamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"remarcacaoAgendamento_agendamentoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"remarcacaoAgendamento\"\nADD CONSTRAINT \"remarcacaoAgendamento_agendamentoId_fkey\"\nFOREIGN KEY (\"agendamentoId\")\nREFERENCES \"public\".\"agendamento\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"remarcacaoAgendamento_agendamentoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "remarcacaoAgendamento_agendamentoId_fkey",
+          "public",
+          "\"public\".\"remarcacaoAgendamento\""
+        ]
+      }
+    ]
+  }
+]

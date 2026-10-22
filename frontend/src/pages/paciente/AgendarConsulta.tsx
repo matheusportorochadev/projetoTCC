@@ -1,5 +1,7 @@
+import { API_ORIGIN } from "../../config/api";
 import {
   useEffect,
+  useCallback,
   useState
 } from "react";
 
@@ -81,6 +83,67 @@ const diasSemana = [
 // ========================================
 // COMPONENTE
 // ========================================
+
+  function montarData(
+    ano: number,
+    mes: number,
+    dia: number
+  ) {
+
+    const mesFormatado =
+      String(
+        mes + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const diaFormatado =
+      String(
+        dia
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    return `${ano}-${mesFormatado}-${diaFormatado}`;
+  }
+
+  function obterDataHoje() {
+
+    const hoje = new Date();
+
+    return montarData(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate()
+    );
+  }
+
+  function dataJaPassou(
+    data: string
+  ) {
+
+    return data < obterDataHoje();
+  }
+
+  function consultaAindaNaoPassou(
+    agendamento: AgendamentoPaciente
+  ) {
+
+    const horarioConsulta =
+      new Date(
+        `${agendamento.data}T${agendamento.horaInicio}:00`
+      );
+
+
+    return (
+      horarioConsulta.getTime() >=
+      Date.now()
+    );
+  }
 
 export default function AgendarConsulta() {
 
@@ -182,7 +245,7 @@ export default function AgendarConsulta() {
   const [
     carregandoCalendario,
     setCarregandoCalendario
-  ] = useState(false);
+  ] = useState(true);
 
 
   const [
@@ -217,48 +280,14 @@ export default function AgendarConsulta() {
   // MONTAR DATA YYYY-MM-DD
   // ========================================
 
-  function montarData(
-    ano: number,
-    mes: number,
-    dia: number
-  ) {
 
-    const mesFormatado =
-      String(
-        mes + 1
-      ).padStart(
-        2,
-        "0"
-      );
-
-
-    const diaFormatado =
-      String(
-        dia
-      ).padStart(
-        2,
-        "0"
-      );
-
-
-    return `${ano}-${mesFormatado}-${diaFormatado}`;
-  }
 
 
   // ========================================
   // DATA DE HOJE
   // ========================================
 
-  function obterDataHoje() {
 
-    const hoje = new Date();
-
-    return montarData(
-      hoje.getFullYear(),
-      hoje.getMonth(),
-      hoje.getDate()
-    );
-  }
 
 
   // ========================================
@@ -391,61 +420,29 @@ export default function AgendarConsulta() {
   // VERIFICAR DATA PASSADA
   // ========================================
 
-  function dataJaPassou(
-    data: string
-  ) {
 
-    return data < obterDataHoje();
-  }
 
 
   // ========================================
   // VERIFICAR SE CONSULTA AINDA É FUTURA
   // ========================================
 
-  function consultaAindaNaoPassou(
-    agendamento: AgendamentoPaciente
-  ) {
 
-    const horarioConsulta =
-      new Date(
-        `${agendamento.data}T${agendamento.horaInicio}:00`
-      );
-
-
-    return (
-      horarioConsulta.getTime() >=
-      Date.now()
-    );
-  }
 
 
   // ========================================
   // BUSCAR PRÓXIMA CONSULTA
   // ========================================
 
-  async function buscarProximaConsulta() {
-
-    try {
-
-      setCarregandoProximaConsulta(
-        true
-      );
-
-
-
-
-
-
-      const resposta =
-        await fetch(
-          "http://localhost:3000/agendamentos/meus",
+  const buscarProximaConsulta = useCallback(() => {
+    return fetch(
+          `${API_ORIGIN}/agendamentos/meus`,
           {
             method: "GET",
 
             credentials: "include"
           }
-        );
+        ).then(async (resposta) => {
 
 
       const dados =
@@ -537,7 +534,7 @@ export default function AgendarConsulta() {
       );
 
 
-    } catch (erro) {
+    }).catch((erro: unknown) => {
 
       console.error(
         "Erro ao buscar próxima consulta:",
@@ -553,14 +550,14 @@ export default function AgendarConsulta() {
       );
 
 
-    } finally {
+    }).finally(() => {
 
       setCarregandoProximaConsulta(
         false
       );
 
-    }
-  }
+    });
+  }, []);
 
 
   // ========================================
@@ -595,7 +592,7 @@ export default function AgendarConsulta() {
 
       const resposta =
         await fetch(
-          `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+          `${API_ORIGIN}/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
             data
           )}`,
           {
@@ -659,29 +656,7 @@ export default function AgendarConsulta() {
   // CARREGAR DISPONIBILIDADE DO MÊS
   // ========================================
 
-  async function carregarMes(
-    limparMensagens = true
-  ) {
-
-    try {
-
-      setCarregandoCalendario(
-        true
-      );
-
-
-      if (
-        limparMensagens
-      ) {
-
-        setErro("");
-
-      }
-
-
-
-
-
+  const carregarMes = useCallback((limparMensagens = true) => {
 
       const quantidadeDias =
         new Date(
@@ -702,8 +677,8 @@ export default function AgendarConsulta() {
         );
 
 
-      const resultados =
-        await Promise.all(
+
+    return Promise.all(
 
           dias.map(
 
@@ -735,7 +710,7 @@ export default function AgendarConsulta() {
 
                 const resposta =
                   await fetch(
-                    `http://localhost:3000/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
+                    `${API_ORIGIN}/agendamentos/horarios-disponiveis?data=${encodeURIComponent(
                       data
                     )}`,
                     {
@@ -783,9 +758,8 @@ export default function AgendarConsulta() {
 
           )
 
-        );
-
-
+        ).then((resultados) => {
+      if (limparMensagens) setErro("");
       const mapa:
         QuantidadeHorariosPorDia = {};
 
@@ -809,7 +783,7 @@ export default function AgendarConsulta() {
       );
 
 
-    } catch (erro) {
+    }).catch((erro: unknown) => {
 
       console.error(
         "Erro ao carregar calendário:",
@@ -822,14 +796,14 @@ export default function AgendarConsulta() {
       );
 
 
-    } finally {
+    }).finally(() => {
 
       setCarregandoCalendario(
         false
       );
 
-    }
-  }
+    });
+  }, [anoAtual, mesAtual]);
 
 
   // ========================================
@@ -840,39 +814,21 @@ export default function AgendarConsulta() {
 
     void buscarProximaConsulta();
 
-  }, []);
+  }, [buscarProximaConsulta]);
 
 
   // ========================================
   // ATUALIZAR QUANDO TROCAR MÊS
   // ========================================
 
-  useEffect(() => {
+  useEffect(() => { void carregarMes(); }, [carregarMes]);
 
-    setDataSelecionada("");
-
-    setHorarioSelecionado(
-      null
-    );
-
-    setHorarios([]);
-
-    setModalHorariosAberto(
-      false
-    );
-
-    setModalConfirmacaoAberto(
-      false
-    );
-
-    setSucesso("");
-
-    void carregarMes();
-
-  }, [
-    mesAtual,
-    anoAtual
-  ]);
+  // Reseta a seleção no evento de navegação, antes de carregar o novo mês.
+  function prepararTrocaMes() {
+    setDataSelecionada(""); setHorarioSelecionado(null); setHorarios([]);
+    setModalHorariosAberto(false); setModalConfirmacaoAberto(false);
+    setSucesso(""); setErro(""); setCarregandoCalendario(true);
+  }
 
 
   // ========================================
@@ -918,6 +874,7 @@ export default function AgendarConsulta() {
   // ========================================
 
   function mesAnterior() {
+    prepararTrocaMes();
 
     const mesAnteriorData =
       new Date(
@@ -971,6 +928,7 @@ export default function AgendarConsulta() {
   // ========================================
 
   function proximoMes() {
+    prepararTrocaMes();
 
     if (
       mesAtual === 11
@@ -1160,7 +1118,7 @@ export default function AgendarConsulta() {
 
       const resposta =
         await fetch(
-          "http://localhost:3000/agendamentos",
+          `${API_ORIGIN}/agendamentos`,
           {
             method: "POST",
 
