@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 import { API_ORIGIN } from "../config/api";
 // ========================================
 // TELA DE LOGIN
@@ -373,9 +374,7 @@ export default function Login() {
 
         <div className="login-navbar-brand">
 
-          <span className="login-navbar-logo">
-            +
-          </span>
+          <LogoSistema className="login-navbar-logo" />
 
 
           <span className="login-navbar-nome">
@@ -411,6 +410,7 @@ export default function Login() {
           ======================================== */}
 
           <div className="login-header">
+            <LogoSistema className="login-header-logo" />
 
             <h1>
               Sistema Médico

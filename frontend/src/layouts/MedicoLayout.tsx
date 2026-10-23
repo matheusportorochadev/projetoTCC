@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 // ========================================
 // LAYOUT DA ÁREA DO MÉDICO
 // ========================================
@@ -115,6 +116,7 @@ export default function MedicoLayout() {
 
         {/* LOGO */}
         <div className="medico-navbar-brand">
+          <LogoSistema />
 
           <h2>
             Sistema Médico

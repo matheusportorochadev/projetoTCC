@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 import { API_ORIGIN } from "../config/api";
 // ========================================
 // ESQUECI MINHA SENHA
@@ -235,6 +236,7 @@ function EsqueciSenha() {
         ======================================== */}
 
         <div className="login-header">
+            <LogoSistema className="login-header-logo" />
 
           <span className="recuperacao-etapa">
             Recuperação de acesso

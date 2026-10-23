@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 // ========================================
 // LAYOUT DA ÁREA DO PACIENTE
 // ========================================
@@ -260,9 +261,7 @@ export default function PacienteLayout() {
         {/* LOGO */}
         <div className="paciente-navbar-logo">
 
-          <span className="paciente-logo-icone">
-            +
-          </span>
+          <LogoSistema className="paciente-logo-icone" />
 
           <span>
             Sistema Médico

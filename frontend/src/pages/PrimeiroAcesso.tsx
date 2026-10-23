@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 import { API_ORIGIN } from "../config/api";
 // ========================================
 // PRIMEIRO ACESSO
@@ -688,6 +689,7 @@ import {
           ======================================== */}
   
           <div className="login-header">
+            <LogoSistema className="login-header-logo" />
   
             <h1>
               Primeiro acesso
@@ -839,6 +841,7 @@ import {
           ======================================== */}
   
           <div className="login-header">
+            <LogoSistema className="login-header-logo" />
   
             <h1>
               Crie sua senha
@@ -1098,9 +1101,7 @@ import {
   
           <div className="login-navbar-brand">
   
-            <span className="login-navbar-logo">
-              +
-            </span>
+            <LogoSistema className="login-navbar-logo" />
   
   
             <span className="login-navbar-nome">

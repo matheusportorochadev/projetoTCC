@@ -1,0 +1,13 @@
+.logo-sistema {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.logo-sistema.login-header-logo {
+  width: clamp(80px, 18vw, 112px);
+  height: auto;
+  margin: 0 auto 16px;
+}

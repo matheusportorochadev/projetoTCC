@@ -1,3 +1,4 @@
+import LogoSistema from "../components/LogoSistema";
 import { API_ORIGIN } from "../config/api";
 // ========================================
 // TELA DE REDEFINIÇÃO DE SENHA
@@ -302,6 +303,7 @@ export default function RedefinirSenha() {
         {/* CABEÇALHO */}
 
         <div className="login-header">
+            <LogoSistema className="login-header-logo" />
 
           <h1>
             Redefinir senha

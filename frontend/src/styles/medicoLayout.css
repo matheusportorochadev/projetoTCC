@@ -51,6 +51,7 @@
 ========================================================= */
 
 .medico-navbar-brand {
+  gap: 10px;
   flex-shrink: 0;
 
   display: flex;
